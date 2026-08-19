@@ -1,0 +1,249 @@
+{
+  "generated_at": "2026-08-19T08:28:05",
+  "sources": {
+    "fdheader": {
+      "path": "E:\\Easter 26\\CS444\\Data Analysis Project\\nfirs comparison\\fdheader.txt",
+      "exists": true,
+      "size_bytes": 3732188
+    },
+    "basicincident": {
+      "path": "E:\\Easter 26\\CS444\\Data Analysis Project\\nfirs comparison\\basicincident.txt",
+      "exists": true,
+      "size_bytes": 6673066634
+    },
+    "local_incidents": {
+      "path": "E:\\Easter 26\\CS444\\Data Analysis Project\\sewanee-incidents.json",
+      "exists": true,
+      "size_bytes": 503629
+    }
+  },
+  "fdheader": {
+    "rows": 37801,
+    "distinct_state": 57,
+    "distinct_fdid": 20712,
+    "distinct_state_fdid": 37122,
+    "duplicate_state_fdid_groups": 677,
+    "duplicate_examples": [
+      [
+        "RI",
+        "00200",
+        3
+      ],
+      [
+        "NH",
+        "71430",
+        3
+      ],
+      [
+        "FL",
+        "06172",
+        2
+      ],
+      [
+        "AR",
+        "36000",
+        2
+      ],
+      [
+        "CA",
+        "50065",
+        2
+      ]
+    ],
+    "blank_no_station": 23801,
+    "blank_no_pd_ff": 17072,
+    "blank_no_vol_ff": 15777,
+    "blank_fd_name": 5,
+    "blank_county_fips": 14822,
+    "peer_pairs": 1568,
+    "peer_distinct_fdids": 1482,
+    "peer_pairs_blank_paid_as_zero": 1568,
+    "peer_pairs_blank_paid_excluded": 1456,
+    "disputed_blank_paid_depts": 112,
+    "disputed_named_volunteer": 76,
+    "state_blind_extra_depts": 3885,
+    "state_blind_extra_states": 43,
+    "peers_per_state": [
+      [
+        "TN",
+        373
+      ],
+      [
+        "NC",
+        342
+      ],
+      [
+        "AL",
+        224
+      ],
+      [
+        "MS",
+        172
+      ],
+      [
+        "KY",
+        149
+      ],
+      [
+        "VA",
+        134
+      ],
+      [
+        "AR",
+        132
+      ],
+      [
+        "GA",
+        42
+      ]
+    ]
+  },
+  "local_incidents": {
+    "records": 197,
+    "date_min": "2025-09-19",
+    "date_max": "2026-03-19",
+    "timestamp_present": {
+      "receivedTime": 183,
+      "dispatchedTime": 180,
+      "enRouteTime": 161,
+      "onSceneTime": 167
+    },
+    "review_status": {
+      "draft": 183,
+      "ready_for_review": 12,
+      "approved": 1,
+      "archived": 1
+    },
+    "distinct_nature_values": 50,
+    "nature_of_call_top": {
+      "Automatic Alarm": 49,
+      "FIRE ALARM": 47,
+      "FIRE OTHER": 17,
+      "TEST TEST CALL": 6,
+      "72A FIRE ALARM": 6,
+      "SATURDAY TEST PAGE": 6,
+      "CITIZEN / STUDENT ASSIST": 5,
+      "Other": 5,
+      "ASSIST OTHER AGENCY": 3,
+      "CAD Incident": 3,
+      "Extrication": 3,
+      "Landing Zone": 3
+    },
+    "source": {
+      "cad_email": 84,
+      "manual": 113
+    },
+    "with_coordinates": 173,
+    "with_apparatus": 152,
+    "with_personnel": 136,
+    "total_response": {
+      "n": 139,
+      "p50": 5.0,
+      "p90": 11.0
+    },
+    "turnout": {
+      "n": 158,
+      "p50": 1.0,
+      "p90": 4.0
+    },
+    "travel": {
+      "n": 152,
+      "p50": 2.0,
+      "p90": 8.0
+    }
+  },
+  "basicincident": {
+    "rows": 33312139,
+    "distinct_state_fdid": 22582,
+    "distinct_incident_key": 33312139,
+    "distinct_state": 52,
+    "duplicate_incident_key_groups": 0,
+    "unparseable_inc_date": 0,
+    "min_inc_date": "2024-01-01 00:00:00",
+    "max_inc_date": "2024-12-31 00:00:00",
+    "year_histogram": [
+      [
+        2024,
+        33312139
+      ]
+    ],
+    "blank_counts": {
+      "ALARM": 0,
+      "ARRIVAL": 2000784,
+      "INC_CONT": 31748600,
+      "LU_CLEAR": 4121,
+      "INC_TYPE": 0,
+      "PROP_LOSS": 24069650,
+      "PROP_USE": 1992928,
+      "CENSUS": 30579784,
+      "DEPT_STA": 8694933,
+      "AID": 0
+    },
+    "top_incident_types": [
+      [
+        "321",
+        15262430
+      ],
+      [
+        "311",
+        2818060
+      ],
+      [
+        "611",
+        2518693
+      ],
+      [
+        "322",
+        1030524
+      ],
+      [
+        "554",
+        840896
+      ],
+      [
+        "320",
+        753779
+      ],
+      [
+        "324",
+        751262
+      ],
+      [
+        "300",
+        700002
+      ],
+      [
+        "745",
+        687475
+      ],
+      [
+        "622",
+        621885
+      ]
+    ]
+  },
+  "response_times": {
+    "peer_incident_rows": 151759,
+    "peer_departments_reporting": 936,
+    "state_blind_extra_rows": 3088042,
+    "state_blind_extra_depts_reporting": 2390,
+    "state_blind_extra_states_reporting": 43,
+    "unparseable_alarm": 0,
+    "unparseable_arrival": 15547,
+    "rt_negative": 0,
+    "rt_zero": 5229,
+    "rt_over_90min": 268,
+    "rt_over_1day": 36,
+    "rt_usable": 130715,
+    "peer_depts_with_any_rt": 935,
+    "peer_depts_with_gt10_rt": 779,
+    "sewanee": {
+      "incidents": 283,
+      "with_rt": 272,
+      "median_min": 6.0,
+      "p90_min": 13.0,
+      "p95_min": 18.9,
+      "pct_under_8min": 72.4
+    }
+  }
+}

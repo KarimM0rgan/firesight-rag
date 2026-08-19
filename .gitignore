@@ -1,0 +1,37 @@
+# Secrets
+.env
+.env.local
+*.pem
+*.key
+
+# Data — never commit raw or processed extracts
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+*.duckdb
+*.duckdb.wal
+*.parquet
+chroma/
+.chroma/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Eval artifacts that are scratch, not reports
+eval/results/*.tmp
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
