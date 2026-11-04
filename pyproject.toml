@@ -9,6 +9,7 @@ authors = [{ name = "Karim E. Morgan" }]
 
 dependencies = [
     "duckdb>=1.1",
+    "sqlglot>=25.0",
     "python-dotenv>=1.0",
     "pydantic>=2.9",
 ]

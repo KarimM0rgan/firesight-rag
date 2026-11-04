@@ -37,6 +37,61 @@ SEWANEE_FDID = "26161"
 REGION_STATES: frozenset[str] = frozenset({"TN", "GA", "AL", "KY", "NC", "VA", "MS", "AR"})
 
 
+# ── Response-time window ───────────────────────────────────────────────────
+# Primary filter is 0 <= response_min <= RESPONSE_MIN_CAP. Zeros are KEPT:
+# dropping them removes the fastest tail and biases P90 upward, and P90 is the
+# headline metric. RESPONSE_MIN_STRICT_POSITIVE reproduces the inherited
+# `0 < response_min` rule for the sensitivity row in every eval report.
+RESPONSE_MIN_CAP = 90
+RESPONSE_MIN_STRICT_POSITIVE = False
+
+
+# ── Exclusions ─────────────────────────────────────────────────────────────
+# Three independently named rules. Each is counted and logged at ETL time so
+# a shift in any headline number can be traced to one of them.
+
+# (1) NFIRS incident types where no unit ever reached a scene, so an
+# alarm-to-arrival interval is undefined rather than fast. Codes verified
+# individually against the PDR's own codelookup table (fieldid='INC_TYPE'),
+# not assumed from the series. NFIRS codes appear at 1-, 2- and 3-digit
+# granularity, so both forms of each are listed.
+#   57 / 571  Cover assignment, standby at fire station, move-up
+#   61 / 611  Dispatched and cancelled en route
+# Deliberately NOT included, because a unit did arrive and the interval is
+# real: 621/62 wrong location, 622 no incident found on arrival, and the whole
+# 7xx false-alarm series (Sewanee's single largest category).
+NON_RESPONSE_INCIDENT_TYPES: frozenset[str] = frozenset({"57", "571", "61", "611"})
+
+# Pre-positioned assignments: a unit is already on location when the alarm is
+# recorded, so arrival can legitimately equal alarm. Held separately because
+# whether these belong in response-time statistics is a reporting judgment,
+# not a data-quality fact. Activated only if the zero-distribution check shows
+# zeros concentrating here.
+#   38 / 381  Rescue or EMS standby
+#   462       Aircraft standby
+#   815       Severe weather or natural disaster standby
+PREPOSITIONED_INCIDENT_TYPES: frozenset[str] = frozenset({"38", "381", "462", "815"})
+
+# (2) Test and training entries in the local export. The export has no test
+# flag, so these are matched on the uncontrolled `natureOfCall` free-text
+# field (50 distinct values across 197 records -- PROFILE.md issue 9).
+TEST_RECORD_FLAGS: frozenset[str] = frozenset(
+    {"TEST TEST CALL", "SATURDAY TEST PAGE", "TEST", "TEST CALL", "TEST PAGE"}
+)
+
+# (3) Records not finalized by the department, so their timestamps are not
+# authoritative. `draft` is NOT here: 183 of 197 records are drafts, which is
+# a workflow-adoption artifact rather than a data-quality signal -- excluding
+# them would leave 14 records and no analysis.
+NON_FINALIZED_RECORDS: frozenset[str] = frozenset({"archived"})
+
+# The inherited exclusion, kept ONLY so the Sewanee reconciliation test can
+# prove the new pipeline reproduces known-good output. Never used in reporting.
+LEGACY_TEST_EXCLUSION: frozenset[str] = frozenset(
+    {"TEST TEST CALL", "SATURDAY TEST PAGE", "CAD Incident"}
+)
+
+
 @dataclass(frozen=True)
 class PeerCriteria:
     """A department is a Sewanee peer if it matches all of these."""
@@ -73,22 +128,42 @@ class PeerCriteria:
             and stations == self.stations
         )
 
-    def sql_predicate(self, alias: str = "") -> str:
-        """The same rule as SQL, for use against the raw caret-delimited files."""
+    # Raw NFIRS fdheader column names, and the typed names used after ingest.
+    RAW_COLUMNS = ("STATE", "NO_PD_FF", "NO_VOL_FF", "NO_STATION")
+    TYPED_COLUMNS = ("state", "paid_ff", "vol_ff", "stations")
+
+    def sql_predicate(
+        self,
+        alias: str = "",
+        columns: tuple[str, str, str, str] = RAW_COLUMNS,
+        cast: bool = True,
+    ) -> str:
+        """
+        The same rule as SQL.
+
+        Defaults target the raw caret-delimited fdheader columns. Pass
+        ``columns=PeerCriteria.TYPED_COLUMNS, cast=False`` to apply it to the
+        already-typed ``departments`` columns instead -- one rule, two
+        renderings, so the Python and SQL paths cannot drift.
+        """
         p = f"{alias}." if alias else ""
+        state_col, paid_col, vol_col, station_col = columns
+
+        def num(col: str) -> str:
+            return f"TRY_CAST({p}{col} AS INTEGER)" if cast else f"{p}{col}"
+
         states = ", ".join(f"'{s}'" for s in sorted(self.states))
-        paid = f"TRY_CAST({p}NO_PD_FF AS INTEGER)"
+        paid = num(paid_col)
         paid_ok = (
             f"coalesce({paid}, 0) <= {self.max_paid_ff}"
             if self.blank_staffing_as_zero
             else f"{paid} <= {self.max_paid_ff}"
         )
         return (
-            f"{p}STATE IN ({states})"
+            f"{p}{state_col} IN ({states})"
             f" AND {paid_ok}"
-            f" AND TRY_CAST({p}NO_VOL_FF AS INTEGER)"
-            f" BETWEEN {self.min_vol_ff} AND {self.max_vol_ff}"
-            f" AND TRY_CAST({p}NO_STATION AS INTEGER) = {self.stations}"
+            f" AND {num(vol_col)} BETWEEN {self.min_vol_ff} AND {self.max_vol_ff}"
+            f" AND {num(station_col)} = {self.stations}"
         )
 
 

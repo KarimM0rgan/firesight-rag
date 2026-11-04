@@ -78,7 +78,8 @@ Keep dependencies minimal. Every added package should justify itself.
 
 **Do this first.** Do not write schema code based on this spec's guesses. Locate and profile the actual data:
 
-- Karim has prior NFIRS work: benchmarking Sewanee Fire Department against ~1,138 regional peer departments, including P90 response-time percentiles and NFPA compliance rates. Find those artifacts (Jupyter notebooks, CSVs, parquet files) and treat them as the source of truth for schema and derived metrics.
+- Karim has prior NFIRS work: benchmarking Sewanee Fire Department against ~1,138 regional peer departments, including P90 response-time percentiles and NFPA compliance rates. Find those artifacts (Jupyter notebooks, CSVs, parquet files) and treat them as **reconciliation targets** — valid for confirming Sewanee's own figures, actively misleading for anything peer-related. Rebuild schema and metrics from the source files, then reconcile against them.
+  > *Corrected after M0.* This line originally read "treat them as the source of truth for schema and derived metrics." Profiling found the peer figures were computed with a state-blind FDID join that contaminated them, and that the published peer count (1,138) is unsupportable. See `data/PROFILE.md` §5.
 - Report back: table names, row counts, column names and dtypes, null rates, date ranges, and any obvious data-quality problems (duplicate incident IDs, impossible timestamps, sentinel values like `9999`).
 - Reconcile any derived metric you rebuild against the original notebook's numbers. **If they don't match, stop and investigate.** A silent metric drift makes the whole project untrustworthy.
 
