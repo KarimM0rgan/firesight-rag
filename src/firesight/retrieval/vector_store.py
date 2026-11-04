@@ -163,3 +163,62 @@ def corpus_stats(config: str = "default") -> dict:
         "documents": len(docs),
         "by_document": dict(sorted(docs.items(), key=lambda x: -x[1])),
     }
+
+
+SCOPE_DOCUMENT = "FireSight Corpus Scope"
+
+
+def scope_context(
+    question: str, *, k: int = 2, config: str | ChunkConfig = "default"
+) -> list[Hit]:
+    """
+    Retrieve the scope-boundary document's most relevant sections.
+
+    Fetched deliberately rather than by hoping it ranks. Measured: the scope
+    document does NOT reach the top 5 for "What sprinkler pressure does NFPA 13
+    require?" or for state-fire-code questions -- the same similarity blindness
+    that lets those questions past the support floor also keeps the document
+    that explains the refusal out of the results.
+
+    So the out_of_scope path asks for it by name, filtered to that document, and
+    ranks only within it. A refusal can then cite a statement of scope instead
+    of returning bare.
+    """
+    cfg = CHUNK_CONFIGS[config] if isinstance(config, str) else config
+    coll = _collection(cfg.collection)
+
+    qvec = _embedder(settings.embed_model).encode([question], normalize_embeddings=True)[0]
+    res = coll.query(
+        query_embeddings=[qvec.tolist()],
+        n_results=k,
+        where={"source_document": SCOPE_DOCUMENT},
+        include=["documents", "metadatas", "distances"],
+    )
+    if not res["ids"] or not res["ids"][0]:
+        return []
+
+    hits = [
+        Hit(
+            chunk_id=i,
+            text=d,
+            score=1.0 - float(dist),
+            source_document=m.get("source_document", SCOPE_DOCUMENT),
+            section=m.get("section", "?"),
+            page=None,
+            publisher=m.get("publisher", "FireSight (scope boundary)"),
+            year=str(m.get("year", "")),
+            url=m.get("url", ""),
+            rank=n,
+        )
+        for n, (i, d, m, dist) in enumerate(
+            zip(
+                res["ids"][0],
+                res["documents"][0],
+                res["metadatas"][0],
+                res["distances"][0],
+                strict=True,
+            ),
+            start=1,
+        )
+    ]
+    return hits

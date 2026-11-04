@@ -4,16 +4,17 @@ Hybrid retrieval over real fire-service data: natural-language questions are rou
 to **text-to-SQL** over 33.3M NFIRS incident records, to **vector search** over a
 reference-document corpus, or to both — and answered with citations.
 
-> **Status: M2 complete (structured store, text-to-SQL, vector retrieval).**
-> Routing (M3) and the full eval harness (M4) are not built yet. Milestones are
-> specified in [FIRESIGHT_RAG_SPEC.md](FIRESIGHT_RAG_SPEC.md). This README is
-> rewritten at M6.
+> **Status: M3 built, not yet measured.** The structured store, text-to-SQL,
+> vector retrieval, router and hybrid answer path all exist. The full eval harness
+> (M4) is not built. Milestones are in
+> [FIRESIGHT_RAG_SPEC.md](FIRESIGHT_RAG_SPEC.md); this README is rewritten at M6.
 >
-> **Two numbers are not yet measured** because scoring them needs a generation API
-> key this environment does not have: text-to-SQL accuracy, and answer
-> faithfulness. Both harnesses are built and run on one command, and both refuse to
-> write a report without a real run rather than emit a placeholder. Retrieval
-> metrics below are measured — they use local embeddings and need no key.
+> **Four numbers remain unmeasured** because every one needs a generation API key
+> that is not present in this environment: text-to-SQL execution accuracy, SQL
+> result accuracy, answer faithfulness, and router accuracy. All four harnesses
+> are built, run on one command each, and refuse to write a report without a real
+> run rather than emit a placeholder. Everything measured below uses local
+> embeddings and needs no key.
 
 ## Measured retrieval quality
 
@@ -147,6 +148,69 @@ Both scripts are committed and re-runnable; evidence lives in
 [`eval/support_floor_calibration.json`](eval/support_floor_calibration.json) and
 [`eval/support_floor_validation.json`](eval/support_floor_validation.json).
 
+## The router, and the one thing similarity cannot do
+
+Every question is classified into one of four routes by an LLM classifier whose
+output is validated against a strict schema
+([`router.py`](src/firesight/retrieval/router.py)). A reply that invents a route
+name, omits a reason, or contradicts itself is **rejected and retried**, not
+coerced — and the schema-violation rate is a reported metric.
+
+| Route | Path | Citation |
+|---|---|---|
+| `structured` | text-to-SQL over DuckDB | the executed SQL |
+| `unstructured` | vector search over the documents | document + section |
+| `hybrid` | **both**, synthesised into one answer | both kinds, in one answer |
+| `out_of_scope` | refused | the scope-boundary document |
+
+### Why the router gets the excluded-material distinction explicitly
+
+The hard case is not "what's the weather in Nashville". It is a question that is
+squarely about the fire service, shares every keyword with the corpus, and whose
+answer lives in material the corpus deliberately excludes:
+
+> *"What is the recommended pressure for a fire sprinkler system under NFPA 13?"*
+
+That question scores **0.740** against this corpus — above the 0.70 support floor
+**and** above the 0.730 floor of genuine in-corpus questions. It is the single
+held-out gate failure, and **no threshold fixes it**: pushing the floor to 0.745
+starts refusing real questions. Embedding similarity provably cannot make this
+call, so the distinction is given to the router in words instead.
+
+Fifteen of the 46 labelled router questions are `out_of_scope`, of which **8 are
+adversarial excluded-material cases** spanning three mechanisms — NFPA standards,
+state and municipal codes, and timestamps NFIRS never recorded. They are scored
+as their own category in the confusion matrix.
+
+The subtlest case is turnout time, where the same metric is in or out of scope
+depending on who is asked about:
+
+| Question | Route | Why |
+|---|---|---|
+| "What is our median turnout time?" | `structured` | the local export has dispatch and en-route timestamps |
+| "What was the peer-group median turnout time in 2024?" | `out_of_scope` | NFIRS records only alarm and arrival — the interval does not exist |
+
+### Refusals are cited, not bare
+
+A refusal names the boundary it hit and cites
+[`data/corpus/SCOPE.md`](data/corpus/SCOPE.md), a short document stating what the
+corpus excludes and why. It contains no NFPA substance, is tagged
+`exclude_from_scoring` so it cannot inflate retrieval metrics, and counts as
+neither external nor project-authored in the origin audit.
+
+The `out_of_scope` path **fetches that document by name** rather than hoping it
+ranks. Measured: it does not reach the top 5 for the NFPA-13 question or for
+state-fire-code questions — the same similarity blindness that lets those
+questions past the floor also keeps the document explaining the refusal out of
+the results. Filtered retrieval within the scope document returns the right
+section every time (NFPA → "NFPA standards", state code → "State and municipal
+fire codes", peer turnout → "Turnout and travel time").
+
+**Measured cost of adding it.** Its 8–9 chunks compete for ranking slots like any
+others. Recall@5 held at 0.700 on the reranked arms, but MRR fell from 0.711 to
+0.644 on the best arm and `small` without reranking dropped from 0.567 to 0.533.
+That is the price of cited refusals, and it is paid in ranking precision.
+
 ## Read this before trusting any ranking
 
 The benchmarkable cohort is **not a random sample of US fire departments.** Three
@@ -234,6 +298,9 @@ time.
 | **Document corpus** | [`src/firesight/ingest/documents.py`](src/firesight/ingest/documents.py) — PDF/markdown → chunks → Chroma, idempotent, two chunk configs |
 | **Vector retrieval** | [`src/firesight/retrieval/vector_store.py`](src/firesight/retrieval/vector_store.py) — embedding search + optional cross-encoder rerank |
 | **Cited synthesis** | [`src/firesight/generation/synthesize.py`](src/firesight/generation/synthesize.py) — inline citations, calibrated refusal gate |
+| **Router** | [`src/firesight/retrieval/router.py`](src/firesight/retrieval/router.py) — 4 routes, strict schema, excluded-material rules |
+| **Hybrid + refusal** | [`src/firesight/generation/answer.py`](src/firesight/generation/answer.py) — end-to-end answering, both citation types, cited refusals |
+| **Scope boundary** | [`data/corpus/SCOPE.md`](data/corpus/SCOPE.md) — what the corpus excludes and why |
 | **Config** | [`src/firesight/config.py`](src/firesight/config.py) — paths, models, guardrails, peer-group definition, and the three named exclusions |
 
 ## Document corpus
@@ -292,7 +359,11 @@ uv run python -m firesight.eval.retrieval_suite --k 5   # Recall@k, MRR, reranke
 ```
 
 ```bash
-uv run python -m firesight.eval.sql_suite        # score the agent (needs an API key)
+uv run python -m firesight.eval.sql_suite        # SQL accuracy (needs an API key)
+```
+
+```bash
+uv run python -m firesight.eval.router_suite     # router confusion matrix (needs an API key)
 ```
 
 ```bash
@@ -301,6 +372,10 @@ uv run python -m firesight.retrieval.sql_agent "What was Sewanee's P90 response 
 
 ```bash
 uv run python -m firesight.generation.synthesize "How does NFIRS define a structure?"
+```
+
+```bash
+uv run python -m firesight.generation.answer "What turnout time does NFPA 1710 require?"
 ```
 
 ## Setup
@@ -340,7 +415,7 @@ uv run python scripts/profile_source_data.py
 src/firesight/
   config.py       paths, models, guardrails, peer-group definition
   ingest/         structured.py (-> DuckDB), documents.py (-> Chroma)
-  retrieval/      sql_agent.py, vector_store.py, router.py
+  retrieval/      sql_agent.py, sql_guard.py, vector_store.py, router.py
   generation/     prompts, answer synthesis, citation assembly
   eval/           harness, metrics, golden set
   app/            Streamlit demo

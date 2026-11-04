@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-04T19:12:25+00:00",
+  "generated_at": "2026-11-04T19:43:41+00:00",
   "suite": "retrieval",
   "embed_model": "BAAI/bge-small-en-v1.5",
   "rerank_model": "BAAI/bge-reranker-base",
@@ -12,22 +12,22 @@
       "k": 5,
       "n_questions": 15,
       "recall_at_k": 0.7,
-      "mrr": 0.7111,
+      "mrr": 0.6444,
       "hit_rate": 0.8,
       "answer_present_rate": 0.6667,
-      "latency_p50_ms": 2415.5,
-      "latency_p95_ms": 2524.1,
+      "latency_p50_ms": 2433.0,
+      "latency_p95_ms": 2529.0,
       "by_origin": {
         "external": {
           "n": 11,
           "recall_at_k": 0.6364,
-          "mrr": 0.6667,
+          "mrr": 0.6212,
           "hit_rate": 0.7273
         },
         "project": {
           "n": 4,
           "recall_at_k": 0.875,
-          "mrr": 0.8333,
+          "mrr": 0.7083,
           "hit_rate": 1.0
         }
       },
@@ -191,16 +191,16 @@
           "origin": "external",
           "n_labelled": 1,
           "recall_at_k": 1.0,
-          "reciprocal_rank": 1.0,
+          "reciprocal_rank": 0.5,
           "hit": true,
           "answer_present": true,
-          "first_relevant_rank": 1,
+          "first_relevant_rank": 2,
           "retrieved": [
-            "1. 0.140 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Appendix C: NFIRS PDR File Layouts, p. 73",
-            "2. 0.120 FireSight Data Profile \u2014 1. Sources",
-            "3. 0.104 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Appendix C: NFIRS PDR File Layouts, p. 49",
-            "4. 0.102 NFIRS 5.0 Design Documentation \u2014 Edit Requirements, p. 74",
-            "5. 0.009 NFIRS 5.0 Design Documentation \u2014 System Architecture, p. 30"
+            "1. 0.244 FireSight Corpus Scope \u2014 In scope",
+            "2. 0.140 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Appendix C: NFIRS PDR File Layouts, p. 73",
+            "3. 0.120 FireSight Data Profile \u2014 1. Sources",
+            "4. 0.104 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Appendix C: NFIRS PDR File Layouts, p. 49",
+            "5. 0.102 NFIRS 5.0 Design Documentation \u2014 Edit Requirements, p. 74"
           ]
         },
         {
@@ -248,16 +248,16 @@
           "origin": "project",
           "n_labelled": 1,
           "recall_at_k": 1.0,
-          "reciprocal_rank": 1.0,
+          "reciprocal_rank": 0.5,
           "hit": true,
           "answer_present": true,
-          "first_relevant_rank": 1,
+          "first_relevant_rank": 2,
           "retrieved": [
-            "1. 0.931 FireSight Data Profile \u2014 Timestamps available",
-            "2. 0.443 FireSight Data Profile \u2014 6. Conflicts between the spec and the data",
-            "3. 0.009 NFIRS 5.0 Design Documentation \u2014 FireFighter Casualty Module, p. 305",
-            "4. 0.005 FireSight Data Profile \u2014 9. What M1 inherits",
-            "5. 0.004 NFIRS 5.0 Design Documentation \u2014 FireFighter Casualty Module, p. 303"
+            "1. 0.998 FireSight Corpus Scope \u2014 Turnout and travel time, outside the one local export",
+            "2. 0.931 FireSight Data Profile \u2014 Timestamps available",
+            "3. 0.443 FireSight Data Profile \u2014 6. Conflicts between the spec and the data",
+            "4. 0.050 FireSight Corpus Scope \u2014 In scope",
+            "5. 0.009 NFIRS 5.0 Design Documentation \u2014 FireFighter Casualty Module, p. 305"
           ]
         },
         {
@@ -291,10 +291,10 @@
           "answer_present": true,
           "first_relevant_rank": 1,
           "retrieved": [
-            "1. 0.530 FireSight Reconciliation Notes \u2014 8. Peer figures \u2014 do not reconcile, and should not",
+            "1. 0.265 FireSight Reconciliation Notes \u2014 8. Peer figures \u2014 do not reconcile, and should not",
             "2. 0.226 FireSight Data Profile \u2014 4. Peer-group definition and reconciliation",
             "3. 0.042 FireSight Data Profile \u2014 6. Conflicts between the spec and the data",
-            "4. 0.030 FireSight Data Profile \u2014 Blank staffing counts",
+            "4. 0.027 FireSight Reconciliation Notes \u2014 8. Peer figures \u2014 do not reconcile, and should not",
             "5. 0.025 FireSight Reconciliation Notes \u2014 What was withdrawn"
           ]
         },
@@ -325,11 +325,11 @@
       "k": 5,
       "n_questions": 15,
       "recall_at_k": 0.7,
-      "mrr": 0.6278,
+      "mrr": 0.5944,
       "hit_rate": 0.8,
       "answer_present_rate": 0.6667,
-      "latency_p50_ms": 4508.5,
-      "latency_p95_ms": 4586.9,
+      "latency_p50_ms": 4559.5,
+      "latency_p95_ms": 4639.8,
       "by_origin": {
         "external": {
           "n": 11,
@@ -340,7 +340,7 @@
         "project": {
           "n": 4,
           "recall_at_k": 0.875,
-          "mrr": 0.8333,
+          "mrr": 0.7083,
           "hit_rate": 1.0
         }
       },
@@ -454,7 +454,7 @@
           "retrieved": [
             "1. 0.997 NFIRS 5.0 Complete Reference Guide \u2014 Detector, p. 65",
             "2. 0.968 NFIRS 5.0 Complete Reference Guide \u2014 Detector Power Supply, p. 147",
-            "3. 0.900 NFIRS Code Dictionary \u2014 Field DETECTOR",
+            "3. 0.945 NFIRS 5.0 Complete Reference Guide \u2014 Detector Effectiveness, p. 149",
             "4. 0.887 NFIRS 5.0 Design Documentation \u2014 Edit Requirements, p. 115",
             "5. 0.841 NFIRS 5.0 Complete Reference Guide \u2014 Detector Failure Reason, p. 150"
           ]
@@ -561,16 +561,16 @@
           "origin": "project",
           "n_labelled": 1,
           "recall_at_k": 1.0,
-          "reciprocal_rank": 1.0,
+          "reciprocal_rank": 0.5,
           "hit": true,
           "answer_present": true,
-          "first_relevant_rank": 1,
+          "first_relevant_rank": 2,
           "retrieved": [
-            "1. 0.931 FireSight Data Profile \u2014 Timestamps available",
-            "2. 0.267 FireSight Data Profile \u2014 6. Conflicts between the spec and the data",
-            "3. 0.071 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Analysis of Common Data Elements, p. 36",
-            "4. 0.043 NFIRS 5.0 Design Documentation \u2014 Edit Requirements, p. 116",
-            "5. 0.006 FireSight Data Profile \u2014 5. Known data-quality issues"
+            "1. 0.998 FireSight Corpus Scope \u2014 Turnout and travel time, outside the one local export",
+            "2. 0.931 FireSight Data Profile \u2014 Timestamps available",
+            "3. 0.267 FireSight Data Profile \u2014 6. Conflicts between the spec and the data",
+            "4. 0.071 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Analysis of Common Data Elements, p. 36",
+            "5. 0.050 FireSight Corpus Scope \u2014 In scope"
           ]
         },
         {
@@ -604,11 +604,11 @@
           "answer_present": true,
           "first_relevant_rank": 1,
           "retrieved": [
-            "1. 0.437 FireSight Reconciliation Notes \u2014 8. Peer figures \u2014 do not reconcile, and should not",
+            "1. 0.327 FireSight Reconciliation Notes \u2014 8. Peer figures \u2014 do not reconcile, and should not",
             "2. 0.268 FireSight Data Profile \u2014 4. Peer-group definition and reconciliation",
-            "3. 0.070 FireSight Data Profile \u2014 Data Profile",
-            "4. 0.030 FireSight Data Profile \u2014 Blank staffing counts",
-            "5. 0.025 FireSight Reconciliation Notes \u2014 What was withdrawn"
+            "3. 0.030 FireSight Data Profile \u2014 Blank staffing counts",
+            "4. 0.025 FireSight Reconciliation Notes \u2014 What was withdrawn",
+            "5. 0.008 FireSight Data Profile \u2014 9. What M1 inherits"
           ]
         },
         {
@@ -626,8 +626,8 @@
             "1. 0.925 FireSight Reconciliation Notes \u2014 2. Effect of keeping zero-minute responses",
             "2. 0.848 FireSight Data Profile \u2014 Sewanee reconciles exactly",
             "3. 0.620 FireSight Reconciliation Notes \u2014 The arithmetic closes exactly",
-            "4. 0.434 FireSight Reconciliation Notes \u2014 4. Sensitivity: Sewanee's rank under three pool definitions",
-            "5. 0.224 FireSight Data Profile \u2014 The peer-pool count does not reconcile"
+            "4. 0.224 FireSight Data Profile \u2014 The peer-pool count does not reconcile",
+            "5. 0.078 FireSight Data Profile \u2014 7. Local export (source D) \u2014 schema and privacy"
           ]
         }
       ]
@@ -638,11 +638,11 @@
       "k": 5,
       "n_questions": 15,
       "recall_at_k": 0.6,
-      "mrr": 0.4744,
+      "mrr": 0.4411,
       "hit_rate": 0.6667,
       "answer_present_rate": 0.5333,
-      "latency_p50_ms": 29.0,
-      "latency_p95_ms": 37.2,
+      "latency_p50_ms": 31.2,
+      "latency_p95_ms": 40.4,
       "by_origin": {
         "external": {
           "n": 11,
@@ -653,7 +653,7 @@
         "project": {
           "n": 4,
           "recall_at_k": 0.75,
-          "mrr": 0.75,
+          "mrr": 0.625,
           "hit_rate": 0.75
         }
       },
@@ -769,7 +769,7 @@
             "2. 0.762 NFIRS 5.0 Design Documentation \u2014 Edit Requirements, p. 75",
             "3. 0.759 NFIRS 5.0 Complete Reference Guide \u2014 Detector Power Supply, p. 147",
             "4. 0.754 NFIRS 5.0 Complete Reference Guide \u2014 Detector, p. 65",
-            "5. 0.751 NFIRS Code Dictionary \u2014 Field DETECTOR"
+            "5. 0.751 NFIRS 5.0 Complete Reference Guide \u2014 Detector Type, p. 146"
           ]
         },
         {
@@ -874,16 +874,16 @@
           "origin": "project",
           "n_labelled": 1,
           "recall_at_k": 1.0,
-          "reciprocal_rank": 1.0,
+          "reciprocal_rank": 0.5,
           "hit": true,
           "answer_present": true,
-          "first_relevant_rank": 1,
+          "first_relevant_rank": 2,
           "retrieved": [
-            "1. 0.831 FireSight Data Profile \u2014 Timestamps available",
-            "2. 0.797 FireSight Data Profile \u2014 6. Conflicts between the spec and the data",
-            "3. 0.771 FireSight Data Profile \u2014 5. Known data-quality issues",
-            "4. 0.765 FireSight Reconciliation Notes \u2014 The \u22121",
-            "5. 0.758 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Analysis of Common Data Elements, p. 36"
+            "1. 0.883 FireSight Corpus Scope \u2014 Turnout and travel time, outside the one local export",
+            "2. 0.831 FireSight Data Profile \u2014 Timestamps available",
+            "3. 0.797 FireSight Data Profile \u2014 6. Conflicts between the spec and the data",
+            "4. 0.771 FireSight Data Profile \u2014 5. Known data-quality issues",
+            "5. 0.765 FireSight Reconciliation Notes \u2014 The \u22121"
           ]
         },
         {
@@ -917,8 +917,8 @@
           "answer_present": true,
           "first_relevant_rank": 1,
           "retrieved": [
-            "1. 0.788 FireSight Reconciliation Notes \u2014 8. Peer figures \u2014 do not reconcile, and should not",
-            "2. 0.778 FireSight Data Profile \u2014 The peer-pool count does not reconcile",
+            "1. 0.778 FireSight Data Profile \u2014 The peer-pool count does not reconcile",
+            "2. 0.761 FireSight Reconciliation Notes \u2014 8. Peer figures \u2014 do not reconcile, and should not",
             "3. 0.743 FireSight Data Profile \u2014 5. Known data-quality issues",
             "4. 0.735 FireSight Reconciliation Notes \u2014 What was withdrawn",
             "5. 0.734 FireSight Data Profile \u2014 4. Peer-group definition and reconciliation"
@@ -950,12 +950,12 @@
       "rerank": false,
       "k": 5,
       "n_questions": 15,
-      "recall_at_k": 0.5667,
-      "mrr": 0.4522,
+      "recall_at_k": 0.5333,
+      "mrr": 0.3856,
       "hit_rate": 0.6,
       "answer_present_rate": 0.4667,
-      "latency_p50_ms": 34.0,
-      "latency_p95_ms": 50.5,
+      "latency_p50_ms": 31.0,
+      "latency_p95_ms": 53.5,
       "by_origin": {
         "external": {
           "n": 11,
@@ -965,8 +965,8 @@
         },
         "project": {
           "n": 4,
-          "recall_at_k": 0.75,
-          "mrr": 0.75,
+          "recall_at_k": 0.625,
+          "mrr": 0.5,
           "hit_rate": 0.75
         }
       },
@@ -1187,16 +1187,16 @@
           "origin": "project",
           "n_labelled": 1,
           "recall_at_k": 1.0,
-          "reciprocal_rank": 1.0,
+          "reciprocal_rank": 0.5,
           "hit": true,
           "answer_present": true,
-          "first_relevant_rank": 1,
+          "first_relevant_rank": 2,
           "retrieved": [
-            "1. 0.831 FireSight Data Profile \u2014 Timestamps available",
-            "2. 0.825 FireSight Data Profile \u2014 6. Conflicts between the spec and the data",
-            "3. 0.765 FireSight Reconciliation Notes \u2014 The \u22121",
-            "4. 0.753 FireSight Reconciliation Notes \u2014 The arithmetic closes exactly",
-            "5. 0.752 NFIRS 5.0 Design Documentation \u2014 FireFighter Casualty Module, p. 303"
+            "1. 0.883 FireSight Corpus Scope \u2014 Turnout and travel time, outside the one local export",
+            "2. 0.831 FireSight Data Profile \u2014 Timestamps available",
+            "3. 0.825 FireSight Data Profile \u2014 6. Conflicts between the spec and the data",
+            "4. 0.765 FireSight Reconciliation Notes \u2014 The \u22121",
+            "5. 0.756 FireSight Corpus Scope \u2014 In scope"
           ]
         },
         {
@@ -1224,16 +1224,16 @@
           "difficulty": "hard",
           "origin": "project",
           "n_labelled": 2,
-          "recall_at_k": 1.0,
-          "reciprocal_rank": 1.0,
+          "recall_at_k": 0.5,
+          "reciprocal_rank": 0.5,
           "hit": true,
           "answer_present": true,
-          "first_relevant_rank": 1,
+          "first_relevant_rank": 2,
           "retrieved": [
-            "1. 0.786 FireSight Reconciliation Notes \u2014 8. Peer figures \u2014 do not reconcile, and should not",
-            "2. 0.780 FireSight Data Profile \u2014 5. Known data-quality issues",
-            "3. 0.775 FireSight Data Profile \u2014 The peer-pool count does not reconcile",
-            "4. 0.762 FireSight Data Profile \u2014 4. Peer-group definition and reconciliation",
+            "1. 0.780 FireSight Data Profile \u2014 5. Known data-quality issues",
+            "2. 0.775 FireSight Data Profile \u2014 The peer-pool count does not reconcile",
+            "3. 0.762 FireSight Data Profile \u2014 4. Peer-group definition and reconciliation",
+            "4. 0.762 FireSight Reconciliation Notes \u2014 4. Sensitivity: Sewanee's rank under three pool definitions",
             "5. 0.753 FireSight Data Profile \u2014 6. Conflicts between the spec and the data"
           ]
         },
@@ -1262,8 +1262,8 @@
   "rerank_verdict": {
     "default": {
       "recall_delta": 0.1,
-      "mrr_delta": 0.1534,
-      "latency_cost_ms": 4479.5,
+      "mrr_delta": 0.1533,
+      "latency_cost_ms": 4528.3,
       "n_questions": 15,
       "one_question_worth": 0.0667,
       "recall_delta_in_questions": 1.5,
@@ -1272,15 +1272,15 @@
       "verdict": "directionally positive (+1.5 questions of 15), UNDERPOWERED -- re-measure against the 50-question golden set at M4"
     },
     "small": {
-      "recall_delta": 0.1333,
-      "mrr_delta": 0.2589,
-      "latency_cost_ms": 2381.5,
+      "recall_delta": 0.1667,
+      "mrr_delta": 0.2588,
+      "latency_cost_ms": 2402.0,
       "n_questions": 15,
       "one_question_worth": 0.0667,
-      "recall_delta_in_questions": 2.0,
+      "recall_delta_in_questions": 2.5,
       "direction": "positive",
       "underpowered": true,
-      "verdict": "directionally positive (+2.0 questions of 15), UNDERPOWERED -- re-measure against the 50-question golden set at M4"
+      "verdict": "directionally positive (+2.5 questions of 15), UNDERPOWERED -- re-measure against the 50-question golden set at M4"
     }
   }
 }

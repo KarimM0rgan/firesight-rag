@@ -42,9 +42,16 @@ RESULTS_DIR = REPO_ROOT / "eval" / "results"
 # cannot be quietly propped up by self-reference.
 PROJECT_AUTHORED = {"FireSight Data Profile", "FireSight Reconciliation Notes"}
 
+# The scope boundary is corpus furniture, not an answer source. It is excluded
+# from retrieval scoring and does not count toward the project-authored share.
+SCOPE_DOCUMENTS = {"FireSight Corpus Scope"}
+
 
 def question_origin(q: dict) -> str:
     docs = {s["source_document"] for s in q.get("relevant_sections", [])}
+    docs -= SCOPE_DOCUMENTS
+    if not docs:
+        return "scope"
     internal = docs & PROJECT_AUTHORED
     external = docs - PROJECT_AUTHORED
     if internal and external:

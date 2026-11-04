@@ -1,0 +1,46 @@
+{"id": "r01", "expected_route": "structured", "category": "metric_lookup", "question": "What was Sewanee's P90 response time in 2024?"}
+{"id": "r02", "expected_route": "structured", "category": "metric_lookup", "question": "How many incidents did Sewanee respond to in 2024?"}
+{"id": "r03", "expected_route": "structured", "category": "metric_lookup", "question": "What percentage of our 2024 calls were answered within 8 minutes?"}
+{"id": "r04", "expected_route": "structured", "category": "aggregation", "question": "How many building fires did peer departments report in 2024?"}
+{"id": "r05", "expected_route": "structured", "category": "ranking", "question": "Which five peer departments in Tennessee had the fastest P90 response times?"}
+{"id": "r06", "expected_route": "structured", "category": "ranking", "question": "Where do we rank against our peer group on 8-minute compliance?"}
+{"id": "r07", "expected_route": "structured", "category": "time_series", "question": "What was our median response time by month in 2024?"}
+{"id": "r08", "expected_route": "structured", "category": "registry", "question": "How many fire departments does NFIRS list in Tennessee?"}
+{"id": "r09", "expected_route": "structured", "category": "call_mix", "question": "What share of our 2024 calls were false alarms?"}
+{"id": "r10", "expected_route": "structured", "category": "local_export", "question": "What is our median turnout time?"}
+{"id": "r11", "expected_route": "structured", "category": "local_export", "question": "What was our 90th percentile travel time over the last six months?"}
+{"id": "r12", "expected_route": "structured", "category": "data_quality", "question": "How many of our 2024 incidents are missing an arrival time?"}
+{"id": "r13", "expected_route": "unstructured", "category": "definition", "question": "How does NFIRS define a structure fire?"}
+{"id": "r14", "expected_route": "unstructured", "category": "code_lookup", "question": "What incident type code is used for a building fire?"}
+{"id": "r15", "expected_route": "unstructured", "category": "code_lookup", "question": "In the aid given or received field, what does code 1 mean?"}
+{"id": "r16", "expected_route": "unstructured", "category": "field_semantics", "question": "How many characters is an FDID and who assigns it?"}
+{"id": "r17", "expected_route": "unstructured", "category": "field_semantics", "question": "For which incident types is the detector field required?"}
+{"id": "r18", "expected_route": "unstructured", "category": "module_structure", "question": "Which NFIRS module is completed for wildland fires?"}
+{"id": "r19", "expected_route": "unstructured", "category": "module_structure", "question": "Which NFIRS module reports injuries to civilians?"}
+{"id": "r20", "expected_route": "unstructured", "category": "methodology", "question": "Is reporting to NFIRS mandatory for fire departments?"}
+{"id": "r21", "expected_route": "unstructured", "category": "definition", "question": "Who counts as a casualty under NFIRS reporting rules?"}
+{"id": "r22", "expected_route": "unstructured", "category": "field_semantics", "question": "What does the actions taken field capture?"}
+{"id": "r23", "expected_route": "unstructured", "category": "data_layout", "question": "What format is the ALARM field stored in within the public data release?"}
+{"id": "r24", "expected_route": "unstructured", "category": "definition", "question": "How did the definition of a building fire change in NFIRS 5.0?"}
+{"id": "r25", "expected_route": "hybrid", "category": "metric_plus_definition", "question": "How many structure fires did we have in 2024, and how does NFIRS define one?"}
+{"id": "r26", "expected_route": "hybrid", "category": "metric_plus_definition", "question": "What share of our calls were false alarms, and what does NFIRS count as a false alarm?"}
+{"id": "r27", "expected_route": "hybrid", "category": "metric_plus_rule", "question": "Our P90 response time is 13 minutes; which NFPA standard governs response time for a volunteer department like ours?"}
+{"id": "r28", "expected_route": "hybrid", "category": "metric_plus_definition", "question": "How many of our incidents were cancelled en route, and what does that code mean?"}
+{"id": "r29", "expected_route": "hybrid", "category": "metric_plus_caveat", "question": "What is our 8-minute compliance rate, and why might NFIRS response times understate it?"}
+{"id": "r30", "expected_route": "hybrid", "category": "metric_plus_definition", "question": "How many EMS calls did we run in 2024, and which incident type codes count as EMS?"}
+{"id": "r31", "expected_route": "hybrid", "category": "metric_plus_caveat", "question": "How do we compare to peers on response time, and what makes the peer cohort not a random sample?"}
+{"id": "r32", "expected_route": "hybrid", "category": "metric_plus_definition", "question": "How much property loss did peer departments report in 2024, and how reliable is that field?"}
+{"id": "r33", "expected_route": "hybrid", "category": "metric_plus_definition", "question": "What were our most common incident types last year, and what do those codes mean?"}
+{"id": "r34", "expected_route": "hybrid", "category": "metric_plus_rule", "question": "How many confined fires did we report, and which module must be filed for them?"}
+{"id": "r35", "expected_route": "out_of_scope", "category": "excluded_material", "excluded_reason": "nfpa_standard", "question": "What is the recommended pressure for a fire sprinkler system under NFPA 13?"}
+{"id": "r36", "expected_route": "out_of_scope", "category": "excluded_material", "excluded_reason": "nfpa_standard", "question": "What turnout time does NFPA 1710 require at the 90th percentile?"}
+{"id": "r37", "expected_route": "out_of_scope", "category": "excluded_material", "excluded_reason": "nfpa_standard", "question": "What is the minimum staffing NFPA 1720 requires for a rural volunteer department?"}
+{"id": "r38", "expected_route": "out_of_scope", "category": "excluded_material", "excluded_reason": "state_or_local_code", "question": "What does the Tennessee state fire code require for sprinkler installation in dormitories?"}
+{"id": "r39", "expected_route": "out_of_scope", "category": "excluded_material", "excluded_reason": "state_or_local_code", "question": "Which municipal ordinance governs fire lane width in our county?"}
+{"id": "r40", "expected_route": "out_of_scope", "category": "excluded_material", "excluded_reason": "timestamp_not_recorded", "question": "What was the peer-group median turnout time in 2024?"}
+{"id": "r41", "expected_route": "out_of_scope", "category": "excluded_material", "excluded_reason": "timestamp_not_recorded", "question": "How does our travel time compare to other departments in the peer cohort?"}
+{"id": "r42", "expected_route": "out_of_scope", "category": "excluded_material", "excluded_reason": "year_not_covered", "question": "How has our P90 response time trended since 2019?"}
+{"id": "r43", "expected_route": "out_of_scope", "category": "off_domain", "excluded_reason": "outside_domain", "question": "What's the weather in Nashville?"}
+{"id": "r44", "expected_route": "out_of_scope", "category": "off_domain", "excluded_reason": "outside_domain", "question": "Who won the 2022 FIFA World Cup?"}
+{"id": "r45", "expected_route": "out_of_scope", "category": "off_domain", "excluded_reason": "outside_domain", "question": "Write a Python function to reverse a string."}
+{"id": "r46", "expected_route": "out_of_scope", "category": "off_domain", "excluded_reason": "live_or_personal_data", "question": "Which of our firefighters responded to the Snowden Hall call?"}

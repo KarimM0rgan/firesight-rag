@@ -72,6 +72,7 @@ class Chunk:
     publisher: str
     year: str
     url: str
+    exclude_from_scoring: bool = False
 
     def metadata(self) -> dict:
         return {
@@ -81,6 +82,9 @@ class Chunk:
             "publisher": self.publisher,
             "year": self.year,
             "url": self.url,
+            # A scope document is written to be retrieved by the very questions
+            # that should be refused. Scoring over it would be circular.
+            "exclude_from_scoring": self.exclude_from_scoring,
         }
 
     def citation(self) -> str:
@@ -96,6 +100,7 @@ class Source:
     publisher: str
     year: str
     url: str
+    exclude_from_scoring: bool = False
 
 
 def _usfa(name: str, title: str, year: str, url: str) -> Source:
@@ -126,6 +131,20 @@ PDF_SOURCES: list[Source] = [
         "NFIRS 5.0 Design Documentation",
         "2015",
         "https://www.usfa.fema.gov/downloads/pdf/nfirs/nfirs_spec_2015.pdf",
+    ),
+]
+
+# Scope boundary. Ingested so refusals can cite a statement of scope rather
+# than returning bare, but flagged out of retrieval scoring and counted as
+# neither external nor project-authored in the origin audit.
+SCOPE_SOURCES: list[Source] = [
+    Source(
+        path=REPO_ROOT / "data" / "corpus" / "SCOPE.md",
+        title="FireSight Corpus Scope",
+        publisher="FireSight (scope boundary)",
+        year="2026",
+        url="data/corpus/SCOPE.md",
+        exclude_from_scoring=True,
     ),
 ]
 
@@ -461,6 +480,7 @@ def chunk_blocks(
                     publisher=src.publisher,
                     year=src.year,
                     url=src.url,
+                    exclude_from_scoring=src.exclude_from_scoring,
                 )
             )
     return chunks
@@ -476,7 +496,7 @@ def build_chunks(cfg: ChunkConfig, tok: Tokenizer) -> list[Chunk]:
             continue
         chunks += chunk_blocks(load_pdf(src), src, cfg, tok)
 
-    for src in MARKDOWN_SOURCES:
+    for src in MARKDOWN_SOURCES + SCOPE_SOURCES:
         if src.path.exists():
             chunks += chunk_blocks(load_markdown(src), src, cfg, tok)
 
