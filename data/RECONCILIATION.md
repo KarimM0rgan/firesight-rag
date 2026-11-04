@@ -126,22 +126,38 @@ its own tie group. Lower percentile = better rank.
 | Pool | n | P90 regional | P90 TN | Compliance regional | Compliance TN |
 |---|---:|---:|---:|---:|---:|
 | **A** no zero-artifact exclusion | 782 | 14.6% | 10.4% | 9.0% | 6.5% |
-| **B** new rule (20 flagged) | 768 | 14.4% | **10.5%** | 8.5% | 6.5% |
-| **C** withdrawn 3× median (134 flagged) | 648 | 13.0% | 9.9% | 7.0% | 6.2% |
-| **Published headline (worst-of)** | — | **14.6%** | **10.5%** | **9.0%** | **6.5%** |
+| **B** new rule, 20 flagged — **HEADLINE** | **768** | **14.4%** | **10.5%** | **8.5%** | **6.5%** |
+| **C** withdrawn 3× median, 134 flagged | 648 | 13.0% | 9.9% | 7.0% | 6.2% |
 
-**The published figures are the worst value across all three pools**, not any
-single pool's. The bias runs toward the client — every department dropped for a
-high zero rate is a *fast-looking* department leaving the cohort, which inflates
-Sewanee's rank. The monotonicity is visible above: more exclusion, better rank.
-Pool C, the withdrawn rule, flattered Sewanee most (13.0% vs 14.6%).
+**The headline is Pool B, and all four figures come from that one cohort.** An
+earlier draft published a worst-of-each-metric composite; that was withdrawn
+because it mixed figures from pools of 782 and 768 departments into a single row,
+so no reader could say which cohort any number described.
 
-So: **Sewanee's P90 is top 14.6% regionally and top 10.5% in Tennessee; its
-8-minute compliance rate is top 9.0% regionally and top 6.5% in Tennessee.**
+Pool B is also the defensible choice on its own terms: it sits within 0.2pp of
+the no-exclusion case on every metric, so the headline does not depend on the
+exclusion rule being right. The bias direction still matters and is why A and C
+are published — every department dropped for a high zero rate is a *fast-looking*
+department leaving the cohort, so more exclusion means a better rank,
+monotonically. Pool C, the withdrawn rule, flattered Sewanee most.
+
 Peer median P90 is 18.0 min against Sewanee's 13.0 under every pool definition.
 
 Any ranking query must filter `metrics_department_year.in_benchmark_pool`
 (= pool B). Pool A is reproducible by dropping that predicate.
+
+### Better than published, against a different cohort
+
+Both halves of this sentence matter. The corrected regional P90 percentile of
+**14.4%** is better than the **29%** originally published for Sewanee — and it is
+computed against a **materially different cohort**: 768 departments under a
+corrected `(state, fdid)` join, versus roughly 1,138 under a state-blind join
+that merged unrelated departments' incidents into peer rows.
+
+It is therefore **not a like-for-like improvement in rank.** It is a different
+measurement that happens to land more favourably. Quoting the improvement without
+the cohort change would misrepresent it, and quoting the cohort change without the
+improvement would understate a genuinely good result.
 
 ---
 
@@ -230,6 +246,11 @@ The prior peer numbers were computed with a state-blind FDID join
 | Peer departments reporting in 2024 | 1,233 | 936 |
 | **Benchmarkable cohort** | **1,138** | **768** |
 | TN departments in cohort | 255 | 237 |
+
+Corpus-side note for M4: 4 of the 15 M2 retrieval questions are answered by
+this file and `PROFILE.md` rather than by external USFA documents, and those 4
+score materially higher (Recall@5 0.875 vs 0.636). The golden set needs
+rebalancing toward external sources.
 
 Also fixed while reconciling: NC/00713 reports `vol_ff` as both 0 and 38 across
 duplicate `fdheader` rows, and any magnitude-based tie-break moved departments in

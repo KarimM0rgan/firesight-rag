@@ -1,6 +1,6 @@
 # Document retrieval suite
 
-- **Run:** 2026-11-04T18:52:38+00:00
+- **Run:** 2026-11-04T19:12:25+00:00
 - **Embedding model:** `BAAI/bge-small-en-v1.5`
 - **Reranker:** `BAAI/bge-reranker-base`
 - **Questions:** 15
@@ -8,24 +8,42 @@
 
 | Arm | Recall@k | MRR | Hit rate | Answer present | p50 ms | p95 ms |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| small + rerank | 0.700 | 0.711 | 0.800 | 0.667 | 2401 | 2507 |
-| default + rerank | 0.700 | 0.628 | 0.800 | 0.667 | 4576 | 4774 |
-| default | 0.600 | 0.474 | 0.667 | 0.533 | 30 | 35 |
-| small | 0.567 | 0.452 | 0.600 | 0.467 | 28 | 45 |
+| small + rerank | 0.700 | 0.711 | 0.800 | 0.667 | 2416 | 2524 |
+| default + rerank | 0.700 | 0.628 | 0.800 | 0.667 | 4508 | 4587 |
+| default | 0.600 | 0.474 | 0.667 | 0.533 | 29 | 37 |
+| small | 0.567 | 0.452 | 0.600 | 0.467 | 34 | 50 |
+
+## By question origin
+
+Project-authored notes are an easier retrieval target than the external
+USFA documents. A headline that does not separate them is flattered.
+
+| Arm | Origin | n | Recall@k | MRR | Hit rate |
+| --- | --- | ---: | ---: | ---: | ---: |
+| small + rerank | external | 11 | 0.636 | 0.667 | 0.727 |
+| small + rerank | project | 4 | 0.875 | 0.833 | 1.000 |
+| default + rerank | external | 11 | 0.636 | 0.553 | 0.727 |
+| default + rerank | project | 4 | 0.875 | 0.833 | 1.000 |
+| default | external | 11 | 0.545 | 0.374 | 0.636 |
+| default | project | 4 | 0.750 | 0.750 | 0.750 |
+| small | external | 11 | 0.500 | 0.344 | 0.545 |
+| small | project | 4 | 0.750 | 0.750 | 0.750 |
 
 ## Reranker decision
 
-**default** — KEEP the reranker
+**default** — directionally positive (+1.5 questions of 15), UNDERPOWERED -- re-measure against the 50-question golden set at M4
 
-- ΔRecall@k: +0.1000
+- ΔRecall@k: +0.1000 (+1.5 of 15 questions; one question = 0.067)
 - ΔMRR: +0.1534
-- added latency (p50): +4545.6 ms
+- added latency (p50): +4479.5 ms
+- underpowered: True
 
-**small** — KEEP the reranker
+**small** — directionally positive (+2.0 questions of 15), UNDERPOWERED -- re-measure against the 50-question golden set at M4
 
-- ΔRecall@k: +0.1333
+- ΔRecall@k: +0.1333 (+2.0 of 15 questions; one question = 0.067)
 - ΔMRR: +0.2589
-- added latency (p50): +2373.5 ms
+- added latency (p50): +2381.5 ms
+- underpowered: True
 
 
 ## Misses in `small` (3)

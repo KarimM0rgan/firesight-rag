@@ -160,3 +160,91 @@ def test_in_corpus_questions_clear_the_support_floor(q):
     hits = search(q, k=5, config="small")
     best = max(h.score for h in hits)
     assert best >= syn.MIN_SUPPORT_SCORE, f"{q!r} would be wrongly refused ({best:.3f})"
+
+
+# ── out-of-sample gate validation (Fix 6) ─────────────────────────────────
+HELDOUT = _questions("heldout_questions.jsonl")
+HELDOUT_IN = [q for q in HELDOUT if q["kind"] == "in_corpus"]
+HELDOUT_OUT = [q for q in HELDOUT if q["kind"] == "out_of_corpus"]
+
+
+def test_heldout_set_does_not_overlap_the_calibration_sets():
+    """A validation set that shares questions with the fit is not a validation set."""
+    calib = {q["question"] for q in _questions("document_questions.jsonl")}
+    calib |= {q["question"] for q in _questions("out_of_corpus_questions.jsonl")}
+    held = {q["question"] for q in HELDOUT}
+    assert not (held & calib)
+    assert len(HELDOUT_IN) == 8
+    assert len(HELDOUT_OUT) == 10
+
+
+def test_heldout_in_corpus_questions_are_all_answerable():
+    """Every held-out in-corpus question clears the floor; 0/8 false refusals."""
+    import firesight.generation.synthesize as syn
+
+    for q in HELDOUT_IN:
+        best = max(h.score for h in search(q["question"], k=5, config="small"))
+        assert best >= syn.MIN_SUPPORT_SCORE, f"{q['id']} wrongly refused ({best:.3f})"
+
+
+def test_heldout_gate_refuses_at_least_nine_of_ten_out_of_corpus():
+    """
+    Out-of-sample the populations overlap, so this is 9/10 rather than 10/10.
+    The admitted one is the adversarial NFPA question. Pinned so a regression
+    below 9 is caught, and so the known failure is not quietly 'fixed' by
+    moving the floor into the in-corpus range.
+    """
+    import firesight.generation.synthesize as syn
+
+    refused = sum(
+        1
+        for q in HELDOUT_OUT
+        if max(h.score for h in search(q["question"], k=5, config="small"))
+        < syn.MIN_SUPPORT_SCORE
+    )
+    assert refused >= 9
+
+
+def test_the_known_gate_failure_is_the_adversarial_nfpa_question():
+    """Documents the specific weakness rather than leaving it as a bare count."""
+    import firesight.generation.synthesize as syn
+
+    admitted = [
+        q["id"]
+        for q in HELDOUT_OUT
+        if max(h.score for h in search(q["question"], k=5, config="small"))
+        >= syn.MIN_SUPPORT_SCORE
+    ]
+    assert admitted == ["h16"], f"gate failures moved: {admitted}"
+
+
+def test_cross_encoder_is_unusable_as_an_absolute_gate():
+    """
+    The cross-encoder is a good reranker and a bad gate: it scores some
+    out-of-corpus questions at ~1.0 and some genuine in-corpus questions near
+    0. Pinned so nobody wires it into the refusal path on intuition.
+    """
+    out_max = max(
+        max(h.score for h in search(q["question"], k=5, config="small", rerank=True))
+        for q in HELDOUT_OUT
+    )
+    in_min = min(
+        max(h.score for h in search(q["question"], k=5, config="small", rerank=True))
+        for q in HELDOUT_IN
+    )
+    assert out_max > in_min, "cross-encoder populations no longer overlap; re-test it"
+
+
+# ── self-reference audit (Fix 9) ──────────────────────────────────────────
+def test_most_questions_resolve_to_external_sources():
+    from firesight.eval.retrieval_suite import question_origin
+
+    qs = _questions("document_questions.jsonl")
+    origins = [question_origin(q) for q in qs]
+    external = origins.count("external")
+    project = origins.count("project")
+    assert external == 11
+    assert project == 4
+    # If project-authored questions ever become the majority, the retrieval
+    # numbers are measuring the notes rather than the corpus.
+    assert project / len(qs) < 0.34
