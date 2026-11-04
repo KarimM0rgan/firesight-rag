@@ -174,24 +174,26 @@ def scope_context(
     """
     Retrieve the scope-boundary document's most relevant sections.
 
-    Fetched deliberately rather than by hoping it ranks. Measured: the scope
-    document does NOT reach the top 5 for "What sprinkler pressure does NFPA 13
-    require?" or for state-fire-code questions -- the same similarity blindness
-    that lets those questions past the support floor also keeps the document
-    that explains the refusal out of the results.
+    Fetched deliberately rather than by hoping it ranks. Measured: when the
+    scope document shared the main index it did NOT reach the top 5 for "What
+    sprinkler pressure does NFPA 13 require?" or for state-fire-code questions
+    -- the same similarity blindness that lets those questions past the support
+    floor also keeps the document that explains the refusal out of the results.
 
-    So the out_of_scope path asks for it by name, filtered to that document, and
-    ranks only within it. A refusal can then cite a statement of scope instead
-    of returning bare.
+    It therefore lives in its OWN collection, out of the main index, and the
+    out_of_scope path asks for it by name. Sharing the index cost MRR (0.711 ->
+    0.644 on the best arm) for presence nothing used.
     """
     cfg = CHUNK_CONFIGS[config] if isinstance(config, str) else config
-    coll = _collection(cfg.collection)
+    try:
+        coll = _collection(cfg.scope_collection)
+    except CorpusUnavailableError:
+        return []
 
     qvec = _embedder(settings.embed_model).encode([question], normalize_embeddings=True)[0]
     res = coll.query(
         query_embeddings=[qvec.tolist()],
-        n_results=k,
-        where={"source_document": SCOPE_DOCUMENT},
+        n_results=min(k, coll.count()),
         include=["documents", "metadatas", "distances"],
     )
     if not res["ids"] or not res["ids"][0]:

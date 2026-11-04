@@ -35,12 +35,15 @@ from firesight.retrieval.vector_store import Hit, search
 QUESTIONS = REPO_ROOT / "eval" / "document_questions.jsonl"
 RESULTS_DIR = REPO_ROOT / "eval" / "results"
 
-# Project-authored corpus documents. Questions whose answer lives only in these
-# are an easier retrieval task than questions answered by the external USFA
-# documents: the notes are few, cleanly sectioned, and written in the same
-# register as the questions. Metrics are reported split by origin so a headline
-# cannot be quietly propped up by self-reference.
-PROJECT_AUTHORED = {"FireSight Data Profile", "FireSight Reconciliation Notes"}
+# Questions answered by project-authored material are an easier retrieval task
+# than questions answered by the external USFA documents: the document is short,
+# cleanly sectioned, and written in the same register as the questions. Metrics
+# are reported split by origin so a headline cannot be quietly propped up by
+# self-reference.
+# The single project-authored corpus document. Reported as its own origin
+# category so methodology retrieval is visible separately from external
+# retrieval rather than pooled into one headline.
+METHODOLOGY_DOCUMENTS = {"FireSight Methodology"}
 
 # The scope boundary is corpus furniture, not an answer source. It is excluded
 # from retrieval scoring and does not count toward the project-authored share.
@@ -52,11 +55,11 @@ def question_origin(q: dict) -> str:
     docs -= SCOPE_DOCUMENTS
     if not docs:
         return "scope"
-    internal = docs & PROJECT_AUTHORED
-    external = docs - PROJECT_AUTHORED
+    internal = docs & METHODOLOGY_DOCUMENTS
+    external = docs - METHODOLOGY_DOCUMENTS
     if internal and external:
         return "mixed"
-    return "project" if internal else "external"
+    return "methodology" if internal else "external"
 
 
 @dataclass
@@ -108,19 +111,31 @@ def _pair(hit: Hit) -> tuple[str, str]:
     return (hit.source_document.strip(), hit.section.strip())
 
 
+def _flat(text: str) -> str:
+    """
+    Collapse whitespace before substring matching.
+
+    Markdown chunks keep their newlines, so a natural answer phrase that happens
+    to wrap across a line would otherwise never match. Normalising both sides
+    makes `answer_must_contain` depend on the words, not on where the source
+    file wrapped them.
+    """
+    return " ".join((text or "").split()).lower()
+
+
 def score_question(q: dict, hits: list[Hit], k: int) -> QuestionScore:
     labelled = {
         (str(s["source_document"]).strip(), str(s["section"]).strip())
         for s in q.get("relevant_sections", [])
     }
-    needles = [s.lower() for s in q.get("answer_must_contain", [])]
+    needles = [_flat(s) for s in q.get("answer_must_contain", [])]
 
     top = hits[:k]
     found = {_pair(h) for h in top} & labelled
 
     first_rank = next((h.rank for h in top if _pair(h) in labelled), None)
     answer_present = any(
-        all(n in h.text.lower() for n in needles) for h in top
+        all(n in _flat(h.text) for n in needles) for h in top
     ) if needles else False
 
     return QuestionScore(

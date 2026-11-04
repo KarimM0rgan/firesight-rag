@@ -52,6 +52,17 @@ class ChunkConfig:
     def collection(self) -> str:
         return f"firesight_docs_{self.name}"
 
+    @property
+    def scope_collection(self) -> str:
+        """
+        The scope-boundary document lives in its own collection, OUT of the
+        main index. It is fetched by name on the out_of_scope path and is never
+        a candidate for ordinary retrieval, so letting its chunks compete for
+        ranking slots cost MRR for presence the system does not use (0.711 ->
+        0.644 on the best arm when it shared the index).
+        """
+        return f"firesight_scope_{self.name}"
+
 
 CHUNK_CONFIGS: dict[str, ChunkConfig] = {
     # The spec's starting point: ~500 tokens, ~15% overlap.
@@ -149,21 +160,91 @@ SCOPE_SOURCES: list[Source] = [
 ]
 
 MARKDOWN_SOURCES: list[Source] = [
+    # The ONLY project-authored document in the corpus. Frozen: see
+    # CORPUS_MANIFEST below and tests/test_corpus_manifest.py.
+    #
+    # It holds methodology -- rules and definitions -- so that "why is this
+    # number what it is?" gets a cited answer. Build artifacts are excluded by
+    # design: PROFILE.md, RECONCILIATION.md, README.md and everything under
+    # eval/results/ are rewritten as the work proceeds, and while they were in
+    # the corpus, editing them moved the retrieval metrics. That is a
+    # circularity, not merely instability -- documenting a measurement changed
+    # the measurement. Traced concretely: one edit to RECONCILIATION.md
+    # displaced a labelled answer out of the top 5 and moved Recall@5 by 0.033.
     Source(
-        path=REPO_ROOT / "data" / "PROFILE.md",
-        title="FireSight Data Profile",
-        publisher="FireSight (own work)",
+        path=REPO_ROOT / "data" / "corpus" / "METHODOLOGY.md",
+        title="FireSight Methodology",
+        publisher="FireSight (own work, frozen)",
         year="2026",
-        url="data/PROFILE.md",
-    ),
-    Source(
-        path=REPO_ROOT / "data" / "RECONCILIATION.md",
-        title="FireSight Reconciliation Notes",
-        publisher="FireSight (own work)",
-        year="2026",
-        url="data/RECONCILIATION.md",
+        url="data/corpus/METHODOLOGY.md",
     ),
 ]
+
+
+# The NFIRS code dictionary ships inside the Public Data Release, so its path
+# comes from FIRESIGHT_NFIRS_DIR rather than the repo.
+CODE_SOURCES: list[Source] = [
+    Source(
+        path=settings.codelookup_file,
+        title="NFIRS Code Dictionary",
+        publisher="U.S. Fire Administration (FEMA)",
+        year="2024",
+        url="NFIRS 2024 Public Data Release / codelookup.txt",
+    ),
+]
+
+
+# ── the corpus manifest ────────────────────────────────────────────────────
+# An explicit allowlist. Nothing is ingested because of where it sits on disk.
+#
+# This replaced a per-directory source list in which adding a markdown file
+# under data/ made it corpus by accident. A file now becomes corpus only by
+# being added here, which a test enforces.
+#
+# `frozen_sha256` pins a document whose content must not drift. For the
+# project-authored methodology document that pin is the whole point: it is in
+# the corpus, so editing it shifts retrieval metrics, and the pin forces that
+# to happen as a deliberate re-measurement. External documents are published
+# artefacts and carry no pin -- their bytes are fixed by their publisher.
+CORPUS_MANIFEST: dict[str, dict] = {
+    "data/raw/documents/usfa/nfirs_complete_reference_guide_2015.pdf": {
+        "kind": "external",
+        "title": "NFIRS 5.0 Complete Reference Guide",
+    },
+    "data/raw/documents/usfa/nfirs_data_analysis_guidelines_issues.pdf": {
+        "kind": "external",
+        "title": "NFIRS 5.0 Fire Data Analysis Guidelines and Issues",
+    },
+    "data/raw/documents/usfa/nfirs_spec_2015.pdf": {
+        "kind": "external",
+        "title": "NFIRS 5.0 Design Documentation",
+    },
+    "<nfirs_dir>/codelookup.txt": {
+        "kind": "external",
+        "title": "NFIRS Code Dictionary",
+    },
+    "data/corpus/METHODOLOGY.md": {
+        "kind": "project_frozen",
+        "title": "FireSight Methodology",
+        "frozen_sha256": "c07041bf16c09572e0cdf1851b461684088cdbedb6eb22cc442a4e443fed823a",
+    },
+    "data/corpus/SCOPE.md": {
+        "kind": "scope",
+        "title": "FireSight Corpus Scope",
+        "frozen_sha256": "83fae778d642e18c9f813abb43defe04a148c4121871f92c0d5476ebf8e9d0b3",
+    },
+}
+
+# Files that must NEVER enter the corpus. Build artifacts: rewritten as the work
+# proceeds, so their presence would make the metrics a function of how much
+# documentation has been written.
+CORPUS_DENYLIST: tuple[str, ...] = (
+    "data/PROFILE.md",
+    "data/RECONCILIATION.md",
+    "README.md",
+    "FIRESIGHT_RAG_SPEC.md",
+    "eval/results/",
+)
 
 
 # ── tokenizer ──────────────────────────────────────────────────────────────
@@ -486,6 +567,15 @@ def chunk_blocks(
     return chunks
 
 
+def build_scope_chunks(cfg: ChunkConfig, tok: Tokenizer) -> list[Chunk]:
+    """Chunks for the scope-boundary collection only."""
+    chunks: list[Chunk] = []
+    for src in SCOPE_SOURCES:
+        if src.path.exists():
+            chunks += chunk_blocks(load_markdown(src), src, cfg, tok)
+    return chunks
+
+
 def build_chunks(cfg: ChunkConfig, tok: Tokenizer) -> list[Chunk]:
     chunks: list[Chunk] = []
     missing: list[str] = []
@@ -496,17 +586,11 @@ def build_chunks(cfg: ChunkConfig, tok: Tokenizer) -> list[Chunk]:
             continue
         chunks += chunk_blocks(load_pdf(src), src, cfg, tok)
 
-    for src in MARKDOWN_SOURCES + SCOPE_SOURCES:
+    for src in MARKDOWN_SOURCES:
         if src.path.exists():
             chunks += chunk_blocks(load_markdown(src), src, cfg, tok)
 
-    code_src = Source(
-        path=settings.codelookup_file,
-        title="NFIRS Code Dictionary",
-        publisher="U.S. Fire Administration (FEMA)",
-        year="2024",
-        url="NFIRS 2024 Public Data Release / codelookup.txt",
-    )
+    code_src = CODE_SOURCES[0]
     if settings.codelookup_file.exists():
         chunks += chunk_blocks(load_code_dictionary(), code_src, cfg, tok)
     else:
@@ -588,15 +672,88 @@ def ingest(cfg: ChunkConfig, rebuild: bool = False, batch: int = 256) -> int:
     return total
 
 
+def ingest_scope(cfg: ChunkConfig, rebuild: bool = False) -> int:
+    """
+    Build the scope-boundary collection, separate from the main index.
+
+    Kept out of the main index deliberately: the out_of_scope path fetches this
+    document by name, so its presence among ordinary retrieval candidates buys
+    nothing and costs ranking precision.
+    """
+    try:
+        import chromadb
+        from sentence_transformers import SentenceTransformer
+    except ImportError:
+        sys.exit("chromadb / sentence-transformers not installed. Run: uv sync --extra rag")
+
+    tok = Tokenizer(settings.embed_model)
+    chunks = build_scope_chunks(cfg, tok)
+    if not chunks:
+        print(f"[{cfg.name}] scope: no chunks (is data/corpus/SCOPE.md present?)")
+        return 0
+
+    settings.chroma_path.mkdir(parents=True, exist_ok=True)
+    client = chromadb.PersistentClient(path=str(settings.chroma_path))
+    if rebuild:
+        with contextlib.suppress(Exception):
+            client.delete_collection(cfg.scope_collection)
+    coll = client.get_or_create_collection(
+        cfg.scope_collection, metadata={"hnsw:space": "cosine"}
+    )
+
+    model = SentenceTransformer(settings.embed_model)
+    vecs = model.encode(
+        [c.text for c in chunks],
+        batch_size=32,
+        show_progress_bar=False,
+        normalize_embeddings=True,
+    )
+    coll.upsert(
+        ids=[c.chunk_id for c in chunks],
+        documents=[c.text for c in chunks],
+        metadatas=[c.metadata() for c in chunks],
+        embeddings=[v.tolist() for v in vecs],
+    )
+    total = coll.count()
+    print(f"[{cfg.name}] scope collection '{cfg.scope_collection}' holds {total:,} chunks")
+    return total
+
+
+def clean_store() -> None:
+    """
+    Delete the whole Chroma directory.
+
+    `--rebuild` calls delete_collection, which does NOT remove the collection's
+    HNSW segment directory. Repeated rebuilds therefore accumulate orphans --
+    measured at 14 segment directories and 131 MB for what should have been 4
+    collections. Use --clean for a true reset.
+    """
+    import shutil
+
+    if settings.chroma_path.exists():
+        before = sum(f.stat().st_size for f in settings.chroma_path.rglob("*") if f.is_file())
+        shutil.rmtree(settings.chroma_path)
+        print(f"  removed {settings.chroma_path} ({before / 1e6:.0f} MB)")
+
+
 def main() -> None:
     p = argparse.ArgumentParser(description="Ingest the document corpus into Chroma.")
     p.add_argument("--config", choices=[*CHUNK_CONFIGS, "all"], default="all")
     p.add_argument("--rebuild", action="store_true", help="drop the collection first")
+    p.add_argument(
+        "--clean",
+        action="store_true",
+        help="delete the whole Chroma store first (avoids orphaned segments)",
+    )
     args = p.parse_args()
+
+    if args.clean:
+        clean_store()
 
     names = list(CHUNK_CONFIGS) if args.config == "all" else [args.config]
     for name in names:
-        ingest(CHUNK_CONFIGS[name], rebuild=args.rebuild)
+        ingest(CHUNK_CONFIGS[name], rebuild=args.rebuild or args.clean)
+        ingest_scope(CHUNK_CONFIGS[name], rebuild=args.rebuild or args.clean)
 
 
 if __name__ == "__main__":

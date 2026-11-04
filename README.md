@@ -25,10 +25,10 @@ rather than chunk ids, so one labelled set survives a chunking-config change.
 
 | Chunk config | Rerank | Recall@5 | MRR | Hit rate | Answer present | p50 latency |
 |---|---|---:|---:|---:|---:|---:|
-| default (500 tok, 15%) | off | 0.600 | 0.474 | 0.667 | 0.533 | 29 ms |
-| default (500 tok, 15%) | on | 0.700 | 0.628 | 0.800 | 0.667 | 4,508 ms |
-| small (220 tok, 20%) | off | 0.567 | 0.452 | 0.600 | 0.467 | 34 ms |
-| small (220 tok, 20%) | on | **0.700** | **0.711** | **0.800** | **0.667** | 2,416 ms |
+| default (500 tok, 15%) | off | 0.600 | 0.397 | 0.667 | 0.533 | 48 ms |
+| default (500 tok, 15%) | on | 0.667 | 0.552 | 0.733 | 0.600 | 4,684 ms |
+| small (220 tok, 20%) | off | 0.633 | 0.424 | 0.667 | 0.400 | 29 ms |
+| small (220 tok, 20%) | on | **0.667** | **0.572** | **0.733** | 0.533 | 2,465 ms |
 
 *Answer present* is stricter than Recall: it asks whether the chunk containing the
 literal answer text was retrieved, not merely a chunk from the right section.
@@ -42,11 +42,13 @@ literal answer text was retrieved, not merely a chunk from the right section.
 | default | +0.100 | +1.5 of 15 | +0.153 | +4,480 ms |
 | small | +0.133 | +2.0 of 15 | +0.259 | +2,382 ms |
 
-**n=15, so one question is worth 0.067 Recall@5 — these deltas are 1.5 and 2.0
+**n=15, so one question is worth 0.067 Recall@5 — these deltas are 1.0 and 0.5
 questions.** That is not enough evidence to call the reranker's benefit
-established. It points the same way in both configurations, which is mildly
-reassuring, but the honest statement is: *directionally positive, underpowered,
-re-measure against the 50-question golden set at M4.*
+established, and the Recall@5 case got *weaker* after the corpus split: `small`
+is now half a question. The MRR gain is steadier (+0.15 in both configurations),
+which is consistent with a reranker's actual job — reordering candidates already
+retrieved. The honest statement is: *directionally positive on MRR, inconclusive
+on Recall@5, underpowered, re-measure against the 50-question golden set at M4.*
 
 It ships **off by default** (`FIRESIGHT_RERANK=1` to enable) because 2.4 s per
 query on CPU against 34 ms is a deliberate choice regardless of the quality
@@ -61,14 +63,17 @@ register as the questions.
 
 | Arm | Origin | n | Recall@5 | MRR | Hit rate |
 |---|---|---:|---:|---:|---:|
-| small + rerank | **external USFA/PDR** | 11 | **0.636** | 0.667 | 0.727 |
-| small + rerank | project-authored | 4 | 0.875 | 0.833 | 1.000 |
-| default | external USFA/PDR | 11 | 0.545 | 0.374 | 0.636 |
-| default | project-authored | 4 | 0.750 | 0.750 | 0.750 |
+| small + rerank | **external USFA/PDR** | 12 | **0.583** | 0.528 | 0.667 |
+| small + rerank | methodology | 3 | 1.000 | 0.750 | 1.000 |
+| default | external USFA/PDR | 12 | 0.500 | 0.301 | 0.583 |
+| default | methodology | 3 | 1.000 | 0.778 | 1.000 |
 
-**Take the external figure as the real one: Recall@5 0.636, not 0.700.** The gap
-holds across every arm. M4's golden set must rebalance toward external sources —
-a target of ≤20% project-authored, against the current 27%.
+**Take the external figure as the real one: Recall@5 0.583, not 0.667.** The gap
+is now starker, not smaller — methodology questions score a perfect 1.000 on every
+arm against 0.500–0.583 external. That is what a 15-chunk, cleanly-sectioned,
+same-register document does to a retrieval benchmark, and it is why the two are
+reported separately rather than pooled. The share is held at 3 of 15 (20%):
+enough to show methodology retrieval works, not enough to carry the headline.
 
 ### A tuning interaction worth knowing
 
@@ -98,9 +103,25 @@ calibration ([`scripts/validate_support_floor.py`](scripts/validate_support_floo
 
 | Set | Out-of-corpus refused | In-corpus wrongly refused | Separation margin |
 |---|---:|---:|---:|
-| Calibration (in-sample) | 12/12 | 0/15 | +0.088 |
+| Calibration (in-sample) | 12/12 | **1/15** | +0.025 |
 | **Held-out (out-of-sample)** | **9/10** | **0/8** | **−0.010** |
-| Pooled | 21/22 | 0/23 | −0.010 |
+| Pooled | 21/22 | 1/23 | −0.054 |
+
+**The corpus split cost the gate accuracy, and that is reported rather than
+tuned away.** Splitting methodology from build artifacts removed content that
+previously scored well for peer-group questions, leaving a 15-chunk methodology
+document as a thinner target. One calibration question — *"How is the peer group
+defined for benchmarking?"* — now scores **0.686 against the 0.70 floor** and
+would be wrongly refused. The in-sample margin fell from +0.088 to +0.025 and the
+pooled margin from −0.010 to −0.054.
+
+Retrieval is not at fault: that question's labelled section is still inside the
+top 5. The failure is the *absolute score*, not the ranking.
+
+Not fixed by rewording the question (that tunes the benchmark to the system) and
+not fixed by lowering the floor (that admits more out-of-corpus questions, and
+the pooled margin is already negative). It is pinned by id in the test suite, so
+it is recorded precisely and the suite fails if it spreads.
 
 **On held-out data the two populations overlap.** In-corpus questions bottom out
 at 0.730; out-of-corpus questions top out at 0.740. The clean +0.088 gap seen at
@@ -122,8 +143,8 @@ populations more cleanly. It does the opposite:
 
 | Signal | Pooled in-corpus min | Pooled out-of-corpus max | Margin |
 |---|---:|---:|---:|
-| bi-encoder cosine | 0.730 | 0.740 | −0.010 |
-| cross-encoder | 0.005 | 1.000 | **−0.995** |
+| bi-encoder cosine | 0.686 | 0.740 | −0.054 |
+| cross-encoder | 0.001 | 1.000 | **−0.999** |
 
 The cross-encoder scores *"What is the current interest rate set by the Federal
 Reserve?"* at **1.000** and the genuine in-corpus *"What does the resources field
@@ -203,13 +224,74 @@ ranks. Measured: it does not reach the top 5 for the NFPA-13 question or for
 state-fire-code questions — the same similarity blindness that lets those
 questions past the floor also keeps the document explaining the refusal out of
 the results. Filtered retrieval within the scope document returns the right
-section every time (NFPA → "NFPA standards", state code → "State and municipal
-fire codes", peer turnout → "Turnout and travel time").
+section in every case tested (NFPA 13 → "NFPA standards", state code → "State and
+municipal fire codes", peer turnout → "Turnout and travel time", pre-2024 trend →
+"Years other than 2024").
 
-**Measured cost of adding it.** Its 8–9 chunks compete for ranking slots like any
-others. Recall@5 held at 0.700 on the reranked arms, but MRR fell from 0.711 to
-0.644 on the best arm and `small` without reranking dropped from 0.567 to 0.533.
-That is the price of cited refusals, and it is paid in ranking precision.
+**Known imperfection, not chased.** *"What turnout time does NFPA 1710 require?"*
+cites the "Turnout and travel time" section rather than "NFPA standards". Both are
+genuine boundaries for that question — the interval is absent from NFIRS *and* the
+threshold is copyrighted — and the router's `exclusion_reason` still drives the
+refusal's framing, so the refusal fires correctly and names the right reason. Only
+the cited section is the less precise of the two.
+
+**It lives in its own Chroma collection, outside the main index.** It was briefly
+in the main index and that cost real ranking precision for presence nothing used
+— the `out_of_scope` path fetches it by name regardless. Moving it out recovered
+the loss in full:
+
+| Arm | MRR before | MRR sharing the index | MRR after moving out |
+|---|---:|---:|---:|
+| small + rerank | 0.711 | 0.644 | **0.711** |
+| default + rerank | 0.628 | 0.594 | **0.628** |
+| default | 0.474 | 0.441 | **0.474** |
+| small | 0.452 | 0.386 | 0.419 |
+
+Recall@5 was unchanged throughout on three arms (0.700 / 0.700 / 0.600).
+
+### One question had to be removed, and that is a design constraint
+
+A labelled question asking *"what share of NFIRS departments leave the station
+count blank?"* was dropped rather than re-labelled. Its answer — a specific
+percentage — existed only in a generated build artifact, so a user asking it
+would have been answered from **a number that changes on every rebuild.**
+
+Questions whose answers live in generated output are unanswerable by
+construction, not mislabelled. The corpus can hold the *rules* by which a figure
+is derived; it cannot hold the figure, because the figure is an output of the
+system being documented. That is a constraint on what a document corpus can
+cover, and it is why methodology was split from build artifacts rather than
+merely trimmed.
+
+### A measurement-stability hazard, now closed
+
+`small`'s Recall@5 did not return to its 0.567 baseline — it sits at 0.533. That
+residual is **not** the scope document. It is traced to an edit to
+`data/RECONCILIATION.md`, which is itself a corpus document: the Fix 8 rewrite
+grew it from 11,759 to 13,190 bytes, adding a section that displaced one of
+question d14's two labelled sections out of the top 5. The arithmetic matches
+exactly — 0.5 recall on one question of 15 is 0.033, and 0.567 − 0.533 = 0.033.
+
+So **writing the project's documentation moved the project's retrieval metrics** —
+a circularity, not merely instability: documenting a measurement changed the
+measurement.
+
+**Fixed structurally rather than by policy.** The corpus is now an explicit
+allowlist (`CORPUS_MANIFEST`), not a directory glob, so nothing becomes corpus by
+sitting in the right folder. Project-authored material is split in two:
+
+- **Methodology** — the peer-group definition, the response-time filter, the
+  alarm-to-arrival constraint, the incident-type exclusions — lives in one
+  **frozen** document, [`data/corpus/METHODOLOGY.md`](data/corpus/METHODOLOGY.md),
+  pinned by SHA-256. A user asking how a figure was derived gets a cited answer,
+  and editing that document is a deliberate act that forces re-measurement.
+- **Build artifacts** — `PROFILE.md`, `RECONCILIATION.md`, this README, anything
+  under `eval/results/` — are out of the corpus entirely, enforced by a denylist
+  tested from both directions.
+
+A test fails if a measured metric (`Recall@5`, `MRR`, a confusion matrix, an
+accuracy figure) ever appears in the frozen document, which closes the
+circularity by construction rather than by discipline.
 
 ## Read this before trusting any ranking
 
@@ -305,17 +387,23 @@ time.
 
 ## Document corpus
 
-1,708 chunks (`default`) / 3,287 (`small`) across six documents. Every source is
-public domain or own work:
+1,684 chunks (`default`) / 3,244 (`small`) across five documents, plus a separate
+8-chunk scope-boundary collection outside the main index. Membership is an
+explicit allowlist (`CORPUS_MANIFEST`), not a directory glob — a file becomes
+corpus only by being named there, enforced by test. Every source is public domain
+or own work:
 
 | Document | Publisher | Chunks |
 |---|---|---:|
-| NFIRS 5.0 Complete Reference Guide | USFA/FEMA | 777 |
-| NFIRS 5.0 Design Documentation | USFA/FEMA | 608 |
+| NFIRS 5.0 Complete Reference Guide | USFA/FEMA | 691 |
+| NFIRS 5.0 Design Documentation | USFA/FEMA | 573 |
 | NFIRS Code Dictionary (245 incident types, 244 coded fields) | USFA/FEMA | 305 |
-| NFIRS 5.0 Fire Data Analysis Guidelines and Issues | USFA/FEMA | 138 |
-| FireSight Data Profile | own work | 20 |
-| FireSight Reconciliation Notes | own work | 16 |
+| NFIRS 5.0 Fire Data Analysis Guidelines and Issues | USFA/FEMA | 103 |
+| **FireSight Methodology** (frozen, SHA-256 pinned) | own work | 12 |
+| *FireSight Corpus Scope* | *own work, separate collection* | *8* |
+
+Build artifacts are denylisted: `PROFILE.md`, `RECONCILIATION.md`, this README and
+`eval/results/` are **not** corpus, and a test checks that from both directions.
 
 USFA documents are US federal government works (17 U.S.C. §105). **NFPA standards
 are copyrighted and are never ingested** — where a compliance threshold is needed,
@@ -347,8 +435,20 @@ uv run python scripts/check_zero_responses.py    # zero-response distribution ch
 ```
 
 ```bash
-uv run python -m firesight.ingest.documents --rebuild   # build the Chroma corpus
+uv run python -m firesight.ingest.documents --clean   # build the Chroma corpus
 ```
+
+Use `--clean`, not `--rebuild`, for a reset. `--rebuild` calls Chroma's
+`delete_collection`, which leaves the collection's HNSW segment directory behind,
+so repeated rebuilds accumulate orphans. Measured here: **14 segment directories
+and 131 MB for what should be 4 collections**, which a clean rebuild returned to
+4 directories and ~30 MB. `--clean` removes the store outright.
+
+The test suite slowed from 96 s to 24 min while those orphans accumulated, and
+returned to **110 s** immediately after a clean rebuild. That is strong evidence
+the segments were the cause, though not a controlled experiment — CPU state also
+differed between runs, and query latency itself stayed at 28–48 ms throughout, so
+retrieval was never slow. What was slow was the client's startup scan.
 
 ```bash
 uv run python scripts/calibrate_support_floor.py # calibrate the refusal gate

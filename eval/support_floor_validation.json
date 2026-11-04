@@ -7,24 +7,24 @@
     "calibration_in": {
       "set": "calibration in-corpus",
       "n": 15,
-      "min": 0.7496,
-      "median": 0.7918,
+      "min": 0.6863,
+      "median": 0.8168,
       "max": 0.8955,
       "scores": [
-        0.7496,
-        0.7554,
+        0.6863,
+        0.7475,
         0.7593,
         0.7644,
         0.7765,
-        0.7857,
         0.7882,
-        0.7918,
         0.8102,
+        0.8168,
         0.8191,
+        0.8219,
         0.8274,
-        0.8314,
         0.8423,
         0.8622,
+        0.8879,
         0.8955
       ]
     },
@@ -53,15 +53,15 @@
       "set": "held-out in-corpus",
       "n": 8,
       "min": 0.7301,
-      "median": 0.7742,
+      "median": 0.7757,
       "max": 0.8349,
       "scores": [
         0.7301,
-        0.7624,
         0.7633,
         0.7735,
         0.775,
         0.7765,
+        0.8164,
         0.8268,
         0.8349
       ]
@@ -70,15 +70,15 @@
       "set": "held-out out-of-corpus",
       "n": 10,
       "min": 0.3972,
-      "median": 0.6082,
+      "median": 0.5992,
       "max": 0.7401,
       "scores": [
         0.3972,
         0.5087,
         0.5784,
+        0.5962,
+        0.5983,
         0.6001,
-        0.6065,
-        0.6099,
         0.6151,
         0.6258,
         0.6314,
@@ -86,11 +86,11 @@
       ]
     },
     "separation_calibration": {
-      "in_corpus_min": 0.7496,
+      "in_corpus_min": 0.6863,
       "out_of_corpus_max": 0.6617,
-      "margin": 0.0879,
+      "margin": 0.0246,
       "separated": true,
-      "midpoint": 0.7057
+      "midpoint": 0.674
     },
     "separation_heldout": {
       "in_corpus_min": 0.7301,
@@ -100,9 +100,9 @@
       "midpoint": null
     },
     "separation_pooled": {
-      "in_corpus_min": 0.7301,
+      "in_corpus_min": 0.6863,
       "out_of_corpus_max": 0.7401,
-      "margin": -0.01,
+      "margin": -0.0538,
       "separated": false,
       "midpoint": null
     },
@@ -110,7 +110,7 @@
       "floor": 0.7,
       "out_of_corpus_admitted": 0,
       "out_of_corpus_total": 12,
-      "in_corpus_wrongly_refused": 0,
+      "in_corpus_wrongly_refused": 1,
       "in_corpus_total": 15
     },
     "gate_heldout": {
@@ -125,20 +125,20 @@
     "calibration_in": {
       "set": "calibration in-corpus",
       "n": 15,
-      "min": 0.1089,
-      "median": 0.992,
+      "min": 0.0014,
+      "median": 0.9925,
       "max": 0.9998,
       "scores": [
-        0.1089,
-        0.1405,
-        0.5302,
+        0.0014,
+        0.3263,
+        0.4139,
         0.7938,
         0.9119,
-        0.9311,
-        0.9346,
+        0.9506,
         0.992,
-        0.9923,
+        0.9925,
         0.9951,
+        0.9972,
         0.9974,
         0.999,
         0.9997,
@@ -176,7 +176,7 @@
       "scores": [
         0.0048,
         0.1069,
-        0.4951,
+        0.3811,
         0.6896,
         0.7278,
         0.9597,
@@ -204,9 +204,9 @@
       ]
     },
     "separation_calibration": {
-      "in_corpus_min": 0.1089,
+      "in_corpus_min": 0.0014,
       "out_of_corpus_max": 0.9997,
-      "margin": -0.8908,
+      "margin": -0.9984,
       "separated": false,
       "midpoint": null
     },
@@ -218,9 +218,9 @@
       "midpoint": null
     },
     "separation_pooled": {
-      "in_corpus_min": 0.0048,
+      "in_corpus_min": 0.0014,
       "out_of_corpus_max": 0.9999,
-      "margin": -0.9951,
+      "margin": -0.9986,
       "separated": false,
       "midpoint": null
     }
