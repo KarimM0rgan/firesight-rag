@@ -1,0 +1,398 @@
+{
+  "generated_at": "2026-11-04T22:15:17+00:00",
+  "suite": "faithfulness",
+  "model": "claude-sonnet-5",
+  "config": "small",
+  "rerank": false,
+  "n_questions": 15,
+  "n_answered": 13,
+  "n_refused": 2,
+  "n_judged": 13,
+  "faithfulness": 0.8462,
+  "mean_unsupported_claims": 0.231,
+  "citation_rate": 1.0,
+  "citation_validity": 0.2308,
+  "judge_failures": 0,
+  "by_origin": {
+    "external": {
+      "n": 11,
+      "faithfulness": 0.8182
+    },
+    "methodology": {
+      "n": 2,
+      "faithfulness": 1.0
+    }
+  },
+  "latency_p50_ms": 2819.3,
+  "total_cost_usd": 0.27129,
+  "mean_cost_usd": 0.018086,
+  "wall_clock_s": 136.8,
+  "scores": [
+    {
+      "id": "d01",
+      "question": "How does NFIRS define a structure?",
+      "origin": "external",
+      "answered": true,
+      "refused": false,
+      "answer": "A structure is defined as an assembly of materials forming a construction for occupancy or use to serve a specific purpose, including but not limited to buildings, open platforms, bridges, roof assemblies over open storage or process areas, tents, air-supported structures, and grandstands [NFIRS 5.0 Complete Reference Guide \u2014 Structure Type].",
+      "n_hits": 5,
+      "citations": [
+        "NFIRS 5.0 Complete Reference Guide \u2014 Structure Type"
+      ],
+      "invalid_citations": [
+        "NFIRS 5.0 Complete Reference Guide \u2014 Structure Type"
+      ],
+      "citation_valid": false,
+      "has_citation": true,
+      "total_claims": 1,
+      "unsupported_claims": 0,
+      "unsupported": [],
+      "faithful": true,
+      "judge_error": null,
+      "latency_ms": 38824.2,
+      "cost_usd": 0.014004
+    },
+    {
+      "id": "d02",
+      "question": "What incident type code is used for a building fire, and what does it exclude?",
+      "origin": "external",
+      "answered": true,
+      "refused": false,
+      "answer": "Building fires are a subset of structure fires, which fall under Incident Type codes 111\u2013123 [NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Types of Fires by Incident Type]. Within this range, Confined Fires (113\u2013118) and Mobile Structure Fires (120\u2013123) are treated as separate subsets, as discussed in later sections, distinct from general building fires [NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Types of Fires by Incident Type].",
+      "n_hits": 5,
+      "citations": [
+        "NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Types of Fires by Incident Type"
+      ],
+      "invalid_citations": [
+        "NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Types of Fires by Incident Type"
+      ],
+      "citation_valid": false,
+      "has_citation": true,
+      "total_claims": 4,
+      "unsupported_claims": 2,
+      "unsupported": [
+        "as discussed in later sections",
+        "distinct from general building fires"
+      ],
+      "faithful": false,
+      "judge_error": null,
+      "latency_ms": 3377.4,
+      "cost_usd": 0.028815
+    },
+    {
+      "id": "d03",
+      "question": "How many characters is an FDID and who assigns it?",
+      "origin": "external",
+      "answered": true,
+      "refused": false,
+      "answer": "The FDID (Fire Department Identification) is a five-character identifier, and it is assigned by the State [NFIRS 5.0 Complete Reference Guide \u2014 Fire Department Identification (FDID)]. This is corroborated by the FireSight Methodology, which also describes FDID as \"a five-character identifier assigned by each state\" [FireSight Methodology \u2014 2. Department identity].",
+      "n_hits": 5,
+      "citations": [
+        "NFIRS 5.0 Complete Reference Guide \u2014 Fire Department Identification (FDID)",
+        "FireSight Methodology \u2014 2. Department identity"
+      ],
+      "invalid_citations": [
+        "NFIRS 5.0 Complete Reference Guide \u2014 Fire Department Identification (FDID)"
+      ],
+      "citation_valid": false,
+      "has_citation": true,
+      "total_claims": 2,
+      "unsupported_claims": 0,
+      "unsupported": [],
+      "faithful": true,
+      "judge_error": null,
+      "latency_ms": 1897.5,
+      "cost_usd": 0.01167
+    },
+    {
+      "id": "d04",
+      "question": "In the NFIRS aid given or received field, what does code 1 mean?",
+      "origin": "external",
+      "answered": true,
+      "refused": false,
+      "answer": "Code 1 in the NFIRS AID field means \"Mutual aid received\" [NFIRS Code Dictionary \u2014 Field AID].",
+      "n_hits": 5,
+      "citations": [
+        "NFIRS Code Dictionary \u2014 Field AID"
+      ],
+      "invalid_citations": [],
+      "citation_valid": true,
+      "has_citation": true,
+      "total_claims": 1,
+      "unsupported_claims": 0,
+      "unsupported": [],
+      "faithful": true,
+      "judge_error": null,
+      "latency_ms": 1024.9,
+      "cost_usd": 0.006885
+    },
+    {
+      "id": "d05",
+      "question": "Is reporting to NFIRS mandatory for fire departments?",
+      "origin": "external",
+      "answered": true,
+      "refused": false,
+      "answer": "Fire incident reporting is mandatory in many states, with state incident data sent to the National Fire Data Center at the U.S. Fire Administration for analysis [NFIRS 5.0 Design Documentation \u2014 The Data-based Decision-making Process]. Additionally, the USFA and many states are mandated by law to collect fire information, relying on the fire service to meet that requirement through NFIRS [NFIRS 5.0 Design Documentation \u2014 System Design Objectives].",
+      "n_hits": 5,
+      "citations": [
+        "NFIRS 5.0 Design Documentation \u2014 The Data-based Decision-making Process",
+        "NFIRS 5.0 Design Documentation \u2014 System Design Objectives"
+      ],
+      "invalid_citations": [
+        "NFIRS 5.0 Design Documentation \u2014 The Data-based Decision-making Process",
+        "NFIRS 5.0 Design Documentation \u2014 System Design Objectives"
+      ],
+      "citation_valid": false,
+      "has_citation": true,
+      "total_claims": 2,
+      "unsupported_claims": 0,
+      "unsupported": [],
+      "faithful": true,
+      "judge_error": null,
+      "latency_ms": 2746.1,
+      "cost_usd": 0.017151
+    },
+    {
+      "id": "d06",
+      "question": "For which incident type codes is the detector field required to be completed?",
+      "origin": "external",
+      "answered": true,
+      "refused": false,
+      "answer": "The detector field (H2 Detector) is required for all confined fires, specifically Incident Type codes 113\u2013118 [NFIRS 5.0 Complete Reference Guide \u2014 Detector]. This is consistent with an edit requirement noting that if Detector = 1, the Presence of Detectors field must also be completed if the Structure Fire Module exists for the incident [NFIRS 5.0 Design Documentation \u2014 Edit Requirements].",
+      "n_hits": 5,
+      "citations": [
+        "NFIRS 5.0 Complete Reference Guide \u2014 Detector",
+        "NFIRS 5.0 Design Documentation \u2014 Edit Requirements"
+      ],
+      "invalid_citations": [
+        "NFIRS 5.0 Complete Reference Guide \u2014 Detector",
+        "NFIRS 5.0 Design Documentation \u2014 Edit Requirements"
+      ],
+      "citation_valid": false,
+      "has_citation": true,
+      "total_claims": 2,
+      "unsupported_claims": 0,
+      "unsupported": [],
+      "faithful": true,
+      "judge_error": null,
+      "latency_ms": 2342.4,
+      "cost_usd": 0.024018
+    },
+    {
+      "id": "d07",
+      "question": "Which NFIRS module is completed for wildland or vegetation fires?",
+      "origin": "external",
+      "answered": true,
+      "refused": false,
+      "answer": "The Wildland Fire Module (NFIRS-8) is completed to report incidents that involve wildland or vegetation fires, and it is used in lieu of the Fire Module for such incidents [NFIRS 5.0 Complete Reference Guide \u2014 Preparation of Modules]. This is confirmed elsewhere, noting the module must be used in conjunction with the Basic Module (NFIRS-1) and replaces the Fire Module (NFIRS-2) for wildland fire incidents [NFIRS 5.0 Design Documentation \u2014 System Modules].",
+      "n_hits": 5,
+      "citations": [
+        "NFIRS 5.0 Complete Reference Guide \u2014 Preparation of Modules",
+        "NFIRS 5.0 Design Documentation \u2014 System Modules"
+      ],
+      "invalid_citations": [
+        "NFIRS 5.0 Complete Reference Guide \u2014 Preparation of Modules",
+        "NFIRS 5.0 Design Documentation \u2014 System Modules"
+      ],
+      "citation_valid": false,
+      "has_citation": true,
+      "total_claims": 2,
+      "unsupported_claims": 0,
+      "unsupported": [],
+      "faithful": true,
+      "judge_error": null,
+      "latency_ms": 2819.3,
+      "cost_usd": 0.020685
+    },
+    {
+      "id": "d08",
+      "question": "Which NFIRS module reports injuries or deaths to civilians?",
+      "origin": "external",
+      "answered": true,
+      "refused": false,
+      "answer": "The Civilian Fire Casualty Module (NFIRS-4) is used to report injuries or deaths to civilians or other emergency personnel (such as police officers or non-fire department EMS personnel) that occur in conjunction with a fire incident [NFIRS 5.0 Design Documentation \u2014 System Modules]. It must be used alongside the Basic Module, the Fire Module, and, if applicable, the Structure Fire Module, and is specifically for fire-related injuries/fatalities; non-fire-related civilian injuries are reported instead on the EMS Module (NFIRS-6) [NFIRS 5.0 Design Documentation \u2014 System Modules][NFIRS 5.0 Complete Reference Guide \u2014 Description of Modules].",
+      "n_hits": 5,
+      "citations": [
+        "NFIRS 5.0 Design Documentation \u2014 System Modules",
+        "NFIRS 5.0 Complete Reference Guide \u2014 Description of Modules"
+      ],
+      "invalid_citations": [
+        "NFIRS 5.0 Design Documentation \u2014 System Modules",
+        "NFIRS 5.0 Complete Reference Guide \u2014 Description of Modules"
+      ],
+      "citation_valid": false,
+      "has_citation": true,
+      "total_claims": 4,
+      "unsupported_claims": 0,
+      "unsupported": [],
+      "faithful": true,
+      "judge_error": null,
+      "latency_ms": 4827.9,
+      "cost_usd": 0.022299
+    },
+    {
+      "id": "d09",
+      "question": "What format is the ALARM field stored in within the NFIRS public data release files?",
+      "origin": "external",
+      "answered": false,
+      "refused": true,
+      "answer": "I don't know. The document corpus doesn't contain material that answers this question, so I can't give a grounded answer.",
+      "n_hits": 5,
+      "citations": [],
+      "invalid_citations": [],
+      "citation_valid": false,
+      "has_citation": false,
+      "total_claims": null,
+      "unsupported_claims": null,
+      "unsupported": [],
+      "faithful": null,
+      "judge_error": null,
+      "latency_ms": 2164.0,
+      "cost_usd": 0.006951
+    },
+    {
+      "id": "d10",
+      "question": "How did the definition of a building fire change in NFIRS 5.0 compared with earlier versions?",
+      "origin": "external",
+      "answered": true,
+      "refused": false,
+      "answer": "In earlier NFIRS versions, the term \"structure\" commonly referred to buildings where people live and work, but NFIRS 5.0 redefined \"building fire\" to include only incidents where the Structure Type is 1 or 2 (enclosed building, or fixed portable/mobile structure), distinguishing these from other structures like fences and sheds [NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Types of Fires by Incident Type]. Additionally, starting with 2008 data, Incident Type 112 (fire in structure, other than in a building) was excluded from building fire counts, whereas prior to 2008 it had been included because such incidents were often found to be miscoded building fires [NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Types of Fires by Incident Type].",
+      "n_hits": 5,
+      "citations": [
+        "NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Types of Fires by Incident Type"
+      ],
+      "invalid_citations": [
+        "NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Types of Fires by Incident Type"
+      ],
+      "citation_valid": false,
+      "has_citation": true,
+      "total_claims": 6,
+      "unsupported_claims": 0,
+      "unsupported": [],
+      "faithful": true,
+      "judge_error": null,
+      "latency_ms": 4046.7,
+      "cost_usd": 0.026226
+    },
+    {
+      "id": "d11",
+      "question": "Can a firefighter's exposure to chemicals be reported if it caused no injury?",
+      "origin": "external",
+      "answered": true,
+      "refused": false,
+      "answer": "Yes. A health exposure occurs when fire service personnel come in contact with a toxic substance or harmful physical agent through any route of entry into the body (e.g., inhalation, ingestion, skin absorption, direct contact), and these exposures can be reported regardless of the presence of clinical signs and symptoms [NFIRS 5.0 Complete Reference Guide \u2014 Station Number]; [NFIRS 5.0 Complete Reference Guide \u2014 Taken To]. Such exposures are treated as \"report only,\" the lowest severity code, meaning no actual injury needs to have occurred for it to be documented [NFIRS 5.0 Complete Reference Guide \u2014 Taken To]; [NFIRS 5.0 Complete Reference Guide \u2014 Severity]. This aligns with the Fire Service Casualty Module's design, which allows reporting exposure to chemicals or biological agents even when no symptoms are present at the time, since such exposure could lead to illness later [NFIRS 5.0 Design Documentation \u2014 System Modules].",
+      "n_hits": 5,
+      "citations": [
+        "NFIRS 5.0 Complete Reference Guide \u2014 Station Number",
+        "NFIRS 5.0 Complete Reference Guide \u2014 Taken To",
+        "NFIRS 5.0 Complete Reference Guide \u2014 Severity",
+        "NFIRS 5.0 Design Documentation \u2014 System Modules"
+      ],
+      "invalid_citations": [
+        "NFIRS 5.0 Complete Reference Guide \u2014 Station Number",
+        "NFIRS 5.0 Complete Reference Guide \u2014 Taken To",
+        "NFIRS 5.0 Complete Reference Guide \u2014 Severity",
+        "NFIRS 5.0 Design Documentation \u2014 System Modules"
+      ],
+      "citation_valid": false,
+      "has_citation": true,
+      "total_claims": 5,
+      "unsupported_claims": 1,
+      "unsupported": [
+        "meaning no actual injury needs to have occurred for it to be documented"
+      ],
+      "faithful": false,
+      "judge_error": null,
+      "latency_ms": 4706.7,
+      "cost_usd": 0.033027
+    },
+    {
+      "id": "d12",
+      "question": "Why can turnout time not be computed from the NFIRS incident table?",
+      "origin": "methodology",
+      "answered": true,
+      "refused": false,
+      "answer": "Turnout time cannot be computed from the NFIRS incident table because NFIRS only records four timestamps\u2014alarm, arrival, incident controlled, and last unit cleared\u2014and has no dispatch timestamp or en-route timestamp, both of which are needed to calculate turnout (dispatch to en route) [FireSight Methodology \u2014 Only alarm-to-arrival exists in NFIRS]. These timestamps are only available for the single department covered by the local export within the 2025-09 to 2026-03 window, not from NFIRS generally [FireSight Methodology \u2014 Only alarm-to-arrival exists in NFIRS].",
+      "n_hits": 5,
+      "citations": [
+        "FireSight Methodology \u2014 Only alarm-to-arrival exists in NFIRS"
+      ],
+      "invalid_citations": [],
+      "citation_valid": true,
+      "has_citation": true,
+      "total_claims": 4,
+      "unsupported_claims": 0,
+      "unsupported": [],
+      "faithful": true,
+      "judge_error": null,
+      "latency_ms": 2696.0,
+      "cost_usd": 0.021813
+    },
+    {
+      "id": "d13",
+      "question": "What does the NFIRS incident type field record?",
+      "origin": "external",
+      "answered": true,
+      "refused": false,
+      "answer": "The passages do not directly define what the Incident Type (INC_TYPE) field records, but they do note that Incident Type code \"110\" (undefined structure fire) is a conversion-only code from NFIRS 4.1, used when older data is mapped into the NFIRS 5.0 system [NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Unique Identifiers]. Beyond this specific conversion detail, the corpus does not contain a general description of what the Incident Type field records, so I can't provide a complete grounded answer to that broader question.",
+      "n_hits": 5,
+      "citations": [
+        "NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Unique Identifiers"
+      ],
+      "invalid_citations": [
+        "NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Unique Identifiers"
+      ],
+      "citation_valid": false,
+      "has_citation": true,
+      "total_claims": 2,
+      "unsupported_claims": 0,
+      "unsupported": [],
+      "faithful": true,
+      "judge_error": null,
+      "latency_ms": 3339.9,
+      "cost_usd": 0.019131
+    },
+    {
+      "id": "d14",
+      "question": "How is the peer group defined for benchmarking?",
+      "origin": "methodology",
+      "answered": false,
+      "refused": true,
+      "answer": "I don't know. The document corpus doesn't contain material that answers this question, so I can't give a grounded answer.",
+      "n_hits": 5,
+      "citations": [],
+      "invalid_citations": [],
+      "citation_valid": false,
+      "has_citation": false,
+      "total_claims": null,
+      "unsupported_claims": null,
+      "unsupported": [],
+      "faithful": null,
+      "judge_error": null,
+      "latency_ms": 41.8,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "d15",
+      "question": "Why are same-minute responses kept in the response-time statistics?",
+      "origin": "methodology",
+      "answered": true,
+      "refused": false,
+      "answer": "Same-minute (zero-minute) responses are kept because a same-minute arrival represents a genuine outcome for calls near the station, and discarding zeros would remove the fastest tail of the distribution, biasing the headline 90th-percentile metric upward [FireSight Methodology \u2014 The filter]. Supporting evidence shows that building-fire incidents (code 111) with same-minute arrivals are spread thinly across many departments rather than clustered in a few, and almost none carry placeholder timestamps \u2014 indicating a genuine station-adjacent response pattern rather than a data artifact [FireSight Methodology \u2014 The filter]. The previously used rule excluding these responses (`response_min > 0`) is still retained in parallel columns so reports can include a sensitivity row rather than treating the inclusion decision as uncontested [FireSight Methodology \u2014 The filter].",
+      "n_hits": 5,
+      "citations": [
+        "FireSight Methodology \u2014 The filter"
+      ],
+      "invalid_citations": [],
+      "citation_valid": true,
+      "has_citation": true,
+      "total_claims": 3,
+      "unsupported_claims": 0,
+      "unsupported": [],
+      "faithful": true,
+      "judge_error": null,
+      "latency_ms": 4307.8,
+      "cost_usd": 0.018612
+    }
+  ]
+}

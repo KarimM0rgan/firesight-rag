@@ -137,7 +137,11 @@ def answer(
         )
 
     try:
-        reply = complete(build_prompt(question, supported), max_tokens=700)
+        # Budget must cover the model's `thinking` block as well as its
+        # text. At 700 the thinking consumed it all and the text block
+        # came back empty -- the same bug that produced a 21.7% schema-
+        # violation rate in the router.
+        reply = complete(build_prompt(question, supported), max_tokens=2000)
     except LLMError as e:
         return DocAnswer(
             question=question,

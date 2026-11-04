@@ -239,7 +239,12 @@ def route(question: str, *, max_retries: int = 1) -> RoutingResult:
     for _ in range(max_retries + 1):
         res.attempts += 1
         try:
-            reply = complete(PROMPT.format(question=question) + feedback, max_tokens=300)
+            # 1200, not 300. MEASURED: this model emits a `thinking` block
+            # before its text block, and at 300 the thinking consumed the whole
+            # budget -- stop_reason=max_tokens, no text block, empty reply.
+            # That alone produced a 21.7% schema-violation rate and 5 of 46
+            # questions unroutable, none of which was a routing error.
+            reply = complete(PROMPT.format(question=question) + feedback, max_tokens=1200)
         except LLMError as e:
             res.error = f"model call failed: {e}"
             res.latency_ms = (time.perf_counter() - t0) * 1000

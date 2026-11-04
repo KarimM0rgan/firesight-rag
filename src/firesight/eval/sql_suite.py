@@ -39,6 +39,7 @@ class Score:
     category: str
     executed: bool
     result_match: bool
+    answer_contained: bool
     n_attempts: int
     latency_ms: float
     input_tokens: int
@@ -59,6 +60,32 @@ def _norm(v) -> object:
         return round(f / NUMERIC_TOLERANCE) * NUMERIC_TOLERANCE
     except ValueError:
         return s.casefold()
+
+
+def answer_contained(expected: list[list], actual: list[tuple]) -> bool:
+    """
+    Looser, and arguably the more faithful measure: does the returned result
+    CONTAIN the verified answer?
+
+    Strict row-multiset equality marks a query wrong for selecting extra
+    context columns. Measured on this set, that was most of the apparent
+    failures -- asked for a P90, the model returned the P90 *and* the sample
+    size, which is a better answer than the reference and scored as wrong.
+
+    Both numbers are reported, because the looser one can be fooled: a query
+    returning many columns may contain the answer incidentally.
+    """
+    exp_rows = [{_norm(c) for c in r} for r in expected]
+    act_rows = [{_norm(c) for c in r} for r in actual]
+    if len(act_rows) < len(exp_rows):
+        return False
+    unused = list(act_rows)
+    for want in exp_rows:
+        hit = next((i for i, got in enumerate(unused) if want <= got), None)
+        if hit is None:
+            return False
+        unused.pop(hit)
+    return True
 
 
 def results_match(expected: list[list], actual: list[tuple]) -> tuple[bool, str | None]:
@@ -90,7 +117,21 @@ def run(limit: int | None = None) -> dict:
         for line in QUESTIONS.read_text(encoding="utf-8").splitlines()
         if line.strip()
     ]
-    reference = {r["id"]: r for r in json.loads(REFERENCE.read_text(encoding="utf-8"))}
+    raw = json.loads(REFERENCE.read_text(encoding="utf-8"))
+    if isinstance(raw, dict):
+        reference = {r["id"]: r for r in raw["answers"]}
+        from firesight.eval.fingerprint import check_against
+
+        drift = check_against(raw.get("db_fingerprint"))
+        if drift:
+            raise SystemExit(
+                "Reference answers are STALE -- the structured store has changed "
+                f"since they were generated: {drift}.\n"
+                "Run scripts/verify_reference_sql.py again before scoring, or the "
+                "model will be marked wrong for returning the correct figures."
+            )
+    else:
+        reference = {r["id"]: r for r in raw}
 
     missing = [q["id"] for q in questions if q["id"] not in reference]
     if missing:
@@ -110,9 +151,11 @@ def run(limit: int | None = None) -> dict:
         ans = ask(q["question"])
 
         match, detail = False, None
+        contained = False
         if ans.answered and ans.result is not None:
             if ref.get("ok"):
                 match, detail = results_match(ref["rows"], ans.result.rows)
+                contained = answer_contained(ref["rows"], ans.result.rows)
             else:
                 detail = "reference query itself failed; cannot score"
 
@@ -124,6 +167,7 @@ def run(limit: int | None = None) -> dict:
                 category=q["category"],
                 executed=ans.answered,
                 result_match=match,
+                answer_contained=contained,
                 n_attempts=ans.n_attempts,
                 latency_ms=round(ans.latency_ms, 1),
                 input_tokens=ans.input_tokens,
@@ -153,6 +197,9 @@ def run(limit: int | None = None) -> dict:
         "n_questions": n,
         "execution_accuracy": round(sum(s.executed for s in scores) / n, 4) if n else None,
         "result_accuracy": round(sum(s.result_match for s in scores) / n, 4) if n else None,
+        "answer_containment_accuracy": (
+            round(sum(s.answer_contained for s in scores) / n, 4) if n else None
+        ),
         "retry_rate": round(sum(s.n_attempts > 1 for s in scores) / n, 4) if n else None,
         "latency_p50_ms": lat[len(lat) // 2] if lat else None,
         "latency_p95_ms": lat[max(0, int(len(lat) * 0.95) - 1)] if lat else None,
@@ -194,7 +241,9 @@ def write_report(report: dict) -> tuple:
         "| Metric | Value |",
         "| --- | --- |",
         f"| Execution accuracy | {report['execution_accuracy']:.1%} |",
-        f"| Result accuracy | {report['result_accuracy']:.1%} |",
+        f"| Result accuracy (exact row match) | {report['result_accuracy']:.1%} |",
+        f"| Answer containment (reference values present) "
+        f"| {report['answer_containment_accuracy']:.1%} |",
         f"| Retry rate | {report['retry_rate']:.1%} |",
         f"| Latency p50 | {report['latency_p50_ms']:.0f} ms |",
         f"| Latency p95 | {report['latency_p95_ms']:.0f} ms |",

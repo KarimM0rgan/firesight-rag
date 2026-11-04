@@ -197,7 +197,7 @@ def _refuse_with_scope(
                 context=context,
                 question=question,
             ),
-            max_tokens=400,
+            max_tokens=1500,
         )
     except LLMError:
         # Deterministic fallback: still cited, just not phrased by the model.
@@ -265,7 +265,7 @@ def _answer_hybrid(question: str, config: str, rerank: bool) -> tuple:
                 context=context,
                 question=question,
             ),
-            max_tokens=900,
+            max_tokens=2000,
         )
     except LLMError as e:
         return (

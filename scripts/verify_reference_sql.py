@@ -21,6 +21,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from firesight.config import REPO_ROOT  # noqa: E402
+from firesight.eval.fingerprint import current_fingerprint  # noqa: E402
 from firesight.retrieval.sql_guard import execute  # noqa: E402
 
 QUESTIONS = REPO_ROOT / "eval" / "structured_questions.jsonl"
@@ -62,7 +63,8 @@ def main() -> None:
         out.append(rec)
         print(f"  [{status}] {q['id']} {q['question'][:58]:<58} -> {preview}")
 
-    OUT.write_text(json.dumps(out, indent=2), encoding="utf-8")
+    payload = {"db_fingerprint": current_fingerprint(), "answers": out}
+    OUT.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     ok = len(out) - failures
     print(f"\n{ok}/{len(out)} reference queries executed. Wrote {OUT}")
     if failures:
