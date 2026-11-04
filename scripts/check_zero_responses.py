@@ -1,18 +1,23 @@
 """
-Zero-minute response-time distribution check (M1 gate).
+Zero-minute response-time distribution check.
 
 Answers one question: are same-minute arrivals spread thinly across the peer
 cohort, or are a handful of departments producing them as a reporting artifact?
 
-The decision rule was fixed BEFORE this was run:
+HISTORY. This originally scored a pre-committed rule whose second test --
+"no department's zero rate exceeds 3x the cohort median" -- was unsatisfiable
+by construction: with a median of 1.82% the threshold fell to 5.45%, below the
+cohort's own P90 of 8.82%, so any right-skewed distribution failed it. That
+test has been WITHDRAWN. The replacement is evidence-first:
 
-  * Top 10 departments hold <25% of all zeros AND no department's zero rate
-    exceeds 3x the cohort median  -> diffuse  -> keep zeros everywhere.
-  * Otherwise -> concentrated -> exclude the departments whose zero rate
-    exceeds 3x the cohort median from the peer pool as a reporting artifact,
-    and keep zeros everywhere else.
+  (1) SENTINEL EVIDENCE -- a department whose zeros are mostly placeholder
+      arrival times ('0000'/'9999'), in material quantity, is flagged on that
+      evidence directly, with no rate threshold.
+  (2) PLAUSIBILITY FLOOR -- otherwise, flag a zero rate above 25%. One call in
+      four arriving in the same clock minute as the alarm is not a credible
+      response profile at any department size.
 
-Either way the primary filter becomes 0 <= response_min <= 90.
+Thresholds live in config.py (ZERO_RATE_IMPLAUSIBLE, SENTINEL_*).
 
     uv run python scripts/check_zero_responses.py
 """
@@ -26,7 +31,11 @@ import duckdb
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from firesight.config import RESPONSE_MIN_CAP, settings  # noqa: E402
+from firesight.config import (  # noqa: E402
+    RESPONSE_MIN_CAP,
+    ZERO_RATE_IMPLAUSIBLE,
+    settings,
+)
 
 CAP = RESPONSE_MIN_CAP
 
@@ -99,26 +108,31 @@ ORDER BY n_zero DESC
 LIMIT 15
 """
 
-# Decision-rule inputs, computed separately from the display queries.
-RULE = (
-    DEPT_RT
-    + """
-, totals AS (SELECT SUM(n_zero) AS all_zeros, MEDIAN(zero_rate) AS med FROM dept_rt),
-  top10 AS (SELECT SUM(n_zero) AS z FROM (
-      SELECT n_zero FROM dept_rt ORDER BY n_zero DESC LIMIT 10))
-SELECT
-  (SELECT z FROM top10) AS top10_zeros,
-  (SELECT all_zeros FROM totals) AS all_zeros,
-  ROUND((SELECT z FROM top10) * 1.0 / (SELECT all_zeros FROM totals), 4) AS top10_share,
-  ROUND((SELECT med FROM totals), 4) AS median_zero_rate,
-  ROUND(3 * (SELECT med FROM totals), 4) AS threshold_3x,
-  (SELECT COUNT(*) FROM dept_rt WHERE zero_rate > 3 * (SELECT med FROM totals))
-    AS n_depts_over_3x,
-  (SELECT SUM(n_zero) FROM dept_rt WHERE zero_rate > 3 * (SELECT med FROM totals))
-    AS zeros_in_depts_over_3x
-FROM totals
+# Query 5 -- does sentinel evidence explain the high-zero departments?
+Q5 = """
+SELECT state, fdid, n_scored, n_zero, round(zero_rate, 3) AS zero_rate,
+       n_sentinel_zero, sentinel_share_of_zeros,
+       flagged_by_sentinel, flagged_by_rate, testable
+FROM zero_response_artifacts
+WHERE n_sentinel_zero > 0 OR is_zero_artifact
+ORDER BY n_zero DESC
+LIMIT 25
 """
-)
+
+# What the live rule actually flags.
+RULE = f"""
+SELECT
+  count(*) FILTER (WHERE is_zero_artifact) AS flagged_total,
+  count(*) FILTER (WHERE flagged_by_sentinel) AS by_sentinel_evidence,
+  count(*) FILTER (WHERE flagged_by_rate) AS by_plausibility_floor,
+  count(*) FILTER (WHERE is_zero_artifact AND NOT testable) AS flagged_but_untestable,
+  count(*) FILTER (WHERE is_zero_artifact AND n_scored > 10)
+    AS flagged_and_in_ranking_pool,
+  sum(n_zero) FILTER (WHERE is_zero_artifact) AS zeros_removed,
+  sum(n_zero) AS zeros_total,
+  {ZERO_RATE_IMPLAUSIBLE} AS floor_threshold
+FROM zero_response_artifacts
+"""
 
 
 def show(con, title: str, sql: str) -> list:
@@ -138,23 +152,19 @@ def main() -> None:
     show(con, "QUERY 2 - Which departments carry the zeros (top 25)", Q2)
     show(con, "QUERY 3 - Real same-minute arrivals or sentinel values", Q3)
     show(con, "QUERY 4 - Incident-type composition of zeros", Q4)
+    show(con, "QUERY 5 - Sentinel evidence vs the high-zero departments", Q5)
 
-    (t10, allz, share, med, thr, n_over, z_over) = show(
-        con, "DECISION RULE INPUTS", RULE
+    (n_flag, n_sent, n_rate, n_untest, n_pool, z_rm, z_tot, thr) = show(
+        con, "WHAT THE LIVE RULE FLAGS", RULE
     )[0]
 
-    diffuse_a = share < 0.25
-    diffuse_b = n_over == 0
-    verdict = "DIFFUSE -> keep zeros" if (diffuse_a and diffuse_b) else "CONCENTRATED"
-    print(f"\n{'=' * 78}\nVERDICT\n{'=' * 78}")
-    print(f"  (a) top-10 share of all zeros = {share:.1%}  < 25%?  {diffuse_a}")
-    print(f"  (b) depts with zero_rate > 3x median ({thr:.4f}) = {n_over}  == 0?  {diffuse_b}")
-    print(f"  -> {verdict}")
-    if not (diffuse_a and diffuse_b):
-        print(
-            f"  Artifact departments to exclude from the peer pool: {n_over} "
-            f"(holding {z_over:,} of {allz:,} zeros)"
-        )
+    print(f"\n{'=' * 78}\nOUTCOME\n{'=' * 78}")
+    print(f"  flagged departments            : {n_flag}")
+    print(f"    by sentinel evidence         : {n_sent}")
+    print(f"    by the {thr:.0%} plausibility floor : {n_rate}")
+    print(f"  of those, below the testability bar : {n_untest}")
+    print(f"  of those, inside the ranking pool   : {n_pool}")
+    print(f"  zeros removed from the cohort   : {z_rm:,} of {z_tot:,}")
     con.close()
 
 

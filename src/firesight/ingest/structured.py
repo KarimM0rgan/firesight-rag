@@ -31,9 +31,13 @@ from firesight.config import (
     NON_FINALIZED_RECORDS,
     NON_RESPONSE_INCIDENT_TYPES,
     RESPONSE_MIN_CAP,
+    SENTINEL_MIN_RECORDS,
+    SENTINEL_SHARE_OF_ZEROS,
     SEWANEE_FDID,
     SEWANEE_STATE,
     TEST_RECORD_FLAGS,
+    ZERO_RATE_IMPLAUSIBLE,
+    ZERO_RATE_MIN_SCORED,
     PeerCriteria,
     settings,
 )
@@ -213,48 +217,64 @@ def build_incidents(con: duckdb.DuckDBPyConnection) -> None:
 # ──────────────────────────────────────────────────────────────────────────
 def build_zero_artifacts(con: duckdb.DuckDBPyConnection) -> None:
     """
-    Flag departments whose same-minute-arrival rate marks their timestamps as a
-    reporting artifact rather than fast response.
+    Flag departments whose same-minute arrivals are a reporting artifact.
 
-    Rule fixed BEFORE the distribution was examined (see
-    scripts/check_zero_responses.py). The check returned CONCENTRATED:
-    top-10 departments held 21.6% of zeros (< 25%, passes), but 134
-    departments exceeded 3x the cohort median zero rate of 1.82% (fails).
-    The pre-committed consequence is to drop those specific departments from
-    the benchmark pool and keep zeros everywhere else.
+    Evidence first, threshold second -- see the rationale in config.py beside
+    ZERO_RATE_IMPLAUSIBLE. A department is flagged when EITHER
 
-    Only departments with >= 30 scored incidents are testable; smaller ones
-    cannot be distinguished from noise and are left in, flagged `untestable`.
+      (1) its zeros are mostly sentinel-backed, in material quantity, OR
+      (2) its zero rate exceeds ZERO_RATE_IMPLAUSIBLE.
+
+    The former "3x the cohort median" rule was withdrawn as unsatisfiable by
+    construction for any right-skewed distribution.
     """
     cap = RESPONSE_MIN_CAP
+    sentinel = (
+        "(substr(arrival_raw, 9, 4) IN ('0000', '9999') "
+        "OR arrival_raw IN ('0000', '9999'))"
+    )
     con.execute(f"""
     CREATE OR REPLACE TABLE zero_response_artifacts AS
     WITH dept_rt AS (
       SELECT state, fdid,
              count(*) AS n_scored,
              count(*) FILTER (WHERE response_min = 0) AS n_zero,
-             count(*) FILTER (WHERE response_min = 0) * 1.0 / count(*) AS zero_rate
+             count(*) FILTER (WHERE response_min = 0) * 1.0 / count(*) AS zero_rate,
+             count(*) FILTER (WHERE response_min = 0 AND {sentinel})
+               AS n_sentinel_zero
       FROM incidents
       WHERE NOT is_non_response
         AND response_min IS NOT NULL AND response_min <= {cap}
       GROUP BY state, fdid
-    ),
-    cohort AS (SELECT median(zero_rate) AS med FROM dept_rt WHERE n_scored >= 30)
-    SELECT d.state, d.fdid, d.n_scored, d.n_zero, round(d.zero_rate, 4) AS zero_rate,
-           round((SELECT med FROM cohort), 4) AS cohort_median_zero_rate,
-           round(3 * (SELECT med FROM cohort), 4) AS threshold,
-           d.n_scored >= 30 AS testable,
-           (d.n_scored >= 30 AND d.zero_rate > 3 * (SELECT med FROM cohort))
-             AS is_zero_artifact
+    )
+    SELECT d.state, d.fdid, d.n_scored, d.n_zero,
+           round(d.zero_rate, 4) AS zero_rate,
+           d.n_sentinel_zero,
+           round(d.n_sentinel_zero * 1.0 / nullif(d.n_zero, 0), 4)
+             AS sentinel_share_of_zeros,
+           d.n_scored >= {ZERO_RATE_MIN_SCORED} AS testable,
+           -- (1) direct sentinel evidence, with a materiality guard
+           (d.n_sentinel_zero >= {SENTINEL_MIN_RECORDS}
+             AND d.n_sentinel_zero * 1.0 / nullif(d.n_zero, 0)
+                 >= {SENTINEL_SHARE_OF_ZEROS}) AS flagged_by_sentinel,
+           -- (2) plausibility floor, applied at any department size
+           (d.zero_rate > {ZERO_RATE_IMPLAUSIBLE}) AS flagged_by_rate,
+           ((d.n_sentinel_zero >= {SENTINEL_MIN_RECORDS}
+             AND d.n_sentinel_zero * 1.0 / nullif(d.n_zero, 0)
+                 >= {SENTINEL_SHARE_OF_ZEROS})
+            OR d.zero_rate > {ZERO_RATE_IMPLAUSIBLE}) AS is_zero_artifact
     FROM dept_rt d
     """)
-    n_art, n_test, sew_art = con.execute("""
-      SELECT sum(is_zero_artifact::INT), sum(testable::INT),
+    n_art, n_sent, n_rate, n_test, sew_art = con.execute("""
+      SELECT sum(is_zero_artifact::INT), sum(flagged_by_sentinel::INT),
+             sum(flagged_by_rate::INT), sum(testable::INT),
              max(CASE WHEN state='TN' AND fdid='26161' THEN is_zero_artifact::INT END)
       FROM zero_response_artifacts
     """).fetchone()
     log(
-        f"zero_response_artifacts: {n_art} artifact departments of {n_test} testable "
+        f"zero_response_artifacts: {n_art} flagged "
+        f"({n_sent} by sentinel evidence, {n_rate} by the "
+        f"{ZERO_RATE_IMPLAUSIBLE:.0%} floor) of {n_test} testable "
         f"| sewanee flagged={bool(sew_art)}"
     )
 

@@ -26,9 +26,39 @@ filters stack:
 3. 134 departments whose same-minute-arrival rate exceeded 3× the cohort median are
    excluded as a reporting artifact.
 
-What remains is **648 departments**, not the 1,138 claimed by the prior work on this
+What remains is **768 departments**, not the 1,138 claimed by the prior work on this
 data. Every ranking this system outputs carries that caveat — see
 [`data/RECONCILIATION.md`](data/RECONCILIATION.md).
+
+### Headline figures are the worst case across pool definitions
+
+Excluding a department for an implausible zero rate removes a *fast-looking*
+department from the cohort, which inflates Sewanee's rank. That bias runs toward
+the client, so the published figure is the **least favorable value across all three
+pool definitions**, not the best-looking one.
+
+| Pool | n | P90 regional | P90 TN | Compliance regional | Compliance TN |
+|---|---:|---:|---:|---:|---:|
+| **A** no exclusion | 782 | 14.6% | 10.4% | 9.0% | 6.5% |
+| **B** sentinel evidence + 25% plausibility floor (live) | 768 | 14.4% | 10.5% | 8.5% | 6.5% |
+| **C** withdrawn 3×-median rule | 648 | 13.0% | 9.9% | 7.0% | 6.2% |
+| **Published** | — | **14.6%** | **10.5%** | **9.0%** | **6.5%** |
+
+More exclusion, better rank — monotonically. Pool C flattered Sewanee most, which
+is why it is not the headline. Peer median P90 is 18.0 min against Sewanee's 13.0
+under every definition.
+
+### The zero-response filter choice was tested, not assumed
+
+Keeping same-minute arrivals rather than discarding them leaves Sewanee's **P90
+unchanged at 13.0 min**, while moving P95 by **−0.9 min** and 8-minute compliance
+by **+1.0pp**. The predicted bias is real but lands off the headline metric. A null
+result on the headline is worth stating plainly.
+
+Supporting evidence: of 95 zero-minute *building fire* incidents, 80 (84%) sit in
+departments with unremarkable zero rates and only 2 carry a placeholder timestamp —
+spread, not clustered. Station-adjacent fires genuinely do produce same-minute
+arrivals.
 
 NFIRS also records **only alarm-to-arrival**. There is no dispatch or en-route
 timestamp, so turnout and travel time cannot be computed from it for any department

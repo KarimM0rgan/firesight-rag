@@ -46,6 +46,37 @@ RESPONSE_MIN_CAP = 90
 RESPONSE_MIN_STRICT_POSITIVE = False
 
 
+# ── Zero-artifact detection ────────────────────────────────────────────────
+# A department is flagged when its same-minute-arrival rate marks its
+# timestamps as a reporting artifact rather than genuinely fast response.
+#
+# Evidence path first, threshold second:
+#
+# (1) SENTINEL EVIDENCE. NFIRS arrival times ending '0000' or '9999' are
+#     placeholder values, not clock readings. Where a department's zeros are
+#     mostly sentinel-backed, that is direct evidence and no rate threshold is
+#     needed. Materiality is required: 16 of the 17 departments holding
+#     sentinel records hold only 1-4 of them, and condemning a whole
+#     department over a single corrupt row would be wrong.
+#
+# (2) PLAUSIBILITY FLOOR. Where sentinel evidence is absent, flag a zero rate
+#     above 25%. One call in four arriving in the same clock minute as the
+#     alarm is not a credible response profile at any department size -- the
+#     two worst offenders (KY/24116 at 60.9%, MS/34007 at 75.5%) carry no
+#     sentinel records at all, so only a plausibility judgment catches them.
+#
+# This replaced a "3x the cohort median" rule, which was withdrawn: with a
+# median of 1.82% the threshold fell to 5.45%, below the cohort's own P90 of
+# 8.82%, so a right-skewed distribution failed it by construction.
+ZERO_RATE_IMPLAUSIBLE = 0.25
+SENTINEL_SHARE_OF_ZEROS = 0.50
+SENTINEL_MIN_RECORDS = 10
+# Departments below this many scored incidents cannot be distinguished from
+# noise; they are reported as `testable = false`. The plausibility floor still
+# applies to them, because its rationale is size-independent.
+ZERO_RATE_MIN_SCORED = 30
+
+
 # ── Exclusions ─────────────────────────────────────────────────────────────
 # Three independently named rules. Each is counted and logged at ETL time so
 # a shift in any headline number can be traced to one of them.

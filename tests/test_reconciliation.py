@@ -125,6 +125,76 @@ def test_sewanee_is_not_a_zero_artifact_department(con):
     assert flagged is False
 
 
+def test_zero_artifact_rule_is_evidence_then_floor(con):
+    """
+    The withdrawn 3x-median rule flagged 134 departments. The replacement
+    flags 20: one on sentinel evidence (TN/90131, 135 of its 138 zeros are
+    placeholder timestamps) and 20 on the 25% plausibility floor, which
+    subsumes it on this data.
+    """
+    n_flag, n_sent, n_rate, n_pool = con.execute("""
+        SELECT count(*) FILTER (WHERE is_zero_artifact),
+               count(*) FILTER (WHERE flagged_by_sentinel),
+               count(*) FILTER (WHERE flagged_by_rate),
+               count(*) FILTER (WHERE is_zero_artifact AND n_scored > 10)
+        FROM zero_response_artifacts
+    """).fetchone()
+    assert (n_flag, n_sent, n_rate, n_pool) == (20, 1, 20, 14)
+
+
+def test_sentinel_materiality_guard_protects_single_bad_records(con):
+    """
+    Three departments have a 100% sentinel share on the strength of ONE
+    corrupt row. Without the >= 10 record guard they would be condemned whole.
+    """
+    (n,) = con.execute("""
+        SELECT count(*) FROM zero_response_artifacts
+        WHERE sentinel_share_of_zeros >= 0.5 AND n_sentinel_zero < 10
+    """).fetchone()
+    assert n >= 3
+    (leaked,) = con.execute("""
+        SELECT count(*) FROM zero_response_artifacts
+        WHERE flagged_by_sentinel AND n_sentinel_zero < 10
+    """).fetchone()
+    assert leaked == 0
+
+
+def test_benchmark_pool_is_768(con):
+    """The cohort the README quotes. Pool A (no exclusion) is 782."""
+    in_pool, no_excl = con.execute("""
+        SELECT count(*) FILTER (WHERE in_benchmark_pool),
+               count(*)
+        FROM metrics_department_year
+        WHERE n_with_response_time > 10 AND response_p90_min IS NOT NULL
+    """).fetchone()
+    assert (in_pool, no_excl) == (768, 782)
+
+
+def test_zero_counts_reconcile_across_m0_and_m1(con):
+    """5,229 - 373 non-response = 4,856; - 99 in small departments = 4,757."""
+    all_zero, non_resp, scored_zero = con.execute("""
+        SELECT count(*) FILTER (WHERE response_min = 0),
+               count(*) FILTER (WHERE response_min = 0 AND is_non_response),
+               count(*) FILTER (WHERE response_min = 0 AND NOT is_non_response)
+        FROM incidents
+    """).fetchone()
+    assert (all_zero, non_resp, scored_zero) == (5229, 373, 4856)
+    assert all_zero - non_resp == scored_zero
+
+
+def test_zero_minute_building_fires_are_spread_not_clustered(con):
+    """
+    84% of the 95 zero-minute building fires sit in departments with an
+    unremarkable zero rate. Evidence that most zeros are genuine.
+    """
+    total, depts = con.execute("""
+        SELECT count(*), count(DISTINCT (state, fdid))
+        FROM incidents
+        WHERE inc_type = '111' AND response_min = 0 AND NOT is_non_response
+    """).fetchone()
+    assert (total, depts) == (95, 57)
+
+
 def test_peer_cohort_matches_the_m0_profile(con):
     """1,568 peers and 151,759 peer incidents, per data/profile_stats.json."""
     (peers,) = con.execute("SELECT count(*) FROM departments WHERE is_peer").fetchone()
