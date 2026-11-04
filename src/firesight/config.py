@@ -231,6 +231,33 @@ class Settings:
         default_factory=lambda: os.getenv("FIRESIGHT_RERANK_MODEL", "BAAI/bge-reranker-base")
     )
     top_k: int = field(default_factory=lambda: _int("FIRESIGHT_TOP_K", 5))
+    # Retrieval similarity below which a question is refused outright, before
+    # any model call. CALIBRATED, not guessed: see
+    # scripts/calibrate_support_floor.py and eval/support_floor_calibration.json.
+    # On this corpus with bge-small-en-v1.5, labelled in-corpus questions score
+    # >= 0.750 and out-of-corpus questions <= 0.662, so 0.70 sits in the gap.
+    # The original guess of 0.45 admitted EVERY out-of-corpus question tested.
+    # This value is model-specific -- re-run the calibration if you change
+    # FIRESIGHT_EMBED_MODEL.
+    min_support_score: float = field(
+        default_factory=lambda: _float("FIRESIGHT_MIN_SUPPORT", 0.70)
+    )
+    # Reranking is OFF by default: it improves Recall@5 and MRR but costs
+    # seconds per query on CPU. See eval/results/ and the README.
+    rerank_enabled: bool = field(
+        default_factory=lambda: os.getenv("FIRESIGHT_RERANK", "0") == "1"
+    )
+    # Candidates = top_k * this, re-scored by the cross-encoder.
+    rerank_candidate_multiplier: int = field(
+        default_factory=lambda: _int("FIRESIGHT_RERANK_MULT", 2)
+    )
+    # Truncation for the cross-encoder. MEASURED: truncating below the chunk
+    # size destroys the reranker's benefit -- with 500-token chunks, dropping
+    # from 512 to 256 took Recall@5 from 0.667 back to 0.600, the same as no
+    # reranking at all. Keep this >= the chunk target. See eval/results/.
+    rerank_max_length: int = field(
+        default_factory=lambda: _int("FIRESIGHT_RERANK_MAX_LEN", 512)
+    )
 
     # Guardrails
     sql_timeout_s: int = field(default_factory=lambda: _int("FIRESIGHT_SQL_TIMEOUT_S", 15))

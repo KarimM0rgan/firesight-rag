@@ -1,0 +1,12 @@
+{"id": "o01", "question": "What is the capital of Mongolia?", "why": "general knowledge, unrelated domain"}
+{"id": "o02", "question": "What were Tesla's Q3 2025 vehicle deliveries?", "why": "recent corporate facts, unrelated domain"}
+{"id": "o03", "question": "How do I bake sourdough bread?", "why": "procedural, unrelated domain"}
+{"id": "o04", "question": "Who won the 2022 FIFA World Cup?", "why": "general knowledge"}
+{"id": "o05", "question": "What is the boiling point of ethanol?", "why": "chemistry; adversarial because the corpus has a HazMat chemical appendix"}
+{"id": "o06", "question": "Explain the Riemann hypothesis.", "why": "mathematics"}
+{"id": "o07", "question": "What's the weather in Nashville today?", "why": "live data; the spec's out-of-scope router example"}
+{"id": "o08", "question": "How do I change a bicycle tyre?", "why": "procedural"}
+{"id": "o09", "question": "What is the population of Brazil?", "why": "general knowledge"}
+{"id": "o10", "question": "Write a Python function to reverse a string.", "why": "code generation"}
+{"id": "o11", "question": "What are the side effects of ibuprofen?", "why": "medical; adversarial because the corpus has an EMS module"}
+{"id": "o12", "question": "When was the Eiffel Tower built?", "why": "general knowledge; adversarial because the corpus discusses structures"}

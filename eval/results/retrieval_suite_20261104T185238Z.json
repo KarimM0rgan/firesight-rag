@@ -1,0 +1,1162 @@
+{
+  "generated_at": "2026-11-04T18:52:38+00:00",
+  "suite": "retrieval",
+  "embed_model": "BAAI/bge-small-en-v1.5",
+  "rerank_model": "BAAI/bge-reranker-base",
+  "k": 5,
+  "n_questions": 15,
+  "arms": [
+    {
+      "config": "small",
+      "rerank": true,
+      "k": 5,
+      "n_questions": 15,
+      "recall_at_k": 0.7,
+      "mrr": 0.7111,
+      "hit_rate": 0.8,
+      "answer_present_rate": 0.6667,
+      "latency_p50_ms": 2401.1,
+      "latency_p95_ms": 2506.7,
+      "scores": [
+        {
+          "id": "d01",
+          "question": "How does NFIRS define a structure?",
+          "difficulty": "easy",
+          "n_labelled": 1,
+          "recall_at_k": 0.0,
+          "reciprocal_rank": 0.0,
+          "hit": false,
+          "answer_present": false,
+          "first_relevant_rank": null,
+          "retrieved": [
+            "1. 0.794 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Types of Fires by Incident Type, p. 21",
+            "2. 0.628 NFIRS Code Dictionary \u2014 Field STRUC_TYPE",
+            "3. 0.603 NFIRS 5.0 Complete Reference Guide \u2014 Structure Type, p. 134",
+            "4. 0.501 NFIRS 5.0 Complete Reference Guide \u2014 Building Status, p. 135",
+            "5. 0.167 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Other Property Definitions, p. 25"
+          ]
+        },
+        {
+          "id": "d02",
+          "question": "What incident type code is used for a building fire, and what does it exclude?",
+          "difficulty": "easy",
+          "n_labelled": 1,
+          "recall_at_k": 0.0,
+          "reciprocal_rank": 0.0,
+          "hit": false,
+          "answer_present": false,
+          "first_relevant_rank": null,
+          "retrieved": [
+            "1. 0.995 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Types of Fires by Incident Type, p. 21",
+            "2. 0.993 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Types of Fires by Incident Type, p. 17",
+            "3. 0.979 NFIRS 5.0 Complete Reference Guide \u2014 Section C: Incident Type, p. 42",
+            "4. 0.924 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Types of Fires by Incident Type, p. 20",
+            "5. 0.921 NFIRS 5.0 Design Documentation \u2014 Edit Requirements, p. 117"
+          ]
+        },
+        {
+          "id": "d03",
+          "question": "How many characters is an FDID and who assigns it?",
+          "difficulty": "easy",
+          "n_labelled": 1,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "hit": true,
+          "answer_present": true,
+          "first_relevant_rank": 1,
+          "retrieved": [
+            "1. 0.992 NFIRS 5.0 Complete Reference Guide \u2014 Fire Department Identification (FDID), p. 25",
+            "2. 0.894 FireSight Data Profile \u2014 2. `fdheader` \u2014 department registry",
+            "3. 0.825 FireSight Data Profile \u2014 5. Known data-quality issues",
+            "4. 0.783 FireSight Data Profile \u2014 2. `fdheader` \u2014 department registry",
+            "5. 0.368 FireSight Data Profile \u2014 5. Known data-quality issues"
+          ]
+        },
+        {
+          "id": "d04",
+          "question": "In the NFIRS aid given or received field, what does code 1 mean?",
+          "difficulty": "medium",
+          "n_labelled": 2,
+          "recall_at_k": 0.5,
+          "reciprocal_rank": 1.0,
+          "hit": true,
+          "answer_present": false,
+          "first_relevant_rank": 1,
+          "retrieved": [
+            "1. 1.000 NFIRS Code Dictionary \u2014 Field AID",
+            "2. 0.999 NFIRS Code Dictionary \u2014 Field CC_DISPOS",
+            "3. 0.998 NFIRS Code Dictionary \u2014 Field ARREST",
+            "4. 0.998 NFIRS Code Dictionary \u2014 Field RELATION",
+            "5. 0.998 NFIRS Code Dictionary \u2014 Field DETECTOR"
+          ]
+        },
+        {
+          "id": "d05",
+          "question": "Is reporting to NFIRS mandatory for fire departments?",
+          "difficulty": "medium",
+          "n_labelled": 2,
+          "recall_at_k": 0.5,
+          "reciprocal_rank": 0.3333333333333333,
+          "hit": true,
+          "answer_present": false,
+          "first_relevant_rank": 3,
+          "retrieved": [
+            "1. 0.997 NFIRS 5.0 Design Documentation \u2014 System Design Objectives, p. 13",
+            "2. 0.969 NFIRS 5.0 Complete Reference Guide \u2014 How NFIRS Works, p. 11",
+            "3. 0.951 NFIRS 5.0 Complete Reference Guide \u2014 FOREWORD, p. 8",
+            "4. 0.801 NFIRS 5.0 Design Documentation \u2014 How NFIRS Works, p. 6",
+            "5. 0.619 NFIRS 5.0 Complete Reference Guide \u2014 Section B: Agency Referred To, p. 371"
+          ]
+        },
+        {
+          "id": "d06",
+          "question": "For which incident type codes is the detector field required to be completed?",
+          "difficulty": "medium",
+          "n_labelled": 1,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "hit": true,
+          "answer_present": true,
+          "first_relevant_rank": 1,
+          "retrieved": [
+            "1. 0.992 NFIRS 5.0 Complete Reference Guide \u2014 Detector, p. 65",
+            "2. 0.967 NFIRS 5.0 Complete Reference Guide \u2014 Detector Power Supply, p. 147",
+            "3. 0.939 NFIRS 5.0 Design Documentation \u2014 Edit Requirements, p. 115",
+            "4. 0.900 NFIRS Code Dictionary \u2014 Field DETECTOR",
+            "5. 0.848 NFIRS 5.0 Complete Reference Guide \u2014 Detector Type, p. 146"
+          ]
+        },
+        {
+          "id": "d07",
+          "question": "Which NFIRS module is completed for wildland or vegetation fires?",
+          "difficulty": "easy",
+          "n_labelled": 1,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "hit": true,
+          "answer_present": true,
+          "first_relevant_rank": 1,
+          "retrieved": [
+            "1. 1.000 NFIRS 5.0 Complete Reference Guide \u2014 Preparation of Modules, p. 18",
+            "2. 0.999 NFIRS 5.0 Design Documentation \u2014 Wildland Module (NFIRS-8), p. 25",
+            "3. 0.999 NFIRS 5.0 Design Documentation \u2014 Fire Module (NFIRS-2), p. 18",
+            "4. 0.999 NFIRS 5.0 Design Documentation \u2014 System Modules, p. 33",
+            "5. 0.998 NFIRS 5.0 Complete Reference Guide \u2014 CHAPTER 10: WILDLAND FIRE MODULE, p. 282"
+          ]
+        },
+        {
+          "id": "d08",
+          "question": "Which NFIRS module reports injuries or deaths to civilians?",
+          "difficulty": "easy",
+          "n_labelled": 1,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "hit": true,
+          "answer_present": true,
+          "first_relevant_rank": 1,
+          "retrieved": [
+            "1. 1.000 NFIRS 5.0 Complete Reference Guide \u2014 Description of Modules, p. 17",
+            "2. 1.000 NFIRS 5.0 Complete Reference Guide \u2014 Description of Modules, p. 17",
+            "3. 0.999 NFIRS 5.0 Design Documentation \u2014 System Modules, p. 32",
+            "4. 0.999 NFIRS 5.0 Complete Reference Guide \u2014 Description of Modules, p. 17",
+            "5. 0.998 NFIRS 5.0 Design Documentation \u2014 System Modules, p. 33"
+          ]
+        },
+        {
+          "id": "d09",
+          "question": "What format is the ALARM field stored in within the NFIRS public data release files?",
+          "difficulty": "hard",
+          "n_labelled": 1,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "hit": true,
+          "answer_present": true,
+          "first_relevant_rank": 1,
+          "retrieved": [
+            "1. 0.140 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Appendix C: NFIRS PDR File Layouts, p. 73",
+            "2. 0.120 FireSight Data Profile \u2014 1. Sources",
+            "3. 0.104 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Appendix C: NFIRS PDR File Layouts, p. 49",
+            "4. 0.102 NFIRS 5.0 Design Documentation \u2014 Edit Requirements, p. 74",
+            "5. 0.009 NFIRS 5.0 Design Documentation \u2014 System Architecture, p. 30"
+          ]
+        },
+        {
+          "id": "d10",
+          "question": "How did the definition of a building fire change in NFIRS 5.0 compared with earlier versions?",
+          "difficulty": "hard",
+          "n_labelled": 1,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "hit": true,
+          "answer_present": true,
+          "first_relevant_rank": 1,
+          "retrieved": [
+            "1. 0.999 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Types of Fires by Incident Type, p. 21",
+            "2. 0.654 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Determining Cause, p. 27",
+            "3. 0.618 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Types of Fires by Incident Type, p. 18",
+            "4. 0.441 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Casualties, p. 26",
+            "5. 0.421 NFIRS 5.0 Design Documentation \u2014 Comprehensiveness, p. 15"
+          ]
+        },
+        {
+          "id": "d11",
+          "question": "Can a firefighter's exposure to chemicals be reported if it caused no injury?",
+          "difficulty": "hard",
+          "n_labelled": 1,
+          "recall_at_k": 0.0,
+          "reciprocal_rank": 0.0,
+          "hit": false,
+          "answer_present": false,
+          "first_relevant_rank": null,
+          "retrieved": [
+            "1. 0.912 NFIRS 5.0 Design Documentation \u2014 System Modules, p. 32",
+            "2. 0.864 NFIRS 5.0 Complete Reference Guide \u2014 Severity, p. 193",
+            "3. 0.387 NFIRS 5.0 Complete Reference Guide \u2014 Station Number, p. 185",
+            "4. 0.142 NFIRS 5.0 Complete Reference Guide \u2014 Taken To, p. 194",
+            "5. 0.116 NFIRS 5.0 Complete Reference Guide \u2014 Where Injury Occurred, p. 204"
+          ]
+        },
+        {
+          "id": "d12",
+          "question": "Why can turnout time not be computed from the NFIRS incident table?",
+          "difficulty": "medium",
+          "n_labelled": 1,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "hit": true,
+          "answer_present": true,
+          "first_relevant_rank": 1,
+          "retrieved": [
+            "1. 0.931 FireSight Data Profile \u2014 Timestamps available",
+            "2. 0.443 FireSight Data Profile \u2014 6. Conflicts between the spec and the data",
+            "3. 0.009 NFIRS 5.0 Design Documentation \u2014 FireFighter Casualty Module, p. 305",
+            "4. 0.005 FireSight Data Profile \u2014 9. What M1 inherits",
+            "5. 0.004 NFIRS 5.0 Design Documentation \u2014 FireFighter Casualty Module, p. 303"
+          ]
+        },
+        {
+          "id": "d13",
+          "question": "What share of NFIRS departments leave the station count blank?",
+          "difficulty": "medium",
+          "n_labelled": 1,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 0.3333333333333333,
+          "hit": true,
+          "answer_present": true,
+          "first_relevant_rank": 3,
+          "retrieved": [
+            "1. 0.109 FireSight Data Profile \u2014 6. Conflicts between the spec and the data",
+            "2. 0.100 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Fire Runs, p. 16",
+            "3. 0.096 FireSight Data Profile \u2014 2. `fdheader` \u2014 department registry",
+            "4. 0.072 FireSight Data Profile \u2014 Blank staffing counts",
+            "5. 0.049 FireSight Data Profile \u2014 6. Conflicts between the spec and the data"
+          ]
+        },
+        {
+          "id": "d14",
+          "question": "Why does the peer department count not reconcile with the earlier benchmarking work?",
+          "difficulty": "hard",
+          "n_labelled": 2,
+          "recall_at_k": 0.5,
+          "reciprocal_rank": 1.0,
+          "hit": true,
+          "answer_present": true,
+          "first_relevant_rank": 1,
+          "retrieved": [
+            "1. 0.530 FireSight Reconciliation Notes \u2014 8. Peer figures \u2014 do not reconcile, and should not",
+            "2. 0.226 FireSight Data Profile \u2014 4. Peer-group definition and reconciliation",
+            "3. 0.042 FireSight Data Profile \u2014 6. Conflicts between the spec and the data",
+            "4. 0.030 FireSight Data Profile \u2014 Blank staffing counts",
+            "5. 0.025 FireSight Reconciliation Notes \u2014 What was withdrawn"
+          ]
+        },
+        {
+          "id": "d15",
+          "question": "What happened to Sewanee's P90 response time when same-minute arrivals were kept instead of dropped?",
+          "difficulty": "hard",
+          "n_labelled": 1,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "hit": true,
+          "answer_present": true,
+          "first_relevant_rank": 1,
+          "retrieved": [
+            "1. 0.935 FireSight Reconciliation Notes \u2014 2. Effect of keeping zero-minute responses",
+            "2. 0.848 FireSight Data Profile \u2014 Sewanee reconciles exactly",
+            "3. 0.053 FireSight Reconciliation Notes \u2014 2. Effect of keeping zero-minute responses",
+            "4. 0.044 FireSight Data Profile \u2014 5. Known data-quality issues",
+            "5. 0.015 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Analysis of Common Data Elements, p. 35"
+          ]
+        }
+      ]
+    },
+    {
+      "config": "default",
+      "rerank": true,
+      "k": 5,
+      "n_questions": 15,
+      "recall_at_k": 0.7,
+      "mrr": 0.6278,
+      "hit_rate": 0.8,
+      "answer_present_rate": 0.6667,
+      "latency_p50_ms": 4576.1,
+      "latency_p95_ms": 4773.9,
+      "scores": [
+        {
+          "id": "d01",
+          "question": "How does NFIRS define a structure?",
+          "difficulty": "easy",
+          "n_labelled": 1,
+          "recall_at_k": 0.0,
+          "reciprocal_rank": 0.0,
+          "hit": false,
+          "answer_present": false,
+          "first_relevant_rank": null,
+          "retrieved": [
+            "1. 0.788 NFIRS 5.0 Complete Reference Guide \u2014 Structure Type, p. 134",
+            "2. 0.628 NFIRS Code Dictionary \u2014 Field STRUC_TYPE",
+            "3. 0.427 NFIRS 5.0 Complete Reference Guide \u2014 Building Status, p. 135",
+            "4. 0.285 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Types of Fires by Incident Type, p. 21",
+            "5. 0.166 NFIRS Code Dictionary \u2014 Field RELATION"
+          ]
+        },
+        {
+          "id": "d02",
+          "question": "What incident type code is used for a building fire, and what does it exclude?",
+          "difficulty": "easy",
+          "n_labelled": 1,
+          "recall_at_k": 0.0,
+          "reciprocal_rank": 0.0,
+          "hit": false,
+          "answer_present": false,
+          "first_relevant_rank": null,
+          "retrieved": [
+            "1. 0.986 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Types of Fires by Incident Type, p. 21",
+            "2. 0.978 NFIRS 5.0 Complete Reference Guide \u2014 Section C: Incident Type, p. 42",
+            "3. 0.957 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Types of Fires by Incident Type, p. 17",
+            "4. 0.832 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Types of Fires by Incident Type, p. 20",
+            "5. 0.830 NFIRS 5.0 Design Documentation \u2014 Edit Requirements, p. 117"
+          ]
+        },
+        {
+          "id": "d03",
+          "question": "How many characters is an FDID and who assigns it?",
+          "difficulty": "easy",
+          "n_labelled": 1,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "hit": true,
+          "answer_present": false,
+          "first_relevant_rank": 1,
+          "retrieved": [
+            "1. 0.996 NFIRS 5.0 Complete Reference Guide \u2014 Fire Department Identification (FDID), p. 25",
+            "2. 0.965 FireSight Data Profile \u2014 2. `fdheader` \u2014 department registry",
+            "3. 0.766 FireSight Data Profile \u2014 5. Known data-quality issues",
+            "4. 0.709 NFIRS 5.0 Complete Reference Guide \u2014 State, p. 26",
+            "5. 0.651 NFIRS 5.0 Complete Reference Guide \u2014 Fire Department Header, p. 20"
+          ]
+        },
+        {
+          "id": "d04",
+          "question": "In the NFIRS aid given or received field, what does code 1 mean?",
+          "difficulty": "medium",
+          "n_labelled": 2,
+          "recall_at_k": 0.5,
+          "reciprocal_rank": 1.0,
+          "hit": true,
+          "answer_present": false,
+          "first_relevant_rank": 1,
+          "retrieved": [
+            "1. 1.000 NFIRS Code Dictionary \u2014 Field AID",
+            "2. 0.999 NFIRS Code Dictionary \u2014 Field CC_DISPOS",
+            "3. 0.998 NFIRS Code Dictionary \u2014 Field ARREST",
+            "4. 0.998 NFIRS Code Dictionary \u2014 Field RELATION",
+            "5. 0.998 NFIRS Code Dictionary \u2014 Field DETECTOR"
+          ]
+        },
+        {
+          "id": "d05",
+          "question": "Is reporting to NFIRS mandatory for fire departments?",
+          "difficulty": "medium",
+          "n_labelled": 2,
+          "recall_at_k": 0.5,
+          "reciprocal_rank": 0.5,
+          "hit": true,
+          "answer_present": true,
+          "first_relevant_rank": 2,
+          "retrieved": [
+            "1. 0.992 NFIRS 5.0 Design Documentation \u2014 System Design Objectives, p. 13",
+            "2. 0.978 NFIRS 5.0 Complete Reference Guide \u2014 FOREWORD, p. 8",
+            "3. 0.944 NFIRS 5.0 Design Documentation \u2014 Additional Reporting and Query Requireme, p. 337",
+            "4. 0.932 NFIRS 5.0 Complete Reference Guide \u2014 How NFIRS Works, p. 11",
+            "5. 0.899 NFIRS 5.0 Design Documentation \u2014 How NFIRS Works, p. 6"
+          ]
+        },
+        {
+          "id": "d06",
+          "question": "For which incident type codes is the detector field required to be completed?",
+          "difficulty": "medium",
+          "n_labelled": 1,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "hit": true,
+          "answer_present": true,
+          "first_relevant_rank": 1,
+          "retrieved": [
+            "1. 0.997 NFIRS 5.0 Complete Reference Guide \u2014 Detector, p. 65",
+            "2. 0.968 NFIRS 5.0 Complete Reference Guide \u2014 Detector Power Supply, p. 147",
+            "3. 0.900 NFIRS Code Dictionary \u2014 Field DETECTOR",
+            "4. 0.887 NFIRS 5.0 Design Documentation \u2014 Edit Requirements, p. 115",
+            "5. 0.841 NFIRS 5.0 Complete Reference Guide \u2014 Detector Failure Reason, p. 150"
+          ]
+        },
+        {
+          "id": "d07",
+          "question": "Which NFIRS module is completed for wildland or vegetation fires?",
+          "difficulty": "easy",
+          "n_labelled": 1,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "hit": true,
+          "answer_present": true,
+          "first_relevant_rank": 1,
+          "retrieved": [
+            "1. 1.000 NFIRS 5.0 Complete Reference Guide \u2014 Preparation of Modules, p. 18",
+            "2. 0.999 NFIRS 5.0 Design Documentation \u2014 Wildland Module (NFIRS-8), p. 25",
+            "3. 0.999 NFIRS 5.0 Complete Reference Guide \u2014 Station Number, p. 283",
+            "4. 0.999 NFIRS 5.0 Design Documentation \u2014 Fire Module (NFIRS-2), p. 18",
+            "5. 0.999 NFIRS 5.0 Complete Reference Guide \u2014 CHAPTER 10: WILDLAND FIRE MODULE, p. 282"
+          ]
+        },
+        {
+          "id": "d08",
+          "question": "Which NFIRS module reports injuries or deaths to civilians?",
+          "difficulty": "easy",
+          "n_labelled": 1,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 0.25,
+          "hit": true,
+          "answer_present": true,
+          "first_relevant_rank": 4,
+          "retrieved": [
+            "1. 1.000 NFIRS 5.0 Design Documentation \u2014 System Modules, p. 32",
+            "2. 1.000 NFIRS 5.0 Design Documentation \u2014 System Modules, p. 32",
+            "3. 1.000 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Module-Based System, p. 5",
+            "4. 0.999 NFIRS 5.0 Complete Reference Guide \u2014 Description of Modules, p. 17",
+            "5. 0.997 NFIRS 5.0 Design Documentation \u2014 System Modules, p. 33"
+          ]
+        },
+        {
+          "id": "d09",
+          "question": "What format is the ALARM field stored in within the NFIRS public data release files?",
+          "difficulty": "hard",
+          "n_labelled": 1,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 0.3333333333333333,
+          "hit": true,
+          "answer_present": true,
+          "first_relevant_rank": 3,
+          "retrieved": [
+            "1. 0.378 FireSight Data Profile \u2014 1. Sources",
+            "2. 0.250 NFIRS 5.0 Complete Reference Guide \u2014 Alarm Time, p. 52",
+            "3. 0.170 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Appendix C: NFIRS PDR File Layouts, p. 49",
+            "4. 0.116 NFIRS 5.0 Complete Reference Guide \u2014 Incident Type Codes, p. 48",
+            "5. 0.075 NFIRS 5.0 Complete Reference Guide \u2014 Personnel ID, Name, and Rank, p. 363"
+          ]
+        },
+        {
+          "id": "d10",
+          "question": "How did the definition of a building fire change in NFIRS 5.0 compared with earlier versions?",
+          "difficulty": "hard",
+          "n_labelled": 1,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "hit": true,
+          "answer_present": true,
+          "first_relevant_rank": 1,
+          "retrieved": [
+            "1. 0.998 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Types of Fires by Incident Type, p. 21",
+            "2. 0.901 NFIRS 5.0 Complete Reference Guide \u2014 NFIRS Version 5.0 Enhancements, p. 13",
+            "3. 0.715 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Analysis of Common Data Elements, p. 36",
+            "4. 0.680 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Types of Fires by Incident Type, p. 18",
+            "5. 0.658 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Determining Cause, p. 32"
+          ]
+        },
+        {
+          "id": "d11",
+          "question": "Can a firefighter's exposure to chemicals be reported if it caused no injury?",
+          "difficulty": "hard",
+          "n_labelled": 1,
+          "recall_at_k": 0.0,
+          "reciprocal_rank": 0.0,
+          "hit": false,
+          "answer_present": false,
+          "first_relevant_rank": null,
+          "retrieved": [
+            "1. 0.924 NFIRS 5.0 Complete Reference Guide \u2014 Taken To, p. 194",
+            "2. 0.743 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Casualties, p. 26",
+            "3. 0.369 NFIRS 5.0 Complete Reference Guide \u2014 Factor Contributing to Injury, p. 201",
+            "4. 0.257 NFIRS 5.0 Complete Reference Guide \u2014 Where Injury Occurred, p. 204",
+            "5. 0.018 NFIRS 5.0 Complete Reference Guide \u2014 Detector, p. 65"
+          ]
+        },
+        {
+          "id": "d12",
+          "question": "Why can turnout time not be computed from the NFIRS incident table?",
+          "difficulty": "medium",
+          "n_labelled": 1,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "hit": true,
+          "answer_present": true,
+          "first_relevant_rank": 1,
+          "retrieved": [
+            "1. 0.931 FireSight Data Profile \u2014 Timestamps available",
+            "2. 0.267 FireSight Data Profile \u2014 6. Conflicts between the spec and the data",
+            "3. 0.071 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Analysis of Common Data Elements, p. 36",
+            "4. 0.043 NFIRS 5.0 Design Documentation \u2014 Edit Requirements, p. 116",
+            "5. 0.006 FireSight Data Profile \u2014 5. Known data-quality issues"
+          ]
+        },
+        {
+          "id": "d13",
+          "question": "What share of NFIRS departments leave the station count blank?",
+          "difficulty": "medium",
+          "n_labelled": 1,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 0.3333333333333333,
+          "hit": true,
+          "answer_present": true,
+          "first_relevant_rank": 3,
+          "retrieved": [
+            "1. 0.307 NFIRS 5.0 Complete Reference Guide \u2014 Fire Department Header, p. 20",
+            "2. 0.266 FireSight Data Profile \u2014 6. Conflicts between the spec and the data",
+            "3. 0.169 FireSight Data Profile \u2014 2. `fdheader` \u2014 department registry",
+            "4. 0.072 FireSight Data Profile \u2014 Blank staffing counts",
+            "5. 0.002 FireSight Data Profile \u2014 Blank rates on relevant columns"
+          ]
+        },
+        {
+          "id": "d14",
+          "question": "Why does the peer department count not reconcile with the earlier benchmarking work?",
+          "difficulty": "hard",
+          "n_labelled": 2,
+          "recall_at_k": 0.5,
+          "reciprocal_rank": 1.0,
+          "hit": true,
+          "answer_present": true,
+          "first_relevant_rank": 1,
+          "retrieved": [
+            "1. 0.437 FireSight Reconciliation Notes \u2014 8. Peer figures \u2014 do not reconcile, and should not",
+            "2. 0.268 FireSight Data Profile \u2014 4. Peer-group definition and reconciliation",
+            "3. 0.070 FireSight Data Profile \u2014 Data Profile",
+            "4. 0.030 FireSight Data Profile \u2014 Blank staffing counts",
+            "5. 0.025 FireSight Reconciliation Notes \u2014 What was withdrawn"
+          ]
+        },
+        {
+          "id": "d15",
+          "question": "What happened to Sewanee's P90 response time when same-minute arrivals were kept instead of dropped?",
+          "difficulty": "hard",
+          "n_labelled": 1,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "hit": true,
+          "answer_present": true,
+          "first_relevant_rank": 1,
+          "retrieved": [
+            "1. 0.925 FireSight Reconciliation Notes \u2014 2. Effect of keeping zero-minute responses",
+            "2. 0.848 FireSight Data Profile \u2014 Sewanee reconciles exactly",
+            "3. 0.620 FireSight Reconciliation Notes \u2014 The arithmetic closes exactly",
+            "4. 0.434 FireSight Reconciliation Notes \u2014 4. Sensitivity: Sewanee's rank under three pool definitions",
+            "5. 0.224 FireSight Data Profile \u2014 The peer-pool count does not reconcile"
+          ]
+        }
+      ]
+    },
+    {
+      "config": "default",
+      "rerank": false,
+      "k": 5,
+      "n_questions": 15,
+      "recall_at_k": 0.6,
+      "mrr": 0.4744,
+      "hit_rate": 0.6667,
+      "answer_present_rate": 0.5333,
+      "latency_p50_ms": 30.5,
+      "latency_p95_ms": 34.8,
+      "scores": [
+        {
+          "id": "d01",
+          "question": "How does NFIRS define a structure?",
+          "difficulty": "easy",
+          "n_labelled": 1,
+          "recall_at_k": 0.0,
+          "reciprocal_rank": 0.0,
+          "hit": false,
+          "answer_present": false,
+          "first_relevant_rank": null,
+          "retrieved": [
+            "1. 0.771 NFIRS 5.0 Complete Reference Guide \u2014 Structure Type, p. 134",
+            "2. 0.759 NFIRS Code Dictionary \u2014 Field STRUC_TYPE",
+            "3. 0.757 NFIRS Code Dictionary \u2014 Field RELATION",
+            "4. 0.744 NFIRS 5.0 Complete Reference Guide \u2014 Building Status, p. 135",
+            "5. 0.742 FireSight Data Profile \u2014 8. Unstructured corpus \u2014 current status"
+          ]
+        },
+        {
+          "id": "d02",
+          "question": "What incident type code is used for a building fire, and what does it exclude?",
+          "difficulty": "easy",
+          "n_labelled": 1,
+          "recall_at_k": 0.0,
+          "reciprocal_rank": 0.0,
+          "hit": false,
+          "answer_present": false,
+          "first_relevant_rank": null,
+          "retrieved": [
+            "1. 0.812 NFIRS 5.0 Complete Reference Guide \u2014 Section C: Incident Type, p. 42",
+            "2. 0.811 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Casualties, p. 26",
+            "3. 0.811 NFIRS 5.0 Design Documentation \u2014 Edit Requirements, p. 115",
+            "4. 0.803 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Types of Fires by Incident Type, p. 20",
+            "5. 0.802 NFIRS 5.0 Design Documentation \u2014 Edit Requirements, p. 117"
+          ]
+        },
+        {
+          "id": "d03",
+          "question": "How many characters is an FDID and who assigns it?",
+          "difficulty": "easy",
+          "n_labelled": 1,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "hit": true,
+          "answer_present": false,
+          "first_relevant_rank": 1,
+          "retrieved": [
+            "1. 0.779 NFIRS 5.0 Complete Reference Guide \u2014 Fire Department Identification (FDID), p. 25",
+            "2. 0.753 FireSight Data Profile \u2014 2. `fdheader` \u2014 department registry",
+            "3. 0.711 NFIRS 5.0 Complete Reference Guide \u2014 Fire Department Header, p. 20",
+            "4. 0.710 FireSight Data Profile \u2014 5. Known data-quality issues",
+            "5. 0.687 NFIRS 5.0 Complete Reference Guide \u2014 State, p. 26"
+          ]
+        },
+        {
+          "id": "d04",
+          "question": "In the NFIRS aid given or received field, what does code 1 mean?",
+          "difficulty": "medium",
+          "n_labelled": 2,
+          "recall_at_k": 0.5,
+          "reciprocal_rank": 1.0,
+          "hit": true,
+          "answer_present": false,
+          "first_relevant_rank": 1,
+          "retrieved": [
+            "1. 0.895 NFIRS Code Dictionary \u2014 Field AID",
+            "2. 0.870 NFIRS Code Dictionary \u2014 Field RELATION",
+            "3. 0.860 NFIRS Code Dictionary \u2014 Field REL_FROM",
+            "4. 0.852 NFIRS Code Dictionary \u2014 Field CAREER",
+            "5. 0.851 NFIRS Code Dictionary \u2014 Field DETECTOR"
+          ]
+        },
+        {
+          "id": "d05",
+          "question": "Is reporting to NFIRS mandatory for fire departments?",
+          "difficulty": "medium",
+          "n_labelled": 2,
+          "recall_at_k": 0.5,
+          "reciprocal_rank": 0.2,
+          "hit": true,
+          "answer_present": true,
+          "first_relevant_rank": 5,
+          "retrieved": [
+            "1. 0.814 NFIRS 5.0 Design Documentation \u2014 System Design Objectives, p. 13",
+            "2. 0.799 NFIRS 5.0 Design Documentation \u2014 How NFIRS Works, p. 6",
+            "3. 0.790 NFIRS 5.0 Complete Reference Guide \u2014 How NFIRS Works, p. 11",
+            "4. 0.785 NFIRS 5.0 Design Documentation \u2014 Additional Reporting and Query Requireme, p. 337",
+            "5. 0.785 NFIRS 5.0 Complete Reference Guide \u2014 FOREWORD, p. 8"
+          ]
+        },
+        {
+          "id": "d06",
+          "question": "For which incident type codes is the detector field required to be completed?",
+          "difficulty": "medium",
+          "n_labelled": 1,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 0.25,
+          "hit": true,
+          "answer_present": true,
+          "first_relevant_rank": 4,
+          "retrieved": [
+            "1. 0.768 NFIRS 5.0 Complete Reference Guide \u2014 Detector Failure Reason, p. 150",
+            "2. 0.762 NFIRS 5.0 Design Documentation \u2014 Edit Requirements, p. 75",
+            "3. 0.759 NFIRS 5.0 Complete Reference Guide \u2014 Detector Power Supply, p. 147",
+            "4. 0.754 NFIRS 5.0 Complete Reference Guide \u2014 Detector, p. 65",
+            "5. 0.751 NFIRS Code Dictionary \u2014 Field DETECTOR"
+          ]
+        },
+        {
+          "id": "d07",
+          "question": "Which NFIRS module is completed for wildland or vegetation fires?",
+          "difficulty": "easy",
+          "n_labelled": 1,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 0.3333333333333333,
+          "hit": true,
+          "answer_present": true,
+          "first_relevant_rank": 3,
+          "retrieved": [
+            "1. 0.863 NFIRS 5.0 Complete Reference Guide \u2014 CHAPTER 10: WILDLAND FIRE MODULE, p. 282",
+            "2. 0.858 NFIRS 5.0 Design Documentation \u2014 Wildland Module (NFIRS-8), p. 25",
+            "3. 0.840 NFIRS 5.0 Complete Reference Guide \u2014 Preparation of Modules, p. 18",
+            "4. 0.828 NFIRS 5.0 Design Documentation \u2014 Fire Module (NFIRS-2), p. 18",
+            "5. 0.823 NFIRS 5.0 Complete Reference Guide \u2014 Section F: Actions Taken, p. 59"
+          ]
+        },
+        {
+          "id": "d08",
+          "question": "Which NFIRS module reports injuries or deaths to civilians?",
+          "difficulty": "easy",
+          "n_labelled": 1,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 0.3333333333333333,
+          "hit": true,
+          "answer_present": true,
+          "first_relevant_rank": 3,
+          "retrieved": [
+            "1. 0.833 NFIRS 5.0 Design Documentation \u2014 System Modules, p. 32",
+            "2. 0.814 NFIRS 5.0 Complete Reference Guide \u2014 Detector, p. 65",
+            "3. 0.807 NFIRS 5.0 Complete Reference Guide \u2014 Description of Modules, p. 17",
+            "4. 0.802 NFIRS 5.0 Design Documentation \u2014 System Modules, p. 32",
+            "5. 0.797 NFIRS 5.0 Complete Reference Guide \u2014 Preparation of Modules, p. 18"
+          ]
+        },
+        {
+          "id": "d09",
+          "question": "What format is the ALARM field stored in within the NFIRS public data release files?",
+          "difficulty": "hard",
+          "n_labelled": 1,
+          "recall_at_k": 0.0,
+          "reciprocal_rank": 0.0,
+          "hit": false,
+          "answer_present": false,
+          "first_relevant_rank": null,
+          "retrieved": [
+            "1. 0.780 NFIRS 5.0 Design Documentation \u2014 User Defined Transactions, p. 145",
+            "2. 0.755 FireSight Data Profile \u2014 1. Sources",
+            "3. 0.748 NFIRS 5.0 Complete Reference Guide \u2014 Alarm Time, p. 52",
+            "4. 0.747 NFIRS Code Dictionary \u2014 Field DETECTOR",
+            "5. 0.747 NFIRS 5.0 Design Documentation \u2014 Edit Requirements, p. 74"
+          ]
+        },
+        {
+          "id": "d10",
+          "question": "How did the definition of a building fire change in NFIRS 5.0 compared with earlier versions?",
+          "difficulty": "hard",
+          "n_labelled": 1,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "hit": true,
+          "answer_present": true,
+          "first_relevant_rank": 1,
+          "retrieved": [
+            "1. 0.812 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Types of Fires by Incident Type, p. 21",
+            "2. 0.793 NFIRS 5.0 Complete Reference Guide \u2014 Number of Stories Damaged by Flame, p. 139",
+            "3. 0.788 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Determining Cause, p. 32",
+            "4. 0.783 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Types of Fires by Incident Type, p. 18",
+            "5. 0.777 FireSight Data Profile \u2014 8. Unstructured corpus \u2014 current status"
+          ]
+        },
+        {
+          "id": "d11",
+          "question": "Can a firefighter's exposure to chemicals be reported if it caused no injury?",
+          "difficulty": "hard",
+          "n_labelled": 1,
+          "recall_at_k": 0.0,
+          "reciprocal_rank": 0.0,
+          "hit": false,
+          "answer_present": false,
+          "first_relevant_rank": null,
+          "retrieved": [
+            "1. 0.777 NFIRS 5.0 Complete Reference Guide \u2014 Taken To, p. 194",
+            "2. 0.738 NFIRS 5.0 Complete Reference Guide \u2014 Where Injury Occurred, p. 204",
+            "3. 0.727 NFIRS 5.0 Complete Reference Guide \u2014 Casualties, p. 64",
+            "4. 0.714 NFIRS 5.0 Design Documentation \u2014 System Modules, p. 37",
+            "5. 0.714 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Casualties, p. 26"
+          ]
+        },
+        {
+          "id": "d12",
+          "question": "Why can turnout time not be computed from the NFIRS incident table?",
+          "difficulty": "medium",
+          "n_labelled": 1,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "hit": true,
+          "answer_present": true,
+          "first_relevant_rank": 1,
+          "retrieved": [
+            "1. 0.831 FireSight Data Profile \u2014 Timestamps available",
+            "2. 0.797 FireSight Data Profile \u2014 6. Conflicts between the spec and the data",
+            "3. 0.771 FireSight Data Profile \u2014 5. Known data-quality issues",
+            "4. 0.765 FireSight Reconciliation Notes \u2014 The \u22121",
+            "5. 0.758 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Analysis of Common Data Elements, p. 36"
+          ]
+        },
+        {
+          "id": "d13",
+          "question": "What share of NFIRS departments leave the station count blank?",
+          "difficulty": "medium",
+          "n_labelled": 1,
+          "recall_at_k": 0.0,
+          "reciprocal_rank": 0.0,
+          "hit": false,
+          "answer_present": false,
+          "first_relevant_rank": null,
+          "retrieved": [
+            "1. 0.750 FireSight Data Profile \u2014 Blank staffing counts",
+            "2. 0.726 FireSight Data Profile \u2014 6. Conflicts between the spec and the data",
+            "3. 0.719 FireSight Reconciliation Notes \u2014 6. Cohort-count reconciliation \u2014 779 \u2192 648",
+            "4. 0.718 FireSight Data Profile \u2014 Blank rates on relevant columns",
+            "5. 0.686 FireSight Data Profile \u2014 The peer-pool count does not reconcile"
+          ]
+        },
+        {
+          "id": "d14",
+          "question": "Why does the peer department count not reconcile with the earlier benchmarking work?",
+          "difficulty": "hard",
+          "n_labelled": 2,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "hit": true,
+          "answer_present": true,
+          "first_relevant_rank": 1,
+          "retrieved": [
+            "1. 0.788 FireSight Reconciliation Notes \u2014 8. Peer figures \u2014 do not reconcile, and should not",
+            "2. 0.778 FireSight Data Profile \u2014 The peer-pool count does not reconcile",
+            "3. 0.743 FireSight Data Profile \u2014 5. Known data-quality issues",
+            "4. 0.735 FireSight Reconciliation Notes \u2014 What was withdrawn",
+            "5. 0.734 FireSight Data Profile \u2014 4. Peer-group definition and reconciliation"
+          ]
+        },
+        {
+          "id": "d15",
+          "question": "What happened to Sewanee's P90 response time when same-minute arrivals were kept instead of dropped?",
+          "difficulty": "hard",
+          "n_labelled": 1,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "hit": true,
+          "answer_present": true,
+          "first_relevant_rank": 1,
+          "retrieved": [
+            "1. 0.791 FireSight Reconciliation Notes \u2014 2. Effect of keeping zero-minute responses",
+            "2. 0.741 FireSight Data Profile \u2014 5. Known data-quality issues",
+            "3. 0.732 FireSight Reconciliation Notes \u2014 The \u22121",
+            "4. 0.712 FireSight Data Profile \u2014 Timestamps available",
+            "5. 0.708 FireSight Data Profile \u2014 Sewanee reconciles exactly"
+          ]
+        }
+      ]
+    },
+    {
+      "config": "small",
+      "rerank": false,
+      "k": 5,
+      "n_questions": 15,
+      "recall_at_k": 0.5667,
+      "mrr": 0.4522,
+      "hit_rate": 0.6,
+      "answer_present_rate": 0.4667,
+      "latency_p50_ms": 27.6,
+      "latency_p95_ms": 44.9,
+      "scores": [
+        {
+          "id": "d01",
+          "question": "How does NFIRS define a structure?",
+          "difficulty": "easy",
+          "n_labelled": 1,
+          "recall_at_k": 0.0,
+          "reciprocal_rank": 0.0,
+          "hit": false,
+          "answer_present": false,
+          "first_relevant_rank": null,
+          "retrieved": [
+            "1. 0.759 NFIRS Code Dictionary \u2014 Field STRUC_TYPE",
+            "2. 0.759 NFIRS 5.0 Complete Reference Guide \u2014 Structure Type, p. 134",
+            "3. 0.757 NFIRS Code Dictionary \u2014 Field RELATION",
+            "4. 0.748 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Types of Fires by Incident Type, p. 21",
+            "5. 0.742 FireSight Data Profile \u2014 8. Unstructured corpus \u2014 current status"
+          ]
+        },
+        {
+          "id": "d02",
+          "question": "What incident type code is used for a building fire, and what does it exclude?",
+          "difficulty": "easy",
+          "n_labelled": 1,
+          "recall_at_k": 0.0,
+          "reciprocal_rank": 0.0,
+          "hit": false,
+          "answer_present": false,
+          "first_relevant_rank": null,
+          "retrieved": [
+            "1. 0.827 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Types of Fires by Incident Type, p. 17",
+            "2. 0.820 NFIRS 5.0 Complete Reference Guide \u2014 Section C: Incident Type, p. 42",
+            "3. 0.814 NFIRS 5.0 Design Documentation \u2014 Edit Requirements, p. 117",
+            "4. 0.811 NFIRS 5.0 Design Documentation \u2014 Edit Requirements, p. 115",
+            "5. 0.807 NFIRS 5.0 Design Documentation \u2014 Edit Requirements, p. 117"
+          ]
+        },
+        {
+          "id": "d03",
+          "question": "How many characters is an FDID and who assigns it?",
+          "difficulty": "easy",
+          "n_labelled": 1,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "hit": true,
+          "answer_present": true,
+          "first_relevant_rank": 1,
+          "retrieved": [
+            "1. 0.788 NFIRS 5.0 Complete Reference Guide \u2014 Fire Department Identification (FDID), p. 25",
+            "2. 0.747 FireSight Data Profile \u2014 2. `fdheader` \u2014 department registry",
+            "3. 0.721 NFIRS 5.0 Complete Reference Guide \u2014 Incident Date, p. 216",
+            "4. 0.716 NFIRS 5.0 Complete Reference Guide \u2014 Station Number, p. 185",
+            "5. 0.714 FireSight Data Profile \u2014 2. `fdheader` \u2014 department registry"
+          ]
+        },
+        {
+          "id": "d04",
+          "question": "In the NFIRS aid given or received field, what does code 1 mean?",
+          "difficulty": "medium",
+          "n_labelled": 2,
+          "recall_at_k": 0.5,
+          "reciprocal_rank": 1.0,
+          "hit": true,
+          "answer_present": false,
+          "first_relevant_rank": 1,
+          "retrieved": [
+            "1. 0.895 NFIRS Code Dictionary \u2014 Field AID",
+            "2. 0.870 NFIRS Code Dictionary \u2014 Field RELATION",
+            "3. 0.860 NFIRS Code Dictionary \u2014 Field REL_FROM",
+            "4. 0.852 NFIRS Code Dictionary \u2014 Field CAREER",
+            "5. 0.851 NFIRS Code Dictionary \u2014 Field DETECTOR"
+          ]
+        },
+        {
+          "id": "d05",
+          "question": "Is reporting to NFIRS mandatory for fire departments?",
+          "difficulty": "medium",
+          "n_labelled": 2,
+          "recall_at_k": 0.0,
+          "reciprocal_rank": 0.0,
+          "hit": false,
+          "answer_present": false,
+          "first_relevant_rank": null,
+          "retrieved": [
+            "1. 0.819 NFIRS 5.0 Design Documentation \u2014 System Design Objectives, p. 13",
+            "2. 0.789 NFIRS 5.0 Design Documentation \u2014 Roles and Responsibilities, p. 10",
+            "3. 0.781 NFIRS 5.0 Design Documentation \u2014 How NFIRS Works, p. 6",
+            "4. 0.772 NFIRS 5.0 Complete Reference Guide \u2014 Section B: Agency Referred To, p. 371",
+            "5. 0.769 NFIRS 5.0 Design Documentation \u2014 The Data-based Decision-making Process, p. 12"
+          ]
+        },
+        {
+          "id": "d06",
+          "question": "For which incident type codes is the detector field required to be completed?",
+          "difficulty": "medium",
+          "n_labelled": 1,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 0.25,
+          "hit": true,
+          "answer_present": true,
+          "first_relevant_rank": 4,
+          "retrieved": [
+            "1. 0.764 NFIRS 5.0 Complete Reference Guide \u2014 Detector Failure Reason, p. 150",
+            "2. 0.762 NFIRS 5.0 Design Documentation \u2014 Edit Requirements, p. 115",
+            "3. 0.757 NFIRS 5.0 Complete Reference Guide \u2014 Section B: Apparatus or Resources, p. 355",
+            "4. 0.754 NFIRS 5.0 Complete Reference Guide \u2014 Detector, p. 65",
+            "5. 0.754 NFIRS 5.0 Complete Reference Guide \u2014 Detector Power Supply, p. 147"
+          ]
+        },
+        {
+          "id": "d07",
+          "question": "Which NFIRS module is completed for wildland or vegetation fires?",
+          "difficulty": "easy",
+          "n_labelled": 1,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 0.2,
+          "hit": true,
+          "answer_present": true,
+          "first_relevant_rank": 5,
+          "retrieved": [
+            "1. 0.862 NFIRS 5.0 Complete Reference Guide \u2014 CHAPTER 10: WILDLAND FIRE MODULE, p. 282",
+            "2. 0.854 NFIRS 5.0 Design Documentation \u2014 Wildland Module (NFIRS-8), p. 25",
+            "3. 0.830 NFIRS 5.0 Design Documentation \u2014 System Modules, p. 33",
+            "4. 0.825 NFIRS 5.0 Complete Reference Guide \u2014 Section J: Property Management, p. 315",
+            "5. 0.823 NFIRS 5.0 Complete Reference Guide \u2014 Preparation of Modules, p. 18"
+          ]
+        },
+        {
+          "id": "d08",
+          "question": "Which NFIRS module reports injuries or deaths to civilians?",
+          "difficulty": "easy",
+          "n_labelled": 1,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 0.3333333333333333,
+          "hit": true,
+          "answer_present": false,
+          "first_relevant_rank": 3,
+          "retrieved": [
+            "1. 0.842 NFIRS 5.0 Design Documentation \u2014 System Modules, p. 32",
+            "2. 0.826 NFIRS 5.0 Complete Reference Guide \u2014 Detector, p. 65",
+            "3. 0.813 NFIRS 5.0 Complete Reference Guide \u2014 Description of Modules, p. 17",
+            "4. 0.798 NFIRS 5.0 Complete Reference Guide \u2014 Section F: Affiliation, p. 164",
+            "5. 0.794 NFIRS 5.0 Complete Reference Guide \u2014 Station Number, p. 185"
+          ]
+        },
+        {
+          "id": "d09",
+          "question": "What format is the ALARM field stored in within the NFIRS public data release files?",
+          "difficulty": "hard",
+          "n_labelled": 1,
+          "recall_at_k": 0.0,
+          "reciprocal_rank": 0.0,
+          "hit": false,
+          "answer_present": false,
+          "first_relevant_rank": null,
+          "retrieved": [
+            "1. 0.755 FireSight Data Profile \u2014 1. Sources",
+            "2. 0.747 NFIRS Code Dictionary \u2014 Field DETECTOR",
+            "3. 0.747 FireSight Data Profile \u2014 1. Sources",
+            "4. 0.740 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Analysis of Common Data Elements, p. 36",
+            "5. 0.740 NFIRS 5.0 Design Documentation \u2014 Edit Requirements, p. 74"
+          ]
+        },
+        {
+          "id": "d10",
+          "question": "How did the definition of a building fire change in NFIRS 5.0 compared with earlier versions?",
+          "difficulty": "hard",
+          "n_labelled": 1,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "hit": true,
+          "answer_present": true,
+          "first_relevant_rank": 1,
+          "retrieved": [
+            "1. 0.810 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Types of Fires by Incident Type, p. 21",
+            "2. 0.791 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Types of Fires by Incident Type, p. 21",
+            "3. 0.785 NFIRS 5.0 Design Documentation \u2014 Comprehensiveness, p. 15",
+            "4. 0.779 NFIRS 5.0 Complete Reference Guide \u2014 Number of Stories Damaged by Flame, p. 139",
+            "5. 0.779 NFIRS 5.0 Fire Data Analysis Guidelines and Issues \u2014 Types of Fires by Incident Type, p. 18"
+          ]
+        },
+        {
+          "id": "d11",
+          "question": "Can a firefighter's exposure to chemicals be reported if it caused no injury?",
+          "difficulty": "hard",
+          "n_labelled": 1,
+          "recall_at_k": 0.0,
+          "reciprocal_rank": 0.0,
+          "hit": false,
+          "answer_present": false,
+          "first_relevant_rank": null,
+          "retrieved": [
+            "1. 0.777 NFIRS 5.0 Complete Reference Guide \u2014 Taken To, p. 194",
+            "2. 0.744 NFIRS 5.0 Design Documentation \u2014 System Modules, p. 32",
+            "3. 0.741 NFIRS 5.0 Complete Reference Guide \u2014 Severity, p. 193",
+            "4. 0.731 NFIRS 5.0 Design Documentation \u2014 Fire Service Casualty Module Data Dictio, p. 202",
+            "5. 0.729 NFIRS 5.0 Complete Reference Guide \u2014 Station Number, p. 185"
+          ]
+        },
+        {
+          "id": "d12",
+          "question": "Why can turnout time not be computed from the NFIRS incident table?",
+          "difficulty": "medium",
+          "n_labelled": 1,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "hit": true,
+          "answer_present": true,
+          "first_relevant_rank": 1,
+          "retrieved": [
+            "1. 0.831 FireSight Data Profile \u2014 Timestamps available",
+            "2. 0.825 FireSight Data Profile \u2014 6. Conflicts between the spec and the data",
+            "3. 0.765 FireSight Reconciliation Notes \u2014 The \u22121",
+            "4. 0.753 FireSight Reconciliation Notes \u2014 The arithmetic closes exactly",
+            "5. 0.752 NFIRS 5.0 Design Documentation \u2014 FireFighter Casualty Module, p. 303"
+          ]
+        },
+        {
+          "id": "d13",
+          "question": "What share of NFIRS departments leave the station count blank?",
+          "difficulty": "medium",
+          "n_labelled": 1,
+          "recall_at_k": 0.0,
+          "reciprocal_rank": 0.0,
+          "hit": false,
+          "answer_present": false,
+          "first_relevant_rank": null,
+          "retrieved": [
+            "1. 0.750 FireSight Data Profile \u2014 Blank staffing counts",
+            "2. 0.723 FireSight Reconciliation Notes \u2014 6. Cohort-count reconciliation \u2014 779 \u2192 648",
+            "3. 0.723 FireSight Data Profile \u2014 6. Conflicts between the spec and the data",
+            "4. 0.712 FireSight Data Profile \u2014 Blank rates on relevant columns",
+            "5. 0.695 FireSight Data Profile \u2014 6. Conflicts between the spec and the data"
+          ]
+        },
+        {
+          "id": "d14",
+          "question": "Why does the peer department count not reconcile with the earlier benchmarking work?",
+          "difficulty": "hard",
+          "n_labelled": 2,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "hit": true,
+          "answer_present": true,
+          "first_relevant_rank": 1,
+          "retrieved": [
+            "1. 0.786 FireSight Reconciliation Notes \u2014 8. Peer figures \u2014 do not reconcile, and should not",
+            "2. 0.780 FireSight Data Profile \u2014 5. Known data-quality issues",
+            "3. 0.775 FireSight Data Profile \u2014 The peer-pool count does not reconcile",
+            "4. 0.762 FireSight Data Profile \u2014 4. Peer-group definition and reconciliation",
+            "5. 0.753 FireSight Data Profile \u2014 6. Conflicts between the spec and the data"
+          ]
+        },
+        {
+          "id": "d15",
+          "question": "What happened to Sewanee's P90 response time when same-minute arrivals were kept instead of dropped?",
+          "difficulty": "hard",
+          "n_labelled": 1,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "hit": true,
+          "answer_present": true,
+          "first_relevant_rank": 1,
+          "retrieved": [
+            "1. 0.792 FireSight Reconciliation Notes \u2014 2. Effect of keeping zero-minute responses",
+            "2. 0.751 FireSight Data Profile \u2014 7. Local export (source D) \u2014 schema and privacy",
+            "3. 0.747 FireSight Data Profile \u2014 5. Known data-quality issues",
+            "4. 0.742 FireSight Data Profile \u2014 5. Known data-quality issues",
+            "5. 0.732 FireSight Reconciliation Notes \u2014 The \u22121"
+          ]
+        }
+      ]
+    }
+  ],
+  "rerank_verdict": {
+    "default": {
+      "recall_delta": 0.1,
+      "mrr_delta": 0.1534,
+      "latency_cost_ms": 4545.6,
+      "helped": true,
+      "verdict": "KEEP the reranker"
+    },
+    "small": {
+      "recall_delta": 0.1333,
+      "mrr_delta": 0.2589,
+      "latency_cost_ms": 2373.5,
+      "helped": true,
+      "verdict": "KEEP the reranker"
+    }
+  }
+}
