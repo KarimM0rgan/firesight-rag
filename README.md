@@ -406,7 +406,37 @@ Use `--clean`, not `--rebuild`. Chroma's `delete_collection` leaves the HNSW
 segment directory behind, and repeated rebuilds accumulate orphans — measured
 here at 14 segment directories and 131 MB for what should be 4 collections.
 
-Ask it something:
+### Run the demo
+
+```bash
+uv run streamlit run src/firesight/app/main.py
+```
+
+A question box, a streamed answer, and an **"Inside this answer"** panel showing
+the route taken with the router's own reason and confidence, the SQL exactly as
+executed, the chunks retrieved with their similarity scores, the scope section
+cited for a refusal, and the latency, tokens and cost of that query. Eight
+clickable examples cover all four routes.
+
+Two of them are there to show documented behaviour rather than best behaviour:
+the **NFPA 13** question is refused *with a citation*, and the **percentile**
+question reproduces the `s18` defect from the findings above — it returns a rank
+where a percentile was asked for. Both are left as they are so the demo matches
+the measurements.
+
+The reranker is a visible toggle, **off by default**, labelled *not established
+at n=50*, and the panel shows the latency either way — 26 ms against roughly
+2,300 ms makes the argument better than the table does.
+
+> **Local only. Do not host this.** Every question is a live API call billed to
+> whatever key is in `.env`; a public instance would hand that spend to anyone
+> with the URL. The app has its own per-session spend guard — a running cost
+> counter and a hard stop, default **$1.00**, set with `FIRESIGHT_APP_BUDGET_USD`
+> or in the sidebar — but that is a guard against accidents, not against the
+> internet. The key is read from the environment by the SDK; the app never reads,
+> displays, logs or stores it.
+
+Or ask from the command line:
 
 ```bash
 uv run python -m firesight.generation.answer "What was Sewanee's P90 response time in 2024?"

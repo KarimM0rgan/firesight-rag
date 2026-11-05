@@ -1,0 +1,20 @@
+{
+  "note": "Hashes of every file whose content the published metrics depend on, taken at the start of M7 (the demo UI). The app is a read-only consumer; if any of these changes, the README's numbers stop describing the code that produced them. Enforced by tests/test_measured_surface.py.",
+  "taken_at": "M7 start, before any app code",
+  "files": {
+    "src/firesight/retrieval/router.py": "8be1dd8256487e77a8427118c6e463de55d9c413f916cb6918dd13003d85494b",
+    "src/firesight/retrieval/schema.py": "a43cc855742a137a12de1ea7787a4895e9b559660c7443f49d60726e19ad589d",
+    "src/firesight/ingest/documents.py": "2966a682d76d44bad4a3d97df97e131ccf4b26ab3c48f19bede16e011e7fb1c4",
+    "src/firesight/retrieval/vector_store.py": "e0c43cc8e3aa6795de06eb40997f99a4d3c81e54369897cc73e89518d9d45aac",
+    "src/firesight/retrieval/sql_agent.py": "3bbe7a44b51bc8a2ed4f9d25be6635c1fd468079c43333ae18fe9f03edd51559",
+    "src/firesight/generation/synthesize.py": "9dd1f8505c73f08859563bae1ba0ddf8343c1bdf6efc5af20fe0795f4afa66f7",
+    "eval/structured_questions.jsonl": "65b7e86398562ef46092612c4f63546c3b095e1a6f41681530d233f010712281",
+    "eval/reference_answers.json": "9ccaa45113228894290f654ac4f64f57e077c94bac1a43a1d6de523933c06357",
+    "eval/document_questions.jsonl": "3a8d706722e7cf0c00531994df678968e6e1118ac497891ad9b896a665218246",
+    "eval/heldout_questions.jsonl": "272e575d8bcdaec1fba418935656a78408d4a8d23ff524bf4b83200a919ea364",
+    "eval/out_of_corpus_questions.jsonl": "9c3e219b196acdbc833b840c0b74466624720ffb960395cb023b15ba747f6a8a",
+    "eval/router_questions.jsonl": "278e0c31f4c9f41c8b824360bc70439b8078313aa4544c9968503256f0242a7c",
+    "data/corpus/METHODOLOGY.md": "2775fa2aa3b33639c3871e273124c5233459a7cc2135b583036877082e02a824",
+    "data/corpus/SCOPE.md": "22af06c91ca77aa24b2ce01128903b67d74bae6494df00bdcadc3ae6e724a3b0"
+  }
+}

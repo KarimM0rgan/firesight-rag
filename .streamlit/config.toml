@@ -1,0 +1,17 @@
+# Streamlit's local-sources file watcher walks imported modules' attributes.
+# torch exposes `torch.classes`, whose custom __getattr__ raises when walked,
+# and the app hangs before the first query returns -- observed here as a
+# permanent "Routing..." with no error and no log line. The same call outside
+# Streamlit completes in 41s.
+#
+# Disabling the watcher costs only hot-reload-on-save, which a demo does not
+# need, and is the documented workaround for torch + Streamlit.
+[server]
+fileWatcherType = "none"
+headless = true
+
+[browser]
+gatherUsageStats = false
+
+[theme]
+base = "dark"
