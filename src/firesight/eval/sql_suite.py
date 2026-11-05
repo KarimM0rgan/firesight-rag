@@ -21,6 +21,7 @@ from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 
 from firesight.config import REPO_ROOT, settings
+from firesight.eval.stats import from_bools, proportion
 from firesight.generation.llm import available as llm_available
 from firesight.retrieval.sql_agent import ask
 
@@ -29,6 +30,19 @@ REFERENCE = REPO_ROOT / "eval" / "reference_answers.json"
 RESULTS_DIR = REPO_ROOT / "eval" / "results"
 
 NUMERIC_TOLERANCE = 0.01
+
+# ── metric pre-commitment, recorded BEFORE the M4 run ─────────────────────
+# PRIMARY:   result_accuracy  -- exact row-multiset match
+# SECONDARY: answer_containment -- are the reference values present?
+#
+# Disclosure: containment was defined AFTER exact match returned 45% on the
+# first scored run. Both are reported. Exact match is primary because
+# containment has a failure mode that flatters the system -- a query returning
+# a wide result set can contain the answer incidentally -- whereas exact match
+# is merely strict. Where they disagree, the headline is exact match, and the
+# gap measures how often the model is right in an unexpected shape.
+PRIMARY_METRIC = "result_accuracy"
+SECONDARY_METRIC = "answer_containment_accuracy"
 
 
 @dataclass
@@ -192,6 +206,12 @@ def run(limit: int | None = None) -> dict:
     report = {
         "generated_at": datetime.now(UTC).isoformat(timespec="seconds"),
         "suite": "sql",
+        "primary_metric": PRIMARY_METRIC,
+        "secondary_metric": SECONDARY_METRIC,
+        "secondary_metric_disclosure": (
+            "answer_containment was defined after exact match returned 45% on "
+            "the first scored run; exact match remains primary"
+        ),
         "model": settings.llm_model,
         "provider": settings.llm_provider,
         "n_questions": n,
@@ -201,6 +221,10 @@ def run(limit: int | None = None) -> dict:
             round(sum(s.answer_contained for s in scores) / n, 4) if n else None
         ),
         "retry_rate": round(sum(s.n_attempts > 1 for s in scores) / n, 4) if n else None,
+        # Wilson 95% intervals. n=20, so no proportion here is a rate.
+        "execution_accuracy_ci": from_bools(s.executed for s in scores).as_dict(),
+        "result_accuracy_ci": from_bools(s.result_match for s in scores).as_dict(),
+        "answer_containment_ci": from_bools(s.answer_contained for s in scores).as_dict(),
         "latency_p50_ms": lat[len(lat) // 2] if lat else None,
         "latency_p95_ms": lat[max(0, int(len(lat) * 0.95) - 1)] if lat else None,
         "mean_input_tokens": round(sum(s.input_tokens for s in scores) / n, 1) if n else None,
@@ -224,6 +248,11 @@ def run(limit: int | None = None) -> dict:
     return report
 
 
+def _ci(rep: dict, key: str) -> str:
+    d = rep.get(key) or {}
+    return proportion(d.get("successes", 0), d.get("n", 0)).fmt()
+
+
 def write_report(report: dict) -> tuple:
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
@@ -240,10 +269,10 @@ def write_report(report: dict) -> tuple:
         "",
         "| Metric | Value |",
         "| --- | --- |",
-        f"| Execution accuracy | {report['execution_accuracy']:.1%} |",
-        f"| Result accuracy (exact row match) | {report['result_accuracy']:.1%} |",
-        f"| Answer containment (reference values present) "
-        f"| {report['answer_containment_accuracy']:.1%} |",
+        f"| Execution accuracy | {_ci(report, 'execution_accuracy_ci')} |",
+        f"| **Result accuracy (exact row match) — PRIMARY** "
+        f"| {_ci(report, 'result_accuracy_ci')} |",
+        f"| Answer containment — secondary | {_ci(report, 'answer_containment_ci')} |",
         f"| Retry rate | {report['retry_rate']:.1%} |",
         f"| Latency p50 | {report['latency_p50_ms']:.0f} ms |",
         f"| Latency p95 | {report['latency_p95_ms']:.0f} ms |",

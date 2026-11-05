@@ -145,3 +145,62 @@ def test_methodology_document_covers_the_four_required_topics():
     assert "response_min <= 90" in text  # response-time filter rule
     assert "no dispatch timestamp and no" in text  # alarm-to-arrival constraint
     assert "Non-response incident types" in text  # incident-type exclusions
+
+
+# ── Wilson intervals and metric pre-commitment ────────────────────────────
+def test_wilson_intervals_match_published_values():
+    from firesight.eval.stats import proportion
+
+    # Standard reference values for the Wilson score interval at 95%.
+    for s, n, lo, hi in [(8, 8, 0.676, 1.000), (11, 13, 0.578, 0.957),
+                         (20, 20, 0.839, 1.000), (9, 20, 0.258, 0.658)]:
+        p = proportion(s, n)
+        assert abs(p.low - lo) < 0.002, f"{s}/{n} low {p.low} != {lo}"
+        assert abs(p.high - hi) < 0.002, f"{s}/{n} high {p.high} != {hi}"
+
+
+def test_wilson_interval_does_not_collapse_at_the_extremes():
+    """
+    The reason for Wilson over the normal approximation: 8/8 must not report a
+    zero-width interval, or a reader will read it as a measured rate.
+    """
+    from firesight.eval.stats import proportion
+
+    assert proportion(8, 8).width > 0.3
+    assert proportion(0, 10).width > 0.2
+    assert proportion(0, 10).high > 0.0
+
+
+def test_no_observations_is_not_a_measurement_of_zero():
+    from firesight.eval.stats import proportion
+
+    p = proportion(0, 0)
+    assert p.estimate is None and p.low is None
+    assert "n/a" in p.fmt()
+
+
+def test_formatted_proportion_always_carries_its_interval():
+    """A harness must not be able to emit an estimate without its CI."""
+    from firesight.eval.stats import proportion
+
+    out = proportion(8, 8).fmt()
+    assert "8/8" in out and "[" in out and "]" in out
+
+
+def test_small_samples_are_flagged_as_not_a_rate():
+    from firesight.eval.stats import proportion, too_small_to_claim_a_rate
+
+    assert too_small_to_claim_a_rate(proportion(8, 8))
+    assert too_small_to_claim_a_rate(proportion(11, 13))
+    assert not too_small_to_claim_a_rate(proportion(440, 460))
+
+
+def test_sql_primary_metric_is_pre_committed_to_exact_match():
+    """
+    Containment was defined after seeing exact match score 45%. The primary
+    metric is pinned in code so it cannot be selected after an M4 result.
+    """
+    from firesight.eval.sql_suite import PRIMARY_METRIC, SECONDARY_METRIC
+
+    assert PRIMARY_METRIC == "result_accuracy"
+    assert SECONDARY_METRIC == "answer_containment_accuracy"

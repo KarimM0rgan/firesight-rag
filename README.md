@@ -4,17 +4,191 @@ Hybrid retrieval over real fire-service data: natural-language questions are rou
 to **text-to-SQL** over 33.3M NFIRS incident records, to **vector search** over a
 reference-document corpus, or to both — and answered with citations.
 
-> **Status: M3 built, not yet measured.** The structured store, text-to-SQL,
-> vector retrieval, router and hybrid answer path all exist. The full eval harness
-> (M4) is not built. Milestones are in
-> [FIRESIGHT_RAG_SPEC.md](FIRESIGHT_RAG_SPEC.md); this README is rewritten at M6.
->
-> **Four numbers remain unmeasured** because every one needs a generation API key
-> that is not present in this environment: text-to-SQL execution accuracy, SQL
-> result accuracy, answer faithfulness, and router accuracy. All four harnesses
-> are built, run on one command each, and refuse to write a report without a real
-> run rather than emit a placeholder. Everything measured below uses local
-> embeddings and needs no key.
+> **Status: M1–M3 measured. Every number here is PROVISIONAL** until the M4 run
+> lands (50-question golden set, `bge-base` vs `bge-small`, reranker 2×2 at
+> n=50). Milestones are in [FIRESIGHT_RAG_SPEC.md](FIRESIGHT_RAG_SPEC.md); this
+> README is rewritten at M6.
+
+## Measured results
+
+Every figure carries a **Wilson 95% confidence interval**, emitted by the
+harness rather than added by hand. These samples are 8–20 observations; a bare
+point estimate at that size invites reading `8/8` as a rate, which it is not.
+
+| Metric | n | Result (95% CI) |
+|---|---:|---|
+| **SQL execution accuracy** | 20 | 20/20 = 100.0% [83.9, 100.0] |
+| **SQL result accuracy — exact row match (PRIMARY)** | 20 | 9/20 = 45.0% [25.8, 65.8] |
+| SQL answer containment (secondary) | 20 | 15/20 = 75.0% [53.1, 88.8] |
+| **Answer faithfulness** | 13 | 13/13 = 100.0% [77.2, 100.0] |
+| Citation rate | 13 | 13/13 = 100.0% [77.2, 100.0] |
+| Citation validity (page-insensitive) | 13 | 13/13 = 100.0% [77.2, 100.0] |
+| **Router accuracy** | 46 | 44/46 = 95.7% [85.5, 98.8] |
+| Router macro F1 | 46 | 0.956 |
+| **Adversarial excluded-material routing** | 8 | 8/8 = 100.0% [67.6, 100.0] |
+| Adversarial exclusion-reason accuracy | 8 | 8/8 = 100.0% [67.6, 100.0] |
+| Router schema-violation rate | 46 | 0/46 = 0.0% [0.0, 7.7] |
+
+Retrieval metrics (local embeddings, no API key) are further down.
+
+### What the small samples do and do not support
+
+**`8/8` on adversarial routing is not "100%".** Its interval spans
+**[67.6%, 100.0%]** — 32 percentage points. The correct reading: *the design
+assumption that a router can be told the excluded-material distinction, where
+embedding similarity provably cannot make it, is supported by every case tested,
+and the sample is far too small to claim a rate.* Eight consecutive successes
+would arise by chance roughly 1 in 256 times if the true rate were 50%, so this
+is real evidence — it is just not a measured rate.
+
+The same applies to **faithfulness at n=13**: 13/13 reads as 100% but the
+interval bottoms out at **77.2%**. And to **SQL exact-match at 45%**, whose
+interval [25.8, 65.8] is wide enough that it cannot be distinguished from 60%
+or from 30%.
+
+Only two figures here have intervals narrow enough to be worth comparing
+against anything: router accuracy (±7 points) and SQL execution accuracy.
+
+### Metric pre-commitment, and a post-hoc disclosure
+
+**Disclosure.** Answer containment was **defined after** exact row matching
+returned 45%. Seeing that figure prompted the question of whether the scorer was
+too strict — it was, in a specific way: a query asked for a P90 that returned the
+P90 *and* the sample size was marked wrong. Containment measures whether the
+verified answer is present in the result. Both numbers are reported, and the
+order in which they were invented is stated here because a metric introduced
+after seeing a result is exactly the kind of thing a reader should be able to
+discount.
+
+**Pre-commitment for M4, recorded before that run.** **Exact row match is the
+primary metric; answer containment is secondary.** Rationale: containment can be
+satisfied by a query that returns a wide result set containing the answer
+incidentally, so it has a failure mode that flatters the system. Exact match has
+no such failure mode — it is merely strict. Where the two disagree, the headline
+figure is exact match, and the gap between them is reported as a measure of how
+often the model answers correctly in an unexpected shape.
+
+### The five genuine SQL failures, characterized and NOT yet fixed
+
+Characterized before anything is tuned. Fixing failures already seen scored is
+how a 45% becomes an unreproducible 70%, so these are described and left alone;
+any fix lands with a fresh measurement.
+
+Of 20 questions, 9 matched exactly, 6 more were correct in an unexpected shape
+(counted by containment), and **5 are genuine disagreements**:
+
+| # | Question | Category |
+|---|---|---|
+| s10 | fastest five TN peers | **non-deterministic tie ordering** |
+| s18 | how does our P90 rank | **rank vs percentile, with a tie-handling error** |
+| s17 | which peer group | column-set difference |
+| s19 | P90 change if zeros excluded | column-set difference (omission) |
+| s20 | turnout time P90 | column-set difference (omission) |
+
+**s10 — tie ordering.** The model wrote
+`ORDER BY response_p90_min ASC` with no secondary key. Several TN departments
+share a whole-minute P90, so which five come back is arbitrary and varies run to
+run. The reference adds `, fd_name ASC`. Not a reasoning error: the query answers
+the question, and "the fastest five" is genuinely ambiguous under ties. It does
+mean this question cannot discriminate between a good and a bad model.
+
+**s17, s19, s20 — column-set differences.** Each returns the right answer with a
+different supporting column: s17 substituted `response_p90_min` for
+`n_incidents`; s19 and s20 omitted one of the reference's five columns (the
+legacy scored count, and the median alongside the requested P90). All three got
+the substantive answer right. They fail exact match, and s17/s19/s20 also fail
+containment because a reference value is genuinely absent from the result.
+
+#### s18 in detail — the one that matters most
+
+Percentile ranking is this project's core output, so a model confusion here
+matters more than one-fifth of a 20-question set suggests.
+
+Asked *"How does Sewanee's P90 response time rank against its peer
+departments?"*, the model produced:
+
+```sql
+SELECT (SELECT response_p90_min FROM pool WHERE is_sewanee) AS sewanee_p90_min,
+       (SELECT COUNT(*) FROM pool
+          WHERE response_p90_min <= (SELECT response_p90_min FROM pool WHERE is_sewanee))
+         AS rank_from_fastest,
+       COUNT(*) AS peer_pool_size
+FROM pool
+```
+
+Returned `(13.0, 122, 768)` against the reference's `(13.0, 768, 14.4)`.
+
+Two distinct problems, and the dangerous part is that the answer looks right:
+
+1. **It answered a different question.** It returned a *rank* (122nd) where the
+   reference returns a *percentile* (14.4%). Both are legitimate readings of
+   "rank", and 122/768 = 15.9% is close enough to 14.4% that neither a reader nor
+   a cursory reviewer would notice the substitution.
+2. **The tie handling is wrong, in the pessimistic direction.** `<=` counts every
+   department tied with Sewanee as at-or-faster. **23 departments share Sewanee's
+   13.0-minute P90**, so the choice between `<`, midpoint and `<=` moves the
+   answer by 23 places. The methodology document specifies midpoint tie handling
+   precisely because this choice is load-bearing — and the model silently picked
+   one end of it:
+
+   | Tie rule | Departments counted | Percentile |
+   |---|---:|---:|
+   | strict `<` (optimistic) | 99 | 12.9% |
+   | **midpoint (specified)** | — | **14.4%** |
+   | `<=` (model's choice, pessimistic) | 122 | 15.9% |
+
+This is the project's own earlier mistake, reproduced by the model. The first
+peer rankings used strict `<`, which placed Sewanee at the top of its own tie
+group and flattered it by 1.5 points; the model used `<=`, which places it at the
+bottom and penalises it by 1.5 points. The full spread across tie rules is 3.0
+percentage points on the project's headline figure.
+
+**Not fixed.** The fix is plainly to state the tie rule and the rank-vs-percentile
+distinction in the schema prompt, but that is a change informed by having seen it
+scored. It goes into M4 with a fresh measurement, and the before/after will be
+reported.
+
+### The truncation bug: a reasoning block will eat the whole token budget
+
+The most useful finding of this round was not a metric. It was that **a model
+which emits a reasoning block before its text will consume the entire
+`max_tokens` budget producing reasoning, return zero text blocks, and look
+exactly like a malformed response.**
+
+The router was calling the model with `max_tokens=300` — generous for a
+four-field JSON object. The symptom was a **21.7% schema-violation rate** and 5
+of 46 questions unroutable, with violation messages like
+`no JSON object in reply: ''` and replies truncated mid-string
+(`'{"route": "structured", "exclusion_reason": "none'`).
+
+That reads as a model that cannot follow an output schema. It was not.
+**Reproduced with two direct API calls** rather than inferred:
+
+| `max_tokens` | `stop_reason` | content blocks | output tokens | text |
+|---|---|---|---|---|
+| 300 | `max_tokens` | `['thinking']` | 300 | `''` |
+| 1000 | `end_turn` | `['thinking', 'text']` | 580 | valid JSON |
+
+The thinking block alone exceeded 300 tokens, so the budget was exhausted before
+any text was generated, and the text-extraction step returned an empty string.
+
+**It was depressing three separate metrics**, which is why it was worth chasing
+rather than working around:
+
+| Metric | With the bug | Fixed |
+|---|---:|---:|
+| Router accuracy | 84.8% | **95.7%** |
+| Router schema violations | 21.7% | **0.0%** |
+| Answer faithfulness | 11/13 | **13/13** |
+
+Faithfulness moved because truncated answers stop mid-sentence, and a judge
+correctly reads an unfinished claim as unsupported. The same latent bug was
+present on every generation path (synthesis at 700, refusal at 400, hybrid at
+900) and all were raised.
+
+The fix is a one-line budget change, and it is **not** router tuning: the
+classifier's prompt, schema and examples are untouched. What changed is that the
+reply now has room to exist.
 
 ## Measured retrieval quality
 

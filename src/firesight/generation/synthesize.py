@@ -92,6 +92,22 @@ retrieved passages below.
 ## ANSWER"""
 
 
+PAGE_SUFFIX = re.compile(r",\s*p\.\s*\d+\s*$", re.IGNORECASE)
+
+
+def citation_key(citation: str) -> str:
+    """
+    Normalise a citation for comparison: document + section, page dropped.
+
+    `Hit.citation()` renders "Doc - Section, p. 457" while a model reliably
+    cites "Doc - Section". Comparing the two literally reported 17 of 17
+    citations as invalid -- a 23.1% "citation validity" that was entirely this
+    formatting mismatch, not fabrication. The page is presentation detail; the
+    document and section are the claim.
+    """
+    return " ".join(PAGE_SUFFIX.sub("", citation or "").split()).casefold()
+
+
 def extract_citations(text: str) -> list[str]:
     """Pull `[document — section]` pairs out of an answer, in order, deduped."""
     out, seen = [], set()

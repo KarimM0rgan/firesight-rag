@@ -31,9 +31,11 @@ from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 
 from firesight.config import REPO_ROOT, settings
+from firesight.eval.stats import from_bools, proportion
 from firesight.generation.llm import LLMError, complete
 from firesight.generation.llm import available as llm_available
 from firesight.generation.synthesize import answer as answer_documents
+from firesight.generation.synthesize import citation_key
 
 QUESTIONS = REPO_ROOT / "eval" / "document_questions.jsonl"
 RESULTS_DIR = REPO_ROOT / "eval" / "results"
@@ -131,8 +133,11 @@ def run(limit: int | None, config: str, rerank: bool) -> dict:
         a = answer_documents(q["question"], config=config, rerank=rerank)
         spend += a.cost_usd
 
-        retrieved = {h.citation() for h in a.hits}
-        invalid = [c for c in a.citations if c not in retrieved]
+        # Page-insensitive: see citation_key(). A citation naming a document
+        # and section that was retrieved is valid whether or not it carries the
+        # page number.
+        retrieved = {citation_key(h.citation()) for h in a.hits}
+        invalid = [c for c in a.citations if citation_key(c) not in retrieved]
 
         s = FaithScore(
             id=q["id"],
@@ -201,6 +206,7 @@ def run(limit: int | None, config: str, rerank: bool) -> dict:
         "faithfulness": (
             round(sum(bool(s.faithful) for s in judged) / len(judged), 4) if judged else None
         ),
+        "faithfulness_ci": from_bools(bool(s.faithful) for s in judged).as_dict(),
         "mean_unsupported_claims": (
             round(statistics.mean(s.unsupported_claims or 0 for s in judged), 3)
             if judged
@@ -214,6 +220,8 @@ def run(limit: int | None, config: str, rerank: bool) -> dict:
             if answered
             else None
         ),
+        "citation_rate_ci": from_bools(s.has_citation for s in answered).as_dict(),
+        "citation_validity_ci": from_bools(s.citation_valid for s in answered).as_dict(),
         "judge_failures": sum(1 for s in scores if s.judge_error),
         "by_origin": {
             o: {
@@ -232,6 +240,12 @@ def run(limit: int | None, config: str, rerank: bool) -> dict:
         "wall_clock_s": round(time.perf_counter() - t0, 1),
         "scores": [asdict(s) for s in scores],
     }
+
+
+def _ci(rep: dict, key: str) -> str:
+    """Render a stored Wilson interval as 'k/n = p% [lo, hi]'."""
+    d = rep.get(key) or {}
+    return proportion(d.get("successes", 0), d.get("n", 0)).fmt()
 
 
 def write_report(rep: dict) -> tuple:
@@ -256,10 +270,10 @@ def write_report(rep: dict) -> tuple:
         "",
         "| Metric | Value |",
         "| --- | --- |",
-        f"| Faithfulness (answers with zero unsupported claims) | {pct(rep['faithfulness'])} |",
+        f"| Faithfulness (zero unsupported claims) | {_ci(rep, 'faithfulness_ci')} |",
         f"| Mean unsupported claims per answer | {rep['mean_unsupported_claims']} |",
-        f"| Citation rate (answers carrying any citation) | {pct(rep['citation_rate'])} |",
-        f"| Citation validity (every citation was retrieved) | {pct(rep['citation_validity'])} |",
+        f"| Citation rate (any citation) | {_ci(rep, 'citation_rate_ci')} |",
+        f"| Citation validity, page-insensitive | {_ci(rep, 'citation_validity_ci')} |",
         f"| Judge failures | {rep['judge_failures']} |",
         f"| Latency p50 | {rep['latency_p50_ms']:.0f} ms |",
         f"| Cost | ${rep['total_cost_usd']:.5f} total, "
