@@ -232,6 +232,24 @@ def run(limit: int | None = None) -> dict:
         "total_cost_usd": round(sum(s.cost_usd for s in scores), 5),
         "mean_cost_usd": round(sum(s.cost_usd for s in scores) / n, 6) if n else None,
         "wall_clock_s": round(time.perf_counter() - t0, 1),
+        "by_category": {
+            c: {
+                "n": len([x for x in scores if x.category == c]),
+                "execution": from_bools(
+                    x.executed for x in scores if x.category == c
+                ).as_dict(),
+                "exact_match": from_bools(
+                    x.result_match for x in scores if x.category == c
+                ).as_dict(),
+                "containment": from_bools(
+                    x.answer_contained for x in scores if x.category == c
+                ).as_dict(),
+                "failed_ids": [
+                    x.id for x in scores if x.category == c and not x.result_match
+                ],
+            }
+            for c in sorted({x.category for x in scores})
+        },
         "by_difficulty": {
             d: {
                 "n": len([s for s in scores if s.difficulty == d]),

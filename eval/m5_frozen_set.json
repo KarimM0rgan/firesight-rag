@@ -1,0 +1,7 @@
+{
+  "note": "SHA-256 of the SQL question set and reference answers at the M5 pre-fix baseline. Neither file may change between the baseline and the post-fix re-run.",
+  "hashes": {
+    "eval/structured_questions.jsonl": "474b78f814791faf783bc9ce748ab0fef4e315bb4d69c05a368a30bbbb3d8fdd",
+    "eval/reference_answers.json": "65ad4f54b3a34a74264aa70c832dde7bacea82b644f495daccb5576672737cac"
+  }
+}
