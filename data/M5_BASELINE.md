@@ -106,3 +106,42 @@ scorer's 0.01 tolerance. This is a reference/scorer artifact, not a model error.
 - Category A (10 questions) is a **measurement** question, not a model one.
   Whatever is decided there must be labelled as scorer leniency rather than
   folded in with the model fixes.
+
+---
+
+## Fix 3 decision: neither the scorer nor the model — the references are over-specified
+
+s17, s19 and s20 were examined to decide whether the reference or the scorer was
+wrong. **Neither.** In all three the reference SELECTs more than the question
+asks for:
+
+| # | Question asks for | Reference returns |
+|---|---|---|
+| s17 | which peer group Sewanee is in | `peer_group, staffing_type, volume_decile, n_incidents` |
+| s19 | how much the P90 changes | 5 columns incl. both scored counts |
+| s20 | the 90th-percentile turnout time | 5 columns incl. the median |
+
+The model answered each question as asked and was marked wrong for not guessing
+which extra columns the reference happened to select. That is a **question-design
+defect**, not a model error and not scorer strictness.
+
+**No code change, and deliberately no reference change.** Two reasons:
+
+1. The references are frozen between the baseline and the re-run. Editing them
+   to match observed model output is precisely the post-hoc problem this
+   milestone is structured to avoid — the numbers would stop being comparable.
+2. Loosening exact match to ignore incidental columns would collapse it into
+   answer containment, which is already the secondary metric. That would void
+   the pre-commitment that exact match is primary, and the two numbers would
+   stop measuring different things.
+
+**Recorded as debt.** The next question set should either narrow these three
+references to what the question asks, or widen the questions to request the
+columns the reference returns. Either way the set is rewritten *before* being
+scored, and the change is measured rather than assumed. Until then s17, s19 and
+s20 are expected to keep failing exact match, and that is the measurement
+working correctly on a badly specified question.
+
+The same reasoning applies to the 10 Category A failures: the scorer is strict
+about extra columns by design, containment is the metric that tolerates them,
+and both are reported.
