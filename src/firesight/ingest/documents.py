@@ -38,6 +38,19 @@ from pathlib import Path
 from firesight.config import REPO_ROOT, settings
 
 
+def embed_slug(model: str | None = None) -> str:
+    """
+    Short, filesystem-safe tag for the embedding model.
+
+    Collections are scoped by model because embeddings from different models
+    are not comparable and must not share an index. Without this, switching
+    FIRESIGHT_EMBED_MODEL would silently query vectors produced by the
+    previous model -- an A/B that measures nothing.
+    """
+    name = (model or settings.embed_model).rsplit("/", 1)[-1]
+    return name.replace("-", "").replace(".", "").replace("_", "").lower()[:24]
+
+
 @dataclass(frozen=True)
 class ChunkConfig:
     name: str
@@ -50,7 +63,7 @@ class ChunkConfig:
 
     @property
     def collection(self) -> str:
-        return f"firesight_docs_{self.name}"
+        return f"firesight_docs_{self.name}_{embed_slug()}"
 
     @property
     def scope_collection(self) -> str:
@@ -61,7 +74,7 @@ class ChunkConfig:
         ranking slots cost MRR for presence the system does not use (0.711 ->
         0.644 on the best arm when it shared the index).
         """
-        return f"firesight_scope_{self.name}"
+        return f"firesight_scope_{self.name}_{embed_slug()}"
 
 
 CHUNK_CONFIGS: dict[str, ChunkConfig] = {

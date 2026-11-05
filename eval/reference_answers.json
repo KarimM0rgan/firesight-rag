@@ -23,7 +23,7 @@
         ]
       ],
       "row_count": 1,
-      "elapsed_ms": 2.7
+      "elapsed_ms": 15.1
     },
     {
       "id": "s02",
@@ -41,7 +41,7 @@
         ]
       ],
       "row_count": 1,
-      "elapsed_ms": 2.4
+      "elapsed_ms": 1.5
     },
     {
       "id": "s03",
@@ -59,7 +59,7 @@
         ]
       ],
       "row_count": 1,
-      "elapsed_ms": 2.0
+      "elapsed_ms": 1.4
     },
     {
       "id": "s04",
@@ -77,7 +77,7 @@
         ]
       ],
       "row_count": 1,
-      "elapsed_ms": 2.0
+      "elapsed_ms": 1.9
     },
     {
       "id": "s05",
@@ -95,7 +95,7 @@
         ]
       ],
       "row_count": 1,
-      "elapsed_ms": 19.4
+      "elapsed_ms": 21.0
     },
     {
       "id": "s06",
@@ -162,7 +162,7 @@
         ]
       ],
       "row_count": 10,
-      "elapsed_ms": 14.7
+      "elapsed_ms": 23.3
     },
     {
       "id": "s07",
@@ -180,7 +180,7 @@
         ]
       ],
       "row_count": 1,
-      "elapsed_ms": 2.6
+      "elapsed_ms": 1.5
     },
     {
       "id": "s08",
@@ -198,7 +198,7 @@
         ]
       ],
       "row_count": 1,
-      "elapsed_ms": 2.3
+      "elapsed_ms": 1.6
     },
     {
       "id": "s09",
@@ -216,7 +216,7 @@
         ]
       ],
       "row_count": 1,
-      "elapsed_ms": 2.1
+      "elapsed_ms": 17.3
     },
     {
       "id": "s10",
@@ -264,7 +264,7 @@
         ]
       ],
       "row_count": 5,
-      "elapsed_ms": 14.1
+      "elapsed_ms": 11.2
     },
     {
       "id": "s11",
@@ -290,7 +290,7 @@
         ]
       ],
       "row_count": 1,
-      "elapsed_ms": 2.1
+      "elapsed_ms": 1.8
     },
     {
       "id": "s12",
@@ -308,7 +308,7 @@
         ]
       ],
       "row_count": 1,
-      "elapsed_ms": 2.1
+      "elapsed_ms": 19.0
     },
     {
       "id": "s13",
@@ -385,7 +385,7 @@
         ]
       ],
       "row_count": 12,
-      "elapsed_ms": 9.2
+      "elapsed_ms": 16.5
     },
     {
       "id": "s14",
@@ -405,7 +405,7 @@
         ]
       ],
       "row_count": 1,
-      "elapsed_ms": 19.7
+      "elapsed_ms": 9.3
     },
     {
       "id": "s15",
@@ -423,7 +423,7 @@
         ]
       ],
       "row_count": 1,
-      "elapsed_ms": 4.0
+      "elapsed_ms": 6.1
     },
     {
       "id": "s16",
@@ -465,7 +465,7 @@
         ]
       ],
       "row_count": 1,
-      "elapsed_ms": 1.8
+      "elapsed_ms": 1.9
     },
     {
       "id": "s18",
@@ -487,7 +487,7 @@
         ]
       ],
       "row_count": 1,
-      "elapsed_ms": 15.6
+      "elapsed_ms": 24.2
     },
     {
       "id": "s19",
@@ -513,7 +513,7 @@
         ]
       ],
       "row_count": 1,
-      "elapsed_ms": 1.9
+      "elapsed_ms": 1.8
     },
     {
       "id": "s20",
@@ -539,8 +539,462 @@
         ]
       ],
       "row_count": 1,
-      "elapsed_ms": 11.9,
+      "elapsed_ms": 13.5,
       "notes": "NFIRS has no dispatch or en-route timestamp, so this is unanswerable from `incidents`. A correct answer must come from local_incidents AND must state that the window is 2025-09..2026-03, not 2024."
+    },
+    {
+      "id": "s21",
+      "question": "What percentile is Sewanee's P90 response time in among its peer departments, with ties counted at the midpoint?",
+      "difficulty": "hard",
+      "category": "percentile_vs_rank",
+      "reference_sql": "WITH pool AS (SELECT response_p90_min p90, is_sewanee FROM metrics_department_year WHERE year = 2024 AND in_benchmark_pool AND n_with_response_time > 10 AND response_p90_min IS NOT NULL), s AS (SELECT p90 FROM pool WHERE is_sewanee) SELECT round(100.0 * (count(*) FILTER (WHERE p90 < (SELECT p90 FROM s)) + 0.5 * count(*) FILTER (WHERE p90 = (SELECT p90 FROM s))) / count(*), 1) AS percentile FROM pool",
+      "ok": true,
+      "columns": [
+        "percentile"
+      ],
+      "rows": [
+        [
+          "14.4"
+        ]
+      ],
+      "row_count": 1,
+      "elapsed_ms": 3.5
+    },
+    {
+      "id": "s22",
+      "question": "How many peer departments have a strictly faster P90 response time than Sewanee?",
+      "difficulty": "medium",
+      "category": "percentile_vs_rank",
+      "reference_sql": "WITH pool AS (SELECT response_p90_min p90, is_sewanee FROM metrics_department_year WHERE year = 2024 AND in_benchmark_pool AND n_with_response_time > 10 AND response_p90_min IS NOT NULL), s AS (SELECT p90 FROM pool WHERE is_sewanee) SELECT count(*) AS n_strictly_faster FROM pool WHERE p90 < (SELECT p90 FROM s)",
+      "ok": true,
+      "columns": [
+        "n_strictly_faster"
+      ],
+      "rows": [
+        [
+          "99"
+        ]
+      ],
+      "row_count": 1,
+      "elapsed_ms": 5.4
+    },
+    {
+      "id": "s23",
+      "question": "How many peer departments are tied with Sewanee on P90 response time?",
+      "difficulty": "hard",
+      "category": "percentile_vs_rank",
+      "reference_sql": "WITH pool AS (SELECT response_p90_min p90, is_sewanee FROM metrics_department_year WHERE year = 2024 AND in_benchmark_pool AND n_with_response_time > 10 AND response_p90_min IS NOT NULL), s AS (SELECT p90 FROM pool WHERE is_sewanee) SELECT count(*) AS n_tied FROM pool WHERE p90 = (SELECT p90 FROM s)",
+      "ok": true,
+      "columns": [
+        "n_tied"
+      ],
+      "rows": [
+        [
+          "23"
+        ]
+      ],
+      "row_count": 1,
+      "elapsed_ms": 5.5
+    },
+    {
+      "id": "s24",
+      "question": "What percentile is Sewanee's 8-minute compliance rate in among peers, ties at the midpoint?",
+      "difficulty": "hard",
+      "category": "percentile_vs_rank",
+      "reference_sql": "WITH pool AS (SELECT pct_within_8min p, is_sewanee FROM metrics_department_year WHERE year = 2024 AND in_benchmark_pool AND n_with_response_time > 10 AND response_p90_min IS NOT NULL), s AS (SELECT p FROM pool WHERE is_sewanee) SELECT round(100.0 * (count(*) FILTER (WHERE p > (SELECT p FROM s)) + 0.5 * count(*) FILTER (WHERE p = (SELECT p FROM s))) / count(*), 1) AS percentile FROM pool",
+      "ok": true,
+      "columns": [
+        "percentile"
+      ],
+      "rows": [
+        [
+          "8.5"
+        ]
+      ],
+      "row_count": 1,
+      "elapsed_ms": 4.5
+    },
+    {
+      "id": "s25",
+      "question": "What is the median 8-minute compliance rate across the peer benchmark pool?",
+      "difficulty": "medium",
+      "category": "peer_comparison",
+      "reference_sql": "SELECT round(median(pct_within_8min), 1) AS median_pct_within_8min FROM metrics_department_year WHERE year = 2024 AND in_benchmark_pool AND n_with_response_time > 10 AND response_p90_min IS NOT NULL",
+      "ok": true,
+      "columns": [
+        "median_pct_within_8min"
+      ],
+      "rows": [
+        [
+          "41.3"
+        ]
+      ],
+      "row_count": 1,
+      "elapsed_ms": 2.2
+    },
+    {
+      "id": "s26",
+      "question": "How many peer departments reported at least one building fire in 2024?",
+      "difficulty": "medium",
+      "category": "aggregation",
+      "reference_sql": "SELECT count(DISTINCT (state, fdid)) AS n_departments FROM incidents WHERE inc_type = '111'",
+      "ok": true,
+      "columns": [
+        "n_departments"
+      ],
+      "rows": [
+        [
+          "773"
+        ]
+      ],
+      "row_count": 1,
+      "elapsed_ms": 8.1
+    },
+    {
+      "id": "s27",
+      "question": "How many peer incidents have a recorded property loss value?",
+      "difficulty": "medium",
+      "category": "aggregation",
+      "reference_sql": "SELECT count(*) AS n_with_loss FROM incidents WHERE property_loss_usd IS NOT NULL",
+      "ok": true,
+      "columns": [
+        "n_with_loss"
+      ],
+      "rows": [
+        [
+          "94155"
+        ]
+      ],
+      "row_count": 1,
+      "elapsed_ms": 12.5
+    },
+    {
+      "id": "s28",
+      "question": "How many US fire departments does NFIRS list by staffing type?",
+      "difficulty": "easy",
+      "category": "registry",
+      "reference_sql": "SELECT staffing_type, count(*) AS n FROM departments GROUP BY staffing_type ORDER BY n DESC",
+      "ok": true,
+      "columns": [
+        "staffing_type",
+        "n"
+      ],
+      "rows": [
+        [
+          "unknown",
+          "20368"
+        ],
+        [
+          "volunteer",
+          "11804"
+        ],
+        [
+          "career",
+          "2891"
+        ],
+        [
+          "combination",
+          "2059"
+        ]
+      ],
+      "row_count": 4,
+      "elapsed_ms": 6.9
+    },
+    {
+      "id": "s29",
+      "question": "What was Sewanee's P95 response time in 2024?",
+      "difficulty": "easy",
+      "category": "single_metric",
+      "reference_sql": "SELECT response_p95_min FROM metrics_department_year WHERE is_sewanee AND year = 2024",
+      "ok": true,
+      "columns": [
+        "response_p95_min"
+      ],
+      "rows": [
+        [
+          "18.0"
+        ]
+      ],
+      "row_count": 1,
+      "elapsed_ms": 1.7
+    },
+    {
+      "id": "s30",
+      "question": "How many peer incidents resulted in a firefighter injury?",
+      "difficulty": "medium",
+      "category": "aggregation",
+      "reference_sql": "SELECT count(*) AS n FROM incidents WHERE coalesce(ff_injuries, 0) > 0",
+      "ok": true,
+      "columns": [
+        "n"
+      ],
+      "rows": [
+        [
+          "59"
+        ]
+      ],
+      "row_count": 1,
+      "elapsed_ms": 16.8
+    },
+    {
+      "id": "s31",
+      "question": "Which five states have the most peer departments?",
+      "difficulty": "medium",
+      "category": "registry",
+      "reference_sql": "SELECT state, count(*) AS n_peers FROM departments WHERE is_peer GROUP BY state ORDER BY n_peers DESC, state ASC LIMIT 5",
+      "ok": true,
+      "columns": [
+        "state",
+        "n_peers"
+      ],
+      "rows": [
+        [
+          "TN",
+          "373"
+        ],
+        [
+          "NC",
+          "342"
+        ],
+        [
+          "AL",
+          "224"
+        ],
+        [
+          "MS",
+          "172"
+        ],
+        [
+          "KY",
+          "149"
+        ]
+      ],
+      "row_count": 5,
+      "elapsed_ms": 8.1
+    },
+    {
+      "id": "s32",
+      "question": "How many peer departments report conflicting staffing rows in the NFIRS registry?",
+      "difficulty": "medium",
+      "category": "data_quality",
+      "reference_sql": "SELECT count(*) AS n FROM departments WHERE is_peer AND has_conflicting_staffing_rows",
+      "ok": true,
+      "columns": [
+        "n"
+      ],
+      "rows": [
+        [
+          "33"
+        ]
+      ],
+      "row_count": 1,
+      "elapsed_ms": 1.5
+    },
+    {
+      "id": "s33",
+      "question": "How many distinct incident type codes did Sewanee report in 2024?",
+      "difficulty": "medium",
+      "category": "call_mix",
+      "reference_sql": "SELECT count(DISTINCT i.inc_type) AS n_types FROM incidents i JOIN departments d ON d.state = i.state AND d.fdid = i.fdid WHERE d.is_sewanee",
+      "ok": true,
+      "columns": [
+        "n_types"
+      ],
+      "rows": [
+        [
+          "41"
+        ]
+      ],
+      "row_count": 1,
+      "elapsed_ms": 5.7
+    },
+    {
+      "id": "s34",
+      "question": "How many of Sewanee's 2024 incidents had a same-minute arrival?",
+      "difficulty": "hard",
+      "category": "data_quality",
+      "reference_sql": "SELECT count(*) AS n_zero FROM incidents i JOIN departments d ON d.state = i.state AND d.fdid = i.fdid WHERE d.is_sewanee AND NOT i.is_non_response AND i.response_min = 0",
+      "ok": true,
+      "columns": [
+        "n_zero"
+      ],
+      "rows": [
+        [
+          "10"
+        ]
+      ],
+      "row_count": 1,
+      "elapsed_ms": 9.1
+    },
+    {
+      "id": "s35",
+      "question": "What was Sewanee's mean response time in 2024?",
+      "difficulty": "medium",
+      "category": "single_metric",
+      "reference_sql": "SELECT response_mean_min FROM metrics_department_year WHERE is_sewanee AND year = 2024",
+      "ok": true,
+      "columns": [
+        "response_mean_min"
+      ],
+      "rows": [
+        [
+          "7.54"
+        ]
+      ],
+      "row_count": 1,
+      "elapsed_ms": 1.8
+    },
+    {
+      "id": "s36",
+      "question": "How many peer departments reported any incident in 2024?",
+      "difficulty": "medium",
+      "category": "cohort",
+      "reference_sql": "SELECT count(*) AS n_reporting FROM metrics_department_year WHERE year = 2024",
+      "ok": true,
+      "columns": [
+        "n_reporting"
+      ],
+      "rows": [
+        [
+          "936"
+        ]
+      ],
+      "row_count": 1,
+      "elapsed_ms": 1.1
+    },
+    {
+      "id": "s37",
+      "question": "How many peer departments are in Tennessee?",
+      "difficulty": "easy",
+      "category": "cohort",
+      "reference_sql": "SELECT count(*) AS n FROM departments WHERE is_peer AND state = 'TN'",
+      "ok": true,
+      "columns": [
+        "n"
+      ],
+      "rows": [
+        [
+          "373"
+        ]
+      ],
+      "row_count": 1,
+      "elapsed_ms": 2.4
+    },
+    {
+      "id": "s38",
+      "question": "How many records in the local export are flagged as test records?",
+      "difficulty": "medium",
+      "category": "local_export",
+      "reference_sql": "SELECT count(*) AS n_test FROM local_incidents WHERE is_test_record",
+      "ok": true,
+      "columns": [
+        "n_test"
+      ],
+      "rows": [
+        [
+          "13"
+        ]
+      ],
+      "row_count": 1,
+      "elapsed_ms": 1.4
+    },
+    {
+      "id": "s39",
+      "question": "What is the median total response time in the local export, excluding test and non-finalized records?",
+      "difficulty": "medium",
+      "category": "local_export",
+      "reference_sql": "SELECT round(median(total_response_min), 2) AS median_total_response_min FROM local_incidents WHERE NOT is_test_record AND NOT is_non_finalized AND total_response_min BETWEEN 0 AND 90",
+      "ok": true,
+      "columns": [
+        "median_total_response_min"
+      ],
+      "rows": [
+        [
+          "4.0"
+        ]
+      ],
+      "row_count": 1,
+      "elapsed_ms": 1.6
+    },
+    {
+      "id": "s40",
+      "question": "What are the five most common incident types among peer departments in Tennessee?",
+      "difficulty": "hard",
+      "category": "aggregation",
+      "reference_sql": "SELECT i.inc_type, any_value(c.description) AS description, count(*) AS n FROM incidents i LEFT JOIN incident_type_codes c ON c.inc_type = i.inc_type WHERE i.state = 'TN' GROUP BY i.inc_type ORDER BY n DESC, i.inc_type ASC LIMIT 5",
+      "ok": true,
+      "columns": [
+        "inc_type",
+        "description",
+        "n"
+      ],
+      "rows": [
+        [
+          "311",
+          "Medical assist, assist EMS crew",
+          "6279"
+        ],
+        [
+          "611",
+          "Dispatched & canceled en route",
+          "4845"
+        ],
+        [
+          "321",
+          "EMS call, excluding vehicle accident with injury",
+          "4161"
+        ],
+        [
+          "322",
+          "Vehicle accident with injuries",
+          "2527"
+        ],
+        [
+          "111",
+          "Building fires",
+          "1873"
+        ]
+      ],
+      "row_count": 5,
+      "elapsed_ms": 19.8
+    },
+    {
+      "id": "s41",
+      "question": "Which month had the most peer incidents in 2024?",
+      "difficulty": "hard",
+      "category": "time_series",
+      "reference_sql": "SELECT date_trunc('month', inc_date) AS month, count(*) AS n FROM incidents GROUP BY month ORDER BY n DESC, month ASC LIMIT 1",
+      "ok": true,
+      "columns": [
+        "month",
+        "n"
+      ],
+      "rows": [
+        [
+          "2024-01-01 00:00:00",
+          "14612"
+        ]
+      ],
+      "row_count": 1,
+      "elapsed_ms": 12.4
+    },
+    {
+      "id": "s42",
+      "question": "How many peer departments were excluded from the benchmark pool for an implausible same-minute arrival rate?",
+      "difficulty": "hard",
+      "category": "cohort",
+      "reference_sql": "SELECT count(*) AS n_excluded FROM metrics_department_year WHERE year = 2024 AND is_zero_artifact",
+      "ok": true,
+      "columns": [
+        "n_excluded"
+      ],
+      "rows": [
+        [
+          "20"
+        ]
+      ],
+      "row_count": 1,
+      "elapsed_ms": 1.7
     }
   ]
 }

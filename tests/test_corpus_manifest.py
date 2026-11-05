@@ -204,3 +204,74 @@ def test_sql_primary_metric_is_pre_committed_to_exact_match():
 
     assert PRIMARY_METRIC == "result_accuracy"
     assert SECONDARY_METRIC == "answer_containment_accuracy"
+
+
+# ── M4 golden set: written and frozen before any model run ────────────────
+def _jsonl(name: str) -> list[dict]:
+    path = REPO_ROOT / "eval" / name
+    return [
+        __import__("json").loads(line)
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+
+
+def test_golden_set_is_fifty_questions():
+    assert len(_jsonl("document_questions.jsonl")) == 50
+
+
+def test_golden_set_methodology_share_is_at_most_twenty_percent():
+    from firesight.eval.retrieval_suite import question_origin
+
+    qs = _jsonl("document_questions.jsonl")
+    origins = [question_origin(q) for q in qs]
+    meth = origins.count("methodology")
+    assert meth / len(qs) <= 0.20, f"{meth}/{len(qs)} methodology-origin"
+    assert origins.count("external") + meth == len(qs)
+    assert "project" not in origins  # build artifacts are out of the corpus
+
+
+def test_every_golden_question_has_a_label_and_a_distinctive_needle():
+    for q in _jsonl("document_questions.jsonl"):
+        assert q.get("relevant_sections"), q["id"]
+        needles = q.get("answer_must_contain") or []
+        assert needles, q["id"]
+        # A short needle invites accidental matches; these are hand-picked
+        # phrases, not keywords.
+        assert all(len(n) >= 20 for n in needles), q["id"]
+
+
+def test_golden_set_ids_are_unique():
+    ids = [q["id"] for q in _jsonl("document_questions.jsonl")]
+    assert len(ids) == len(set(ids))
+
+
+# ── M4 SQL set ────────────────────────────────────────────────────────────
+def test_sql_set_is_at_least_forty_questions():
+    """20 questions gave exact-match [25.8, 65.8] -- too wide to be useful."""
+    assert len(_jsonl("structured_questions.jsonl")) >= 40
+
+
+def test_sql_set_probes_percentile_versus_rank():
+    """
+    s18 showed the model substituting a rank for a percentile and choosing the
+    wrong tie rule. One question could not distinguish that from noise.
+    """
+    qs = _jsonl("structured_questions.jsonl")
+    pvr = [q for q in qs if q.get("category") == "percentile_vs_rank"]
+    assert len(pvr) >= 3, f"only {len(pvr)} percentile-vs-rank questions"
+
+
+def test_every_sql_question_has_reference_sql():
+    for q in _jsonl("structured_questions.jsonl"):
+        assert q.get("reference_sql", "").strip().upper().startswith(("SELECT", "WITH")), q["id"]
+
+
+def test_known_sql_failures_stay_unfixed_through_m4():
+    """
+    s10, s17, s18, s19 and s20 are characterized and deliberately NOT fixed, so
+    the M4 re-measurement is clean. This pins the questions as still present
+    and unchanged in intent; it does not assert they pass.
+    """
+    ids = {q["id"] for q in _jsonl("structured_questions.jsonl")}
+    assert {"s10", "s17", "s18", "s19", "s20"} <= ids

@@ -30,6 +30,7 @@ from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 
 from firesight.config import REPO_ROOT, settings
+from firesight.eval.stats import from_bools, mean_ci, proportion
 from firesight.retrieval.vector_store import Hit, search
 
 QUESTIONS = REPO_ROOT / "eval" / "document_questions.jsonl"
@@ -90,6 +91,11 @@ class ArmResult:
     latency_p50_ms: float
     latency_p95_ms: float
     by_origin: dict = field(default_factory=dict)
+    recall_ci: dict = field(default_factory=dict)
+    mrr_ci: dict = field(default_factory=dict)
+    hit_rate_ci: dict = field(default_factory=dict)
+    answer_present_ci: dict = field(default_factory=dict)
+    embed_model: str = ""
     scores: list[QuestionScore] = field(default_factory=list)
 
     @property
@@ -185,6 +191,11 @@ def run_arm(questions: list[dict], config: str, rerank: bool, k: int) -> ArmResu
         latency_p50_ms=round(lats_sorted[n // 2], 1),
         latency_p95_ms=round(lats_sorted[max(0, int(n * 0.95) - 1)], 1),
         by_origin=by_origin,
+        recall_ci=mean_ci([q.recall_at_k for q in scores]).as_dict(),
+        mrr_ci=mean_ci([q.reciprocal_rank for q in scores]).as_dict(),
+        hit_rate_ci=from_bools(q.hit for q in scores).as_dict(),
+        answer_present_ci=from_bools(q.answer_present for q in scores).as_dict(),
+        embed_model=settings.embed_model,
         scores=scores,
     )
 
@@ -245,15 +256,24 @@ def write_report(report: dict) -> tuple:
         f"- **Questions:** {report['n_questions']}",
         f"- **k:** {report['k']}",
         "",
-        "| Arm | Recall@k | MRR | Hit rate | Answer present | p50 ms | p95 ms |",
-        "| --- | ---: | ---: | ---: | ---: | ---: | ---: |",
+        f"- **Embedding model:** `{report['arms'][0]['embed_model']}`" if report["arms"] else "",
+        "",
+        "Recall@k and MRR carry normal-approximation intervals (they are means);",
+        "hit rate and answer-present carry Wilson intervals (they are proportions).",
+        "",
+        "| Arm | Recall@k (95% CI) | MRR (95% CI) | Hit rate | Answer present | p50 ms |",
+        "| --- | --- | --- | --- | --- | ---: |",
     ]
     for a in report["arms"]:
+        r, m = a["recall_ci"], a["mrr_ci"]
+        h, ap = a["hit_rate_ci"], a["answer_present_ci"]
         lines.append(
             f"| {a['config']}{' + rerank' if a['rerank'] else ''} "
-            f"| {a['recall_at_k']:.3f} | {a['mrr']:.3f} | {a['hit_rate']:.3f} "
-            f"| {a['answer_present_rate']:.3f} "
-            f"| {a['latency_p50_ms']:.0f} | {a['latency_p95_ms']:.0f} |"
+            f"| {r['mean']:.3f} [{r['ci_low']:.3f}, {r['ci_high']:.3f}] "
+            f"| {m['mean']:.3f} [{m['ci_low']:.3f}, {m['ci_high']:.3f}] "
+            f"| {proportion(h['successes'], h['n']).fmt_short()} "
+            f"| {proportion(ap['successes'], ap['n']).fmt_short()} "
+            f"| {a['latency_p50_ms']:.0f} |"
         )
 
     lines += ["", "## By question origin", "",

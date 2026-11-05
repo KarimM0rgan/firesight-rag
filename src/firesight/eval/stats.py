@@ -108,3 +108,61 @@ def too_small_to_claim_a_rate(p: Proportion, max_width: float = 0.25) -> bool:
     """
     w = p.width
     return w is None or w > max_width
+
+
+@dataclass(frozen=True)
+class Mean:
+    """A sample mean with a normal-approximation interval."""
+
+    mean: float | None
+    low: float | None
+    high: float | None
+    n: int
+    confidence: float = 0.95
+
+    def as_dict(self) -> dict:
+        return {
+            "mean": self.mean,
+            "ci_low": self.low,
+            "ci_high": self.high,
+            "n": self.n,
+            "ci_confidence": self.confidence,
+            "ci_method": "normal_approx_sem",
+        }
+
+    def fmt(self, digits: int = 3) -> str:
+        if self.mean is None:
+            return "n/a"
+        return (
+            f"{self.mean:.{digits}f} "
+            f"[{(self.low or 0):.{digits}f}, {(self.high or 0):.{digits}f}]"
+        )
+
+
+def mean_ci(values, z: float = Z_95) -> Mean:
+    """
+    Mean with a +/- z*SEM interval.
+
+    Recall@k and MRR are averages of per-question scores, not proportions, so
+    Wilson does not apply. A normal approximation on the standard error is used
+    instead, which is reasonable at n=50 and is labelled as a different method
+    in the report so the two are not confused. At small n it understates
+    uncertainty for a bounded, skewed quantity like reciprocal rank -- which is
+    itself a reason the n=15 reranker verdict was called underpowered rather
+    than close.
+    """
+    vals = [float(v) for v in values]
+    n = len(vals)
+    if n == 0:
+        return Mean(None, None, None, 0)
+    m = sum(vals) / n
+    if n == 1:
+        return Mean(round(m, 4), None, None, 1)
+    var = sum((v - m) ** 2 for v in vals) / (n - 1)
+    sem = math.sqrt(var / n)
+    return Mean(
+        mean=round(m, 4),
+        low=round(max(0.0, m - z * sem), 4),
+        high=round(min(1.0, m + z * sem), 4),
+        n=n,
+    )

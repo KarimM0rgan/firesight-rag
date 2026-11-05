@@ -9,6 +9,45 @@ reference-document corpus, or to both — and answered with citations.
 > n=50). Milestones are in [FIRESIGHT_RAG_SPEC.md](FIRESIGHT_RAG_SPEC.md); this
 > README is rewritten at M6.
 
+## Finding: the system reproduced this project's own tie-handling error
+
+The clearest demonstration of why the evaluation harness exists.
+
+Percentile ranking is this project's headline output. Asked *"How does Sewanee's
+P90 response time rank against its peer departments?"*, the model wrote:
+
+```sql
+COUNT(*) FROM pool WHERE response_p90_min <= (SELECT response_p90_min FROM pool WHERE is_sewanee)
+```
+
+**`<=`, not midpoint.** 23 peer departments share Sewanee's 13.0-minute P90, so
+the tie rule is load-bearing:
+
+| Tie rule | Percentile | Error vs specified |
+|---|---:|---:|
+| strict `<` (optimistic) | 12.9% | −1.5 pts |
+| **midpoint (specified)** | **14.4%** | — |
+| `<=` (model's choice, pessimistic) | 15.9% | +1.5 pts |
+
+**3.0 percentage points of spread on the headline figure**, from a single
+operator. And the model made the same class of mistake this project made
+earlier, in the opposite direction: the first peer rankings used strict `<`,
+which placed Sewanee at the top of its own tie group and flattered it. The
+methodology document specifies midpoint handling precisely because this choice
+is not free — and the model silently picked an end of it.
+
+It also answered a **different question**: it returned a *rank* (122nd of 768)
+where the reference returns a *percentile*. 122/768 = 15.9%, close enough to
+14.4% that neither a reader nor a cursory reviewer would catch the substitution.
+
+A number that is wrong by 3 points and looks completely plausible is exactly what
+an eval set is for. Nothing here was caught by reading the output; it was caught
+by comparing against a verified reference.
+
+**Deliberately not fixed.** The obvious fix is to state the tie rule in the
+schema prompt, but that is a change informed by having seen it scored. It lands
+after M4 as its own milestone, measured against a set written before the fix.
+
 ## Measured results
 
 Every figure carries a **Wilson 95% confidence interval**, emitted by the
@@ -48,6 +87,27 @@ or from 30%.
 
 Only two figures here have intervals narrow enough to be worth comparing
 against anything: router accuracy (±7 points) and SQL execution accuracy.
+
+### Known labeling ambiguity, frozen as written
+
+Two of the router's 46 labels are arguably wrong, and **both stay as written**:
+
+- **r12** *"How many of our 2024 incidents are missing an arrival time?"* →
+  labelled `structured`, routed `out_of_scope`. The question is answerable (the
+  SQL set answers it), so this looks like a model error.
+- **r27** *"Our P90 response time is 13 minutes; which NFPA standard governs
+  response time for a volunteer department like ours?"* → labelled `hybrid`,
+  routed `unstructured`. The question **supplies** the P90, so no database query
+  is needed and the model's call may be better than the label.
+
+Revising a label after seeing model output is the same post-hoc problem as
+inventing a metric after seeing a result. **95.7% stands under the labels as
+written.** If either label is wrong, the true accuracy is higher, not lower —
+which is the direction that makes freezing them safe.
+
+The general rule adopted from M4 onward: all labels are written and verified
+before any model run, and a label discovered to be wrong is recorded as a
+finding rather than corrected into a better number.
 
 ### Metric pre-commitment, and a post-hoc disclosure
 
