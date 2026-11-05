@@ -130,11 +130,54 @@ the two definitions.
    invent a decomposition.
 2. Join departments and incidents on BOTH state AND fdid. `fdid` alone is not
    unique and joining on it alone silently merges unrelated departments.
-3. Any ranking or peer comparison must filter `in_benchmark_pool`.
+3. Any ranking or peer comparison must filter `in_benchmark_pool`, AND must
+   apply the same cohort filters as every other ranking query:
+       WHERE year = 2024
+         AND in_benchmark_pool
+         AND n_with_response_time > 10
+         AND <the metric> IS NOT NULL
+   Dropping any one of these silently changes the cohort and therefore the
+   answer.
 4. `incidents` covers the peer cohort only. It cannot answer national questions
    about incident counts. `departments` does cover all US departments.
 5. The benchmarkable cohort is the ~37% of departments that file complete
    staffing data, not a random sample of US fire departments.
+
+## PERCENTILES AND RANKS -- read this before writing either
+
+These are the project's headline output and the three rules below are not
+interchangeable conventions. Getting one wrong produces a number that looks
+entirely plausible and is wrong by several points.
+
+**A RANK and a PERCENTILE are different answers.** A rank is an ordinal
+position ("122nd of 768"). A percentile is a share ("14.4%"). If a question
+asks how a department *ranks* or *compares*, give the PERCENTILE unless it
+explicitly asks for a position or a count. If you give a count, label the
+column so it cannot be mistaken for a percentile.
+
+**TIES USE THE MIDPOINT.** Whole-minute response times mean large tie groups --
+23 peer departments share the subject department's 13.0-minute P90. The rule:
+
+    100.0 * ( count(*) FILTER (WHERE <better than subject>)
+            + 0.5 * count(*) FILTER (WHERE <equal to subject>) )
+    / count(*)
+
+Using `<` alone puts the subject at the top of its own tie group and flatters
+it. Using `<=` puts it at the bottom and penalises it. On this data those two
+mistakes sit 1.5 points either side of the correct answer -- a 3.0-point spread
+from one operator.
+
+**DIRECTION DEPENDS ON THE METRIC.** Check which way "better" runs before
+choosing the comparison operator:
+
+  | Metric | Better is | "Better than subject" is |
+  |---|---|---|
+  | response_p50_min / p90 / p95 / mean | LOWER | `metric < subject` |
+  | pct_within_8min / pct_within_4min | HIGHER | `metric > subject` |
+
+A low percentile always means "few departments are better", i.e. the subject is
+good. If a fast department comes out at the 90th percentile, the operator is
+inverted.
 """
 
 
@@ -147,7 +190,49 @@ WHERE is_sewanee AND year = 2024""",
     ),
     (
         "How does Sewanee's P90 response time compare to its peer departments?",
-        """WITH pool AS (
+        """-- PERCENTILE, not a rank. Response time: lower is better, so
+-- "better than Sewanee" is `<`. Ties contribute half their count.
+WITH pool AS (
+  SELECT response_p90_min, is_sewanee
+  FROM metrics_department_year
+  WHERE year = 2024
+    AND in_benchmark_pool
+    AND n_with_response_time > 10
+    AND response_p90_min IS NOT NULL
+),
+s AS (SELECT response_p90_min AS p90 FROM pool WHERE is_sewanee)
+SELECT
+  (SELECT p90 FROM s) AS sewanee_p90_min,
+  round(median(response_p90_min), 2) AS peer_median_p90_min,
+  count(*) AS peer_pool_size,
+  round(100.0 * (count(*) FILTER (WHERE response_p90_min < (SELECT p90 FROM s))
+               + 0.5 * count(*) FILTER (WHERE response_p90_min = (SELECT p90 FROM s)))
+        / count(*), 1) AS sewanee_percentile
+FROM pool""",
+    ),
+    (
+        "What percentile is Sewanee's 8-minute compliance rate in among peers?",
+        """-- Compliance: HIGHER is better, so "better than Sewanee" is `>`.
+-- The operator flips with the metric; ties still contribute half.
+WITH pool AS (
+  SELECT pct_within_8min, is_sewanee
+  FROM metrics_department_year
+  WHERE year = 2024
+    AND in_benchmark_pool
+    AND n_with_response_time > 10
+    AND pct_within_8min IS NOT NULL
+),
+s AS (SELECT pct_within_8min AS pct FROM pool WHERE is_sewanee)
+SELECT round(100.0 * (count(*) FILTER (WHERE pct_within_8min > (SELECT pct FROM s))
+                    + 0.5 * count(*) FILTER (WHERE pct_within_8min = (SELECT pct FROM s)))
+             / count(*), 1) AS sewanee_percentile
+FROM pool""",
+    ),
+    (
+        "How many peer departments are tied with Sewanee on P90 response time?",
+        """-- A COUNT, not a percentile. Same cohort filters as any ranking
+-- query, and the subject department is included in its own tie group.
+WITH pool AS (
   SELECT response_p90_min, is_sewanee
   FROM metrics_department_year
   WHERE year = 2024
@@ -155,16 +240,9 @@ WHERE is_sewanee AND year = 2024""",
     AND n_with_response_time > 10
     AND response_p90_min IS NOT NULL
 )
-SELECT
-  (SELECT response_p90_min FROM pool WHERE is_sewanee) AS sewanee_p90_min,
-  round(median(response_p90_min), 2) AS peer_median_p90_min,
-  count(*) AS peer_pool_size,
-  round(100.0 * (count(*) FILTER (
-          WHERE response_p90_min < (SELECT response_p90_min FROM pool WHERE is_sewanee))
-        + 0.5 * count(*) FILTER (
-          WHERE response_p90_min = (SELECT response_p90_min FROM pool WHERE is_sewanee)))
-        / count(*), 1) AS sewanee_percentile
-FROM pool""",
+SELECT count(*) AS n_tied
+FROM pool
+WHERE response_p90_min = (SELECT response_p90_min FROM pool WHERE is_sewanee)""",
     ),
     (
         "How many building fires did peer departments report in 2024?",
