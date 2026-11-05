@@ -178,6 +178,19 @@ choosing the comparison operator:
 A low percentile always means "few departments are better", i.e. the subject is
 good. If a fast department comes out at the 90th percentile, the operator is
 inverted.
+
+## ORDERING MUST BE DETERMINISTIC
+
+Response times are whole minutes, so `ORDER BY response_p90_min` alone leaves
+large groups of rows in arbitrary order and "the fastest five" becomes a
+different five on a different run. Every `ORDER BY` that feeds a `LIMIT` needs
+a tie-breaking key:
+
+    ORDER BY response_p90_min ASC, fd_name ASC
+    LIMIT 5
+
+Add `fd_name` (or another unique-enough column) as the final sort key whenever
+the query is ranked and truncated.
 """
 
 
@@ -252,14 +265,16 @@ WHERE inc_type = '111' AND year(inc_date) = 2024""",
     ),
     (
         "Which five peer departments in Tennessee had the fastest P90 response times?",
-        """SELECT fd_name, city, response_p90_min, n_with_response_time
+        """-- `fd_name` breaks ties: without it, whole-minute P90s leave the
+-- order arbitrary and "the fastest five" changes between runs.
+SELECT fd_name, city, response_p90_min, n_with_response_time
 FROM metrics_department_year
 WHERE state = 'TN'
   AND year = 2024
   AND in_benchmark_pool
   AND n_with_response_time > 10
   AND response_p90_min IS NOT NULL
-ORDER BY response_p90_min ASC
+ORDER BY response_p90_min ASC, fd_name ASC
 LIMIT 5""",
     ),
     (
