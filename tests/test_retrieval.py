@@ -76,7 +76,9 @@ def test_chunk_text_preserves_case_and_punctuation():
 def test_no_table_of_contents_chunks_survive_ingest():
     from firesight.retrieval.vector_store import _collection
 
-    got = _collection("firesight_docs_small").get(include=["metadatas"], limit=6000)
+    got = _collection(CHUNK_CONFIGS["small"].collection).get(
+        include=["metadatas"], limit=6000
+    )
     sections = {m["section"].strip().lower() for m in got["metadatas"]}
     assert "table of contents" not in sections
 
@@ -208,19 +210,24 @@ def test_the_floor_no_longer_separates_the_populations_at_n50():
     assert data["in_corpus_min"] < data["out_of_corpus_max"]
 
 
-def test_the_known_floor_failure_still_retrieves_its_answer():
+def test_the_two_floor_failures_have_different_causes():
     """
-    d14 is refused by the gate, but retrieval itself is not at fault: the
-    labelled section is still inside the top 5. The failure is the absolute
-    score, not the ranking -- which is the distinction the cross-encoder gate
-    experiment also turned on.
+    They are NOT the same failure, and conflating them would misstate both.
+
+    d14: the labelled section IS retrieved (rank 3). Only the absolute score
+         is below the floor -- a pure gating problem.
+    d31: the labelled section is NOT in the top 5 at all -- a genuine retrieval
+         failure that additionally trips the floor. Fixing the gate would not
+         fix this question.
     """
     from firesight.eval.retrieval_suite import score_question
 
-    for qid in sorted(KNOWN_BELOW_FLOOR):
+    def scored(qid: str):
         q = next(x for x in _questions("document_questions.jsonl") if x["id"] == qid)
-        s = score_question(q, search(q["question"], k=5, config="small"), 5)
-        assert s.hit, f"{qid} no longer retrieves its labelled section at all"
+        return score_question(q, search(q["question"], k=5, config="small"), 5)
+
+    assert scored("d14").hit, "d14 used to retrieve its section; recheck the claim"
+    assert not scored("d31").hit, "d31 now retrieves its section; tighten this pin"
 
 
 # ── out-of-sample gate validation (Fix 6) ─────────────────────────────────
@@ -297,18 +304,20 @@ def test_cross_encoder_is_unusable_as_an_absolute_gate():
 
 
 # ── self-reference audit (Fix 9 / Fix 11) ─────────────────────────────────
-def test_origin_split_is_twelve_external_three_methodology():
+def test_origin_split_at_n50_is_forty_two_external_eight_methodology():
     """
     Methodology questions are kept deliberately (a user asking how a figure was
     derived deserves a cited answer) but capped, because project-authored
-    material is an easier retrieval target. Three of fifteen is 20%.
+    material is an easier retrieval target -- it scores 1.000 on every arm.
+    Eight of fifty is 16%.
     """
     from firesight.eval.retrieval_suite import question_origin
 
     qs = _questions("document_questions.jsonl")
     origins = [question_origin(q) for q in qs]
-    assert origins.count("external") == 12
-    assert origins.count("methodology") == 3
+    assert len(qs) == 50
+    assert origins.count("external") == 42
+    assert origins.count("methodology") == 8
     assert origins.count("methodology") / len(qs) <= 0.20
     # No question may be answered by a build artifact; those are out of the
     # corpus entirely, so such a label could never resolve.

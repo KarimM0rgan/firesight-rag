@@ -261,9 +261,17 @@ show up here. An independent judge is the right fix and was not affordable.
 **The refusal floor is the wrong instrument.** It worked at n=15 with a +0.088
 separation margin. At n=50 the margin **inverted to −0.043**: in-corpus
 questions bottom out at 0.619, below the out-of-corpus ceiling of 0.662. No
-threshold separates them. Two in-corpus questions are now wrongly refused
-(`d14`, `d31`) and lowering the floor to rescue one would admit three
-out-of-corpus questions. The clean separation was a small-sample artifact.
+threshold separates them. Two in-corpus questions are now wrongly refused, and
+they fail for **different reasons** — conflating them would misstate both:
+
+- `d14` — the labelled section *is* retrieved, at rank 3. Only the absolute
+  score (0.686) falls below the floor. A pure gating problem.
+- `d31` — the labelled section is **not in the top 5 at all**. A genuine
+  retrieval failure that additionally trips the floor. Fixing the gate would
+  not fix this question.
+
+Lowering the floor to rescue `d14` would admit three out-of-corpus questions and
+still not fix `d31`. The clean separation was a small-sample artifact.
 **The router's explicit out-of-scope path replaces it** — 8/8 adversarial, with
 no threshold at all.
 
