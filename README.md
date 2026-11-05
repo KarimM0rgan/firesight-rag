@@ -4,10 +4,18 @@ Hybrid retrieval over real fire-service data: natural-language questions are rou
 to **text-to-SQL** over 33.3M NFIRS incident records, to **vector search** over a
 reference-document corpus, or to both — and answered with citations.
 
-> **Status: M1–M3 measured. Every number here is PROVISIONAL** until the M4 run
-> lands (50-question golden set, `bge-base` vs `bge-small`, reranker 2×2 at
-> n=50). Milestones are in [FIRESIGHT_RAG_SPEC.md](FIRESIGHT_RAG_SPEC.md); this
-> README is rewritten at M6.
+> **Status: M1–M4 measured.** Retrieval figures are at n=50 with intervals;
+> generation and routing figures are at n=42/50/46. Remaining provisional
+> items are named inline. Five characterized SQL failures are deliberately
+> **unfixed** so that their repair can be measured against a set written before
+> the fix. Milestones are in [FIRESIGHT_RAG_SPEC.md](FIRESIGHT_RAG_SPEC.md);
+> this README is rewritten at M6.
+>
+> **What M4 changed about earlier claims:** the reranker's benefit shrank by
+> 2–4× and is no longer statistically established; `bge-base` lost to
+> `bge-small` on every arm; and the refusal floor's clean separation turned out
+> to be a small-sample artifact that a fivefold larger question set destroyed.
+> All three were cases where more data contradicted a smaller measurement.
 
 ## Finding: the system reproduced this project's own tie-handling error
 
@@ -250,72 +258,82 @@ The fix is a one-line budget change, and it is **not** router tuning: the
 classifier's prompt, schema and examples are untouched. What changed is that the
 reply now has room to exist.
 
-## Measured retrieval quality
+## Measured retrieval quality (n=50)
 
-15 hand-labelled document questions, k=5. Labels are `(document, section)` pairs
-rather than chunk ids, so one labelled set survives a chunking-config change.
+50 hand-labelled document questions, labels written and verified **before** any
+model run. Recall@k and MRR carry normal-approximation intervals (they are
+means); hit rate carries Wilson intervals (it is a proportion).
 
-### The 2×2: chunk size × reranking
+### Embedding model: bge-small beats bge-base, and costs half as much
 
-| Chunk config | Rerank | Recall@5 | MRR | Hit rate | Answer present | p50 latency |
-|---|---|---:|---:|---:|---:|---:|
-| default (500 tok, 15%) | off | 0.600 | 0.397 | 0.667 | 0.533 | 48 ms |
-| default (500 tok, 15%) | on | 0.667 | 0.552 | 0.733 | 0.600 | 4,684 ms |
-| small (220 tok, 20%) | off | 0.633 | 0.424 | 0.667 | 0.400 | 29 ms |
-| small (220 tok, 20%) | on | **0.667** | **0.572** | **0.733** | 0.533 | 2,465 ms |
+Both reported regardless of which won — and the larger encoder lost on **every
+one of four paired arms**:
 
-*Answer present* is stricter than Recall: it asks whether the chunk containing the
-literal answer text was retrieved, not merely a chunk from the right section.
+| Model | Chunk config | Rerank | Recall@5 (95% CI) | MRR (95% CI) | p50 |
+|---|---|---|---|---|---:|
+| **bge-small** | small | on | **0.850 [0.756, 0.944]** | **0.712 [0.607, 0.817]** | 2,431 ms |
+| **bge-small** | default | on | 0.840 [0.741, 0.939] | 0.669 [0.561, 0.777] | 4,637 ms |
+| **bge-small** | small | off | 0.820 [0.716, 0.924] | 0.613 [0.499, 0.727] | **26 ms** |
+| **bge-small** | default | off | 0.795 [0.687, 0.903] | 0.598 [0.486, 0.710] | 26 ms |
+| bge-base | small | on | 0.800 [0.692, 0.908] | 0.646 [0.534, 0.757] | 2,464 ms |
+| bge-base | default | on | 0.750 [0.634, 0.866] | 0.602 [0.489, 0.715] | 4,593 ms |
+| bge-base | small | off | 0.740 [0.620, 0.860] | 0.632 [0.513, 0.752] | 52 ms |
+| bge-base | default | off | 0.735 [0.614, 0.856] | 0.619 [0.495, 0.743] | 53 ms |
 
-### Reranker verdict: directionally positive, underpowered
+**Verdict: keep `bge-small`.** It wins on Recall@5 in all four paired
+comparisons, at **half the query latency** (26 ms vs 52 ms) and **half the
+vector size** (384 dimensions vs 768). No individual comparison is significant —
+every pair of intervals overlaps — but four out of four in the same direction is
+not what noise usually looks like, and there is no cost argument for the larger
+model either, so the decision is not close.
 
-`bge-reranker-base` improves both metrics in both chunk configurations:
+This is a negative result for the obvious upgrade, and it is the reason the
+comparison was run rather than assumed.
 
-| Config | ΔRecall@5 | in questions | ΔMRR | Added latency |
-|---|---:|---:|---:|---:|
-| default | +0.100 | +1.5 of 15 | +0.153 | +4,480 ms |
-| small | +0.133 | +2.0 of 15 | +0.259 | +2,382 ms |
+### Reranker 2×2 at n=50: the n=15 verdict was 2–4× too optimistic
 
-**n=15, so one question is worth 0.067 Recall@5 — these deltas are 1.0 and 0.5
-questions.** That is not enough evidence to call the reranker's benefit
-established, and the Recall@5 case got *weaker* after the corpus split: `small`
-is now half a question. The MRR gain is steadier (+0.15 in both configurations),
-which is consistent with a reranker's actual job — reordering candidates already
-retrieved. The honest statement is: *directionally positive on MRR, inconclusive
-on Recall@5, underpowered, re-measure against the 50-question golden set at M4.*
+The n=15 measurement is **superseded**. Paired comparison on the same 50
+questions (the correct analysis — comparing independent intervals wastes the
+pairing):
 
-It ships **off by default** (`FIRESIGHT_RERANK=1` to enable) because 2.4 s per
-query on CPU against 34 ms is a deliberate choice regardless of the quality
-question. With a GPU or an ONNX-quantised cross-encoder it would be on.
+| Config | ΔRecall@5 | ΔMRR | improved / worsened | sign test |
+|---|---|---|---:|---:|
+| default | +0.045 [0.000, 0.101] | +0.071 [0.000, 0.169] | 16 / 9 | p = 0.23 |
+| small | +0.030 [0.000, 0.082] | +0.099 [0.009, 0.189] | 14 / 5 | p = 0.064 |
 
-### Retrieval scores are inflated by self-reference
+| | n=15 estimate | n=50 measurement |
+|---|---:|---:|
+| ΔRecall@5, default | +0.100 | **+0.045** |
+| ΔRecall@5, small | +0.133 | **+0.030** |
 
-Four of the 15 questions are answered by the project's own notes rather than by
-the external USFA documents. Those four are a materially easier retrieval task —
-the notes are few, cleanly sectioned in markdown, and written in the same
-register as the questions.
+**The underpowered estimate overstated the effect by 2–4×** — which is exactly
+what "directionally positive, underpowered" was warning about, and why the
+earlier number was not promoted to a claim.
 
-| Arm | Origin | n | Recall@5 | MRR | Hit rate |
-|---|---|---:|---:|---:|---:|
-| small + rerank | **external USFA/PDR** | 12 | **0.583** | 0.528 | 0.667 |
-| small + rerank | methodology | 3 | 1.000 | 0.750 | 1.000 |
-| default | external USFA/PDR | 12 | 0.500 | 0.301 | 0.583 |
-| default | methodology | 3 | 1.000 | 0.778 | 1.000 |
+**Verdict at n=50: not established.** The direction is consistently positive
+(14–16 questions improve against 5–9 worsening) and the `small`-config MRR
+interval just excludes zero, but neither sign test reaches p<0.05. Combined with
+a **90× latency cost** (2,431 ms against 26 ms), the reranker stays **off by
+default** (`FIRESIGHT_RERANK=1`). The honest statement is that its benefit is
+real in direction and too small to demonstrate at this sample size.
 
-**Take the external figure as the real one: Recall@5 0.583, not 0.667.** The gap
-is now starker, not smaller — methodology questions score a perfect 1.000 on every
-arm against 0.500–0.583 external. That is what a 15-chunk, cleanly-sectioned,
-same-register document does to a retrieval benchmark, and it is why the two are
-reported separately rather than pooled. The share is held at 3 of 15 (20%):
-enough to show methodology retrieval works, not enough to carry the headline.
+### Self-reference, still visible at n=50
 
-### A tuning interaction worth knowing
+| Arm | Origin | n | Recall@5 | MRR |
+|---|---|---:|---:|---:|
+| small + rerank | **external USFA/PDR** | 42 | **0.821** | 0.675 |
+| small + rerank | methodology | 8 | 1.000 | 0.906 |
+| default, no rerank | **external USFA/PDR** | 42 | **0.756** | 0.549 |
+| default, no rerank | methodology | 8 | 1.000 | 0.854 |
 
-Cross-encoder truncation must be **at least the chunk size**. Dropping
-`FIRESIGHT_RERANK_MAX_LEN` from 512 to 256 halves latency but takes `default`
-(500-token chunks) from Recall@5 0.700 back to 0.600 — exactly the no-reranker
-score, because half the evidence is cut off before scoring. With `small`
-(220-token chunks), 256 is sufficient and the gain survives.
+Methodology questions still score a **perfect 1.000** on every arm. The gap has
+narrowed as the external set grew (0.821 against 1.000, versus 0.583 against
+1.000 at n=15), but it has not closed, and it will not: eight cleanly-sectioned
+chunks written in the same register as the questions are an easy target.
+
+**Take the external figure as the headline: Recall@5 0.821, not 0.850.** The
+methodology share is capped at 8/50 (16%) so it cannot carry the number, and the
+two are reported separately rather than pooled.
 
 ## The "I don't know" path
 
@@ -327,6 +345,36 @@ The floor was first set at 0.45 by eyeball. That was wrong: measured against 12
 out-of-corpus questions, 0.45 admitted **all 12** — "What is the capital of
 Mongolia?" scores 0.529 against this corpus, because `bge-small-en-v1.5`
 compresses cosine similarity into a narrow high band.
+
+### At n=50 the floor's premise no longer holds
+
+Expanding the in-corpus set from 15 to 50 questions **broke the clean
+separation** the floor was built on. Recalibrated:
+
+| Set | in-corpus min | out-of-corpus max | margin | separated? |
+|---|---:|---:|---:|---|
+| Calibration at n=15 | 0.750 | 0.662 | **+0.088** | yes |
+| **Calibration at n=50** | **0.619** | 0.662 | **−0.043** | **no** |
+| Held-out (8 in, 10 out) | 0.730 | 0.740 | −0.010 | no |
+| Pooled | 0.619 | 0.740 | −0.121 | no |
+
+**No floor separates the two populations.** At the configured 0.70: 0/12
+calibration out-of-corpus admitted, but **2/50 in-corpus questions wrongly
+refused** — `d14` ("How is the peer group defined?", 0.686) and `d31` ("What
+goes in the cross street field?", 0.619). Lowering to 0.65 would admit 3/12
+out-of-corpus to save one of them.
+
+The +0.088 gap measured at n=15 was a **small-sample artifact**. A fivefold
+larger question set found in-corpus questions scoring below the out-of-corpus
+ceiling, which is the thing the earlier maintenance-hazard note predicted would
+eventually happen and which no threshold tuning fixes.
+
+The floor stays at **0.70** — deliberately not lowered into the overlap, and
+deliberately not raised. The two wrongly-refused questions are pinned by id so
+the failure is recorded rather than tuned away, and the structural conclusion is
+that a similarity floor is the wrong instrument for this job. The router's
+explicit out-of-scope path is the one that actually works (8/8 adversarial), and
+it does not depend on a threshold at all.
 
 ### Out-of-sample performance — the number that counts
 

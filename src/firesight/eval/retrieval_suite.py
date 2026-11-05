@@ -201,7 +201,18 @@ def run_arm(questions: list[dict], config: str, rerank: bool, k: int) -> ArmResu
 
 
 def rerank_verdict(arms: list[ArmResult]) -> dict:
-    """Compare rerank on/off within each chunk config and state the outcome."""
+    """
+    Compare rerank on/off within each chunk config and state the outcome.
+
+    Uses a PAIRED sign test on per-question reciprocal rank, because both arms
+    see the same questions and comparing independent intervals throws the
+    pairing away. A consistently positive mean with a non-significant sign test
+    is reported as "not established" rather than "positive" -- the n=15
+    measurement overstated this effect by 2-4x and the lesson was to stop
+    reporting a direction as a result.
+    """
+    import math
+
     out = {}
     for cfg in sorted({a.config for a in arms}):
         base = next((a for a in arms if a.config == cfg and not a.rerank), None)
@@ -216,6 +227,34 @@ def rerank_verdict(arms: list[ArmResult]) -> dict:
         # is not even one question's worth of evidence.
         one_question = round(1.0 / n, 4) if n else 0.0
         questions_worth = round(d_recall / one_question, 1) if one_question else 0.0
+        # Paired sign test on reciprocal rank, question by question.
+        by_id = {s.id: s for s in base.scores}
+        deltas = [
+            s.reciprocal_rank - by_id[s.id].reciprocal_rank
+            for s in rr.scores
+            if s.id in by_id
+        ]
+        improved = sum(1 for d in deltas if d > 1e-9)
+        worsened = sum(1 for d in deltas if d < -1e-9)
+        discordant = improved + worsened
+        p_value = None
+        if discordant:
+            tail = sum(math.comb(discordant, k) for k in range(min(improved, worsened) + 1))
+            p_value = round(min(1.0, 2 * tail / 2**discordant), 4)
+
+        significant = p_value is not None and p_value < 0.05
+        if positive and significant:
+            verdict = f"POSITIVE and significant (sign test p={p_value:.3f}, n={n})"
+        elif positive:
+            verdict = (
+                f"directionally positive ({improved} improved / {worsened} worsened) "
+                f"but NOT ESTABLISHED"
+                + (f" (sign test p={p_value:.3f})" if p_value is not None else "")
+                + f" at n={n}"
+            )
+        else:
+            verdict = f"no improvement on n={n} -- candidate for removal"
+
         out[cfg] = {
             "recall_delta": d_recall,
             "mrr_delta": d_mrr,
@@ -224,18 +263,11 @@ def rerank_verdict(arms: list[ArmResult]) -> dict:
             "one_question_worth": one_question,
             "recall_delta_in_questions": questions_worth,
             "direction": "positive" if positive else "negative or flat",
-            "underpowered": n < 50,
-            "verdict": (
-                f"directionally positive ({questions_worth:+.1f} questions of "
-                f"{n}), UNDERPOWERED -- re-measure against the 50-question "
-                f"golden set at M4"
-                if positive and n < 50
-                else (
-                    f"positive on n={n}"
-                    if positive
-                    else f"no improvement on n={n} -- candidate for removal"
-                )
-            ),
+            "paired_improved": improved,
+            "paired_worsened": worsened,
+            "sign_test_p": p_value,
+            "significant_at_05": significant,
+            "verdict": verdict,
         }
     return out
 
@@ -299,7 +331,9 @@ def write_report(report: dict) -> tuple:
             f"one question = {v['one_question_worth']:.3f})",
             f"- ΔMRR: {v['mrr_delta']:+.4f}",
             f"- added latency (p50): {v['latency_cost_ms']:+.1f} ms",
-            f"- underpowered: {v['underpowered']}",
+            f"- paired: {v['paired_improved']} improved / {v['paired_worsened']} worsened, "
+            f"sign test p={v['sign_test_p']}",
+            f"- significant at 0.05: {v['significant_at_05']}",
             "",
         ]
 

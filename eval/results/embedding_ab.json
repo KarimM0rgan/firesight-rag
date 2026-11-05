@@ -1,0 +1,447 @@
+{
+  "n_questions": 50,
+  "k": 5,
+  "store_total_bytes": 114149464,
+  "arms": [
+    {
+      "model": "BAAI/bge-small-en-v1.5",
+      "slug": "bgesmallenv15",
+      "config": "default",
+      "rerank": false,
+      "n": 50,
+      "recall_ci": {
+        "mean": 0.795,
+        "ci_low": 0.6868,
+        "ci_high": 0.9032,
+        "n": 50,
+        "ci_confidence": 0.95,
+        "ci_method": "normal_approx_sem"
+      },
+      "mrr_ci": {
+        "mean": 0.598,
+        "ci_low": 0.4861,
+        "ci_high": 0.7099,
+        "n": 50,
+        "ci_confidence": 0.95,
+        "ci_method": "normal_approx_sem"
+      },
+      "hit_rate_ci": {
+        "successes": 41,
+        "n": 50,
+        "estimate": 0.82,
+        "ci_low": 0.692,
+        "ci_high": 0.9023,
+        "ci_confidence": 0.95,
+        "ci_method": "wilson"
+      },
+      "answer_present_ci": {
+        "successes": 35,
+        "n": 50,
+        "estimate": 0.7,
+        "ci_low": 0.5625,
+        "ci_high": 0.809,
+        "ci_confidence": 0.95,
+        "ci_method": "wilson"
+      },
+      "latency_p50_ms": 26.1,
+      "latency_p95_ms": 32.3,
+      "by_origin": {
+        "external": {
+          "n": 42,
+          "recall_at_k": 0.756,
+          "mrr": 0.5492
+        },
+        "methodology": {
+          "n": 8,
+          "recall_at_k": 1.0,
+          "mrr": 0.8542
+        }
+      }
+    },
+    {
+      "model": "BAAI/bge-small-en-v1.5",
+      "slug": "bgesmallenv15",
+      "config": "default",
+      "rerank": true,
+      "n": 50,
+      "recall_ci": {
+        "mean": 0.84,
+        "ci_low": 0.7412,
+        "ci_high": 0.9388,
+        "n": 50,
+        "ci_confidence": 0.95,
+        "ci_method": "normal_approx_sem"
+      },
+      "mrr_ci": {
+        "mean": 0.669,
+        "ci_low": 0.5613,
+        "ci_high": 0.7767,
+        "n": 50,
+        "ci_confidence": 0.95,
+        "ci_method": "normal_approx_sem"
+      },
+      "hit_rate_ci": {
+        "successes": 43,
+        "n": 50,
+        "estimate": 0.86,
+        "ci_low": 0.7381,
+        "ci_high": 0.9305,
+        "ci_confidence": 0.95,
+        "ci_method": "wilson"
+      },
+      "answer_present_ci": {
+        "successes": 38,
+        "n": 50,
+        "estimate": 0.76,
+        "ci_low": 0.6259,
+        "ci_high": 0.857,
+        "ci_confidence": 0.95,
+        "ci_method": "wilson"
+      },
+      "latency_p50_ms": 4637.2,
+      "latency_p95_ms": 4818.3,
+      "by_origin": {
+        "external": {
+          "n": 42,
+          "recall_at_k": 0.8095,
+          "mrr": 0.6369
+        },
+        "methodology": {
+          "n": 8,
+          "recall_at_k": 1.0,
+          "mrr": 0.8375
+        }
+      }
+    },
+    {
+      "model": "BAAI/bge-small-en-v1.5",
+      "slug": "bgesmallenv15",
+      "config": "small",
+      "rerank": false,
+      "n": 50,
+      "recall_ci": {
+        "mean": 0.82,
+        "ci_low": 0.7161,
+        "ci_high": 0.9239,
+        "n": 50,
+        "ci_confidence": 0.95,
+        "ci_method": "normal_approx_sem"
+      },
+      "mrr_ci": {
+        "mean": 0.613,
+        "ci_low": 0.4991,
+        "ci_high": 0.7269,
+        "n": 50,
+        "ci_confidence": 0.95,
+        "ci_method": "normal_approx_sem"
+      },
+      "hit_rate_ci": {
+        "successes": 42,
+        "n": 50,
+        "estimate": 0.84,
+        "ci_low": 0.7149,
+        "ci_high": 0.9166,
+        "ci_confidence": 0.95,
+        "ci_method": "wilson"
+      },
+      "answer_present_ci": {
+        "successes": 34,
+        "n": 50,
+        "estimate": 0.68,
+        "ci_low": 0.5419,
+        "ci_high": 0.7924,
+        "ci_confidence": 0.95,
+        "ci_method": "wilson"
+      },
+      "latency_p50_ms": 25.7,
+      "latency_p95_ms": 31.6,
+      "by_origin": {
+        "external": {
+          "n": 42,
+          "recall_at_k": 0.7857,
+          "mrr": 0.571
+        },
+        "methodology": {
+          "n": 8,
+          "recall_at_k": 1.0,
+          "mrr": 0.8333
+        }
+      }
+    },
+    {
+      "model": "BAAI/bge-small-en-v1.5",
+      "slug": "bgesmallenv15",
+      "config": "small",
+      "rerank": true,
+      "n": 50,
+      "recall_ci": {
+        "mean": 0.85,
+        "ci_low": 0.7561,
+        "ci_high": 0.9439,
+        "n": 50,
+        "ci_confidence": 0.95,
+        "ci_method": "normal_approx_sem"
+      },
+      "mrr_ci": {
+        "mean": 0.7117,
+        "ci_low": 0.6068,
+        "ci_high": 0.8166,
+        "n": 50,
+        "ci_confidence": 0.95,
+        "ci_method": "normal_approx_sem"
+      },
+      "hit_rate_ci": {
+        "successes": 44,
+        "n": 50,
+        "estimate": 0.88,
+        "ci_low": 0.762,
+        "ci_high": 0.9438,
+        "ci_confidence": 0.95,
+        "ci_method": "wilson"
+      },
+      "answer_present_ci": {
+        "successes": 38,
+        "n": 50,
+        "estimate": 0.76,
+        "ci_low": 0.6259,
+        "ci_high": 0.857,
+        "ci_confidence": 0.95,
+        "ci_method": "wilson"
+      },
+      "latency_p50_ms": 2431.2,
+      "latency_p95_ms": 2702.6,
+      "by_origin": {
+        "external": {
+          "n": 42,
+          "recall_at_k": 0.8214,
+          "mrr": 0.6746
+        },
+        "methodology": {
+          "n": 8,
+          "recall_at_k": 1.0,
+          "mrr": 0.9062
+        }
+      }
+    },
+    {
+      "model": "BAAI/bge-base-en-v1.5",
+      "slug": "bgebaseenv15",
+      "config": "default",
+      "rerank": false,
+      "n": 50,
+      "recall_ci": {
+        "mean": 0.735,
+        "ci_low": 0.6142,
+        "ci_high": 0.8558,
+        "n": 50,
+        "ci_confidence": 0.95,
+        "ci_method": "normal_approx_sem"
+      },
+      "mrr_ci": {
+        "mean": 0.6187,
+        "ci_low": 0.4947,
+        "ci_high": 0.7426,
+        "n": 50,
+        "ci_confidence": 0.95,
+        "ci_method": "normal_approx_sem"
+      },
+      "hit_rate_ci": {
+        "successes": 38,
+        "n": 50,
+        "estimate": 0.76,
+        "ci_low": 0.6259,
+        "ci_high": 0.857,
+        "ci_confidence": 0.95,
+        "ci_method": "wilson"
+      },
+      "answer_present_ci": {
+        "successes": 30,
+        "n": 50,
+        "estimate": 0.6,
+        "ci_low": 0.4618,
+        "ci_high": 0.7239,
+        "ci_confidence": 0.95,
+        "ci_method": "wilson"
+      },
+      "latency_p50_ms": 52.7,
+      "latency_p95_ms": 62.3,
+      "by_origin": {
+        "external": {
+          "n": 42,
+          "recall_at_k": 0.6845,
+          "mrr": 0.546
+        },
+        "methodology": {
+          "n": 8,
+          "recall_at_k": 1.0,
+          "mrr": 1.0
+        }
+      }
+    },
+    {
+      "model": "BAAI/bge-base-en-v1.5",
+      "slug": "bgebaseenv15",
+      "config": "default",
+      "rerank": true,
+      "n": 50,
+      "recall_ci": {
+        "mean": 0.75,
+        "ci_low": 0.6337,
+        "ci_high": 0.8663,
+        "n": 50,
+        "ci_confidence": 0.95,
+        "ci_method": "normal_approx_sem"
+      },
+      "mrr_ci": {
+        "mean": 0.6017,
+        "ci_low": 0.4886,
+        "ci_high": 0.7148,
+        "n": 50,
+        "ci_confidence": 0.95,
+        "ci_method": "normal_approx_sem"
+      },
+      "hit_rate_ci": {
+        "successes": 39,
+        "n": 50,
+        "estimate": 0.78,
+        "ci_low": 0.6476,
+        "ci_high": 0.8725,
+        "ci_confidence": 0.95,
+        "ci_method": "wilson"
+      },
+      "answer_present_ci": {
+        "successes": 31,
+        "n": 50,
+        "estimate": 0.62,
+        "ci_low": 0.4815,
+        "ci_high": 0.7414,
+        "ci_confidence": 0.95,
+        "ci_method": "wilson"
+      },
+      "latency_p50_ms": 4593.1,
+      "latency_p95_ms": 4670.2,
+      "by_origin": {
+        "external": {
+          "n": 42,
+          "recall_at_k": 0.7024,
+          "mrr": 0.5536
+        },
+        "methodology": {
+          "n": 8,
+          "recall_at_k": 1.0,
+          "mrr": 0.8542
+        }
+      }
+    },
+    {
+      "model": "BAAI/bge-base-en-v1.5",
+      "slug": "bgebaseenv15",
+      "config": "small",
+      "rerank": false,
+      "n": 50,
+      "recall_ci": {
+        "mean": 0.74,
+        "ci_low": 0.6204,
+        "ci_high": 0.8596,
+        "n": 50,
+        "ci_confidence": 0.95,
+        "ci_method": "normal_approx_sem"
+      },
+      "mrr_ci": {
+        "mean": 0.6323,
+        "ci_low": 0.513,
+        "ci_high": 0.7517,
+        "n": 50,
+        "ci_confidence": 0.95,
+        "ci_method": "normal_approx_sem"
+      },
+      "hit_rate_ci": {
+        "successes": 38,
+        "n": 50,
+        "estimate": 0.76,
+        "ci_low": 0.6259,
+        "ci_high": 0.857,
+        "ci_confidence": 0.95,
+        "ci_method": "wilson"
+      },
+      "answer_present_ci": {
+        "successes": 30,
+        "n": 50,
+        "estimate": 0.6,
+        "ci_low": 0.4618,
+        "ci_high": 0.7239,
+        "ci_confidence": 0.95,
+        "ci_method": "wilson"
+      },
+      "latency_p50_ms": 52.4,
+      "latency_p95_ms": 65.6,
+      "by_origin": {
+        "external": {
+          "n": 42,
+          "recall_at_k": 0.6905,
+          "mrr": 0.5782
+        },
+        "methodology": {
+          "n": 8,
+          "recall_at_k": 1.0,
+          "mrr": 0.9167
+        }
+      }
+    },
+    {
+      "model": "BAAI/bge-base-en-v1.5",
+      "slug": "bgebaseenv15",
+      "config": "small",
+      "rerank": true,
+      "n": 50,
+      "recall_ci": {
+        "mean": 0.8,
+        "ci_low": 0.6916,
+        "ci_high": 0.9084,
+        "n": 50,
+        "ci_confidence": 0.95,
+        "ci_method": "normal_approx_sem"
+      },
+      "mrr_ci": {
+        "mean": 0.6457,
+        "ci_low": 0.534,
+        "ci_high": 0.7573,
+        "n": 50,
+        "ci_confidence": 0.95,
+        "ci_method": "normal_approx_sem"
+      },
+      "hit_rate_ci": {
+        "successes": 41,
+        "n": 50,
+        "estimate": 0.82,
+        "ci_low": 0.692,
+        "ci_high": 0.9023,
+        "ci_confidence": 0.95,
+        "ci_method": "wilson"
+      },
+      "answer_present_ci": {
+        "successes": 34,
+        "n": 50,
+        "estimate": 0.68,
+        "ci_low": 0.5419,
+        "ci_high": 0.7924,
+        "ci_confidence": 0.95,
+        "ci_method": "wilson"
+      },
+      "latency_p50_ms": 2463.6,
+      "latency_p95_ms": 2770.4,
+      "by_origin": {
+        "external": {
+          "n": 42,
+          "recall_at_k": 0.7619,
+          "mrr": 0.606
+        },
+        "methodology": {
+          "n": 8,
+          "recall_at_k": 1.0,
+          "mrr": 0.8542
+        }
+      }
+    }
+  ]
+}

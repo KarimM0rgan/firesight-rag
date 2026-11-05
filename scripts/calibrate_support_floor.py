@@ -64,7 +64,9 @@ def main() -> None:
     recommended = round((lo_in + hi_out) / 2, 2) if separated else None
 
     print(f"embedding model : {settings.embed_model}")
-    print(f"collection      : firesight_docs_{config}")
+    from firesight.ingest.documents import CHUNK_CONFIGS
+
+    print(f"collection      : {CHUNK_CONFIGS[config].collection}")
     print(
         f"\nIN-CORPUS  n={len(a)}  min={min(a):.3f} "
         f"median={statistics.median(a):.3f} max={max(a):.3f}"
@@ -98,7 +100,9 @@ def main() -> None:
         json.dumps(
             {
                 "embed_model": settings.embed_model,
-                "collection": f"firesight_docs_{config}",
+                "collection": __import__(
+                    "firesight.ingest.documents", fromlist=["CHUNK_CONFIGS"]
+                ).CHUNK_CONFIGS[config].collection,
                 "in_corpus_scores": a,
                 "out_of_corpus_scores": b,
                 "in_corpus_min": lo_in,

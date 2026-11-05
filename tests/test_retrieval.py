@@ -162,7 +162,16 @@ def test_out_of_corpus_questions_are_refused_before_any_model_call(monkeypatch, 
 # system) or by lowering the floor (that admits more out-of-corpus questions,
 # and the pooled margin is already negative). Pinned by id so the regression is
 # recorded precisely and the test fails if it spreads to other questions.
-KNOWN_BELOW_FLOOR = {"d14"}
+# Two in-corpus questions now score below the 0.70 floor and would be wrongly
+# refused. d14 appeared when the corpus was split by document kind; d31 appeared
+# when the golden set grew 15 -> 50, which also destroyed the floor's clean
+# separation (in-corpus min 0.619 vs out-of-corpus max 0.662 -- see the README).
+#
+# Neither is fixed by rewording the question (that tunes the benchmark to the
+# system) nor by moving the floor (0.65 would admit 3/12 out-of-corpus to save
+# one of these). Pinned by id so the failures are recorded exactly and the suite
+# fails if they spread.
+KNOWN_BELOW_FLOOR = {"d14", "d31"}
 
 
 def test_in_corpus_questions_clear_the_support_floor():
@@ -182,6 +191,23 @@ def test_in_corpus_questions_clear_the_support_floor():
     )
 
 
+def test_the_floor_no_longer_separates_the_populations_at_n50():
+    """
+    Records the structural finding rather than a threshold: at n=50 the
+    in-corpus minimum (0.619) sits BELOW the out-of-corpus maximum (0.662), so
+    no similarity floor can gate the refusal path cleanly. The router's
+    explicit out-of-scope path is the mechanism that works.
+    """
+    import json
+
+    path = REPO_ROOT / "eval" / "support_floor_calibration.json"
+    if not path.exists():
+        pytest.skip("calibration not run")
+    data = json.loads(path.read_text(encoding="utf-8"))
+    assert data["separated"] is False
+    assert data["in_corpus_min"] < data["out_of_corpus_max"]
+
+
 def test_the_known_floor_failure_still_retrieves_its_answer():
     """
     d14 is refused by the gate, but retrieval itself is not at fault: the
@@ -191,9 +217,10 @@ def test_the_known_floor_failure_still_retrieves_its_answer():
     """
     from firesight.eval.retrieval_suite import score_question
 
-    q = next(x for x in _questions("document_questions.jsonl") if x["id"] == "d14")
-    s = score_question(q, search(q["question"], k=5, config="small"), 5)
-    assert s.hit, "d14 no longer retrieves its labelled section at all"
+    for qid in sorted(KNOWN_BELOW_FLOOR):
+        q = next(x for x in _questions("document_questions.jsonl") if x["id"] == qid)
+        s = score_question(q, search(q["question"], k=5, config="small"), 5)
+        assert s.hit, f"{qid} no longer retrieves its labelled section at all"
 
 
 # ── out-of-sample gate validation (Fix 6) ─────────────────────────────────
