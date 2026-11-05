@@ -19,6 +19,11 @@ are routed to **text-to-SQL** over 33.3M NFIRS incident records, to **vector
 search** over a public-domain document corpus, to **both**, or **refused with a
 citation** when the answer lies in material the corpus deliberately excludes.
 
+**There is a demo** — `uv run streamlit run src/firesight/app/main.py` — with an
+"Inside this answer" panel exposing the route, the SQL as executed, the chunks
+with their scores, and the cost of each query. [Jump to it](#run-the-demo).
+Local only; see the warning there.
+
 > **Scope.** Every figure below is a single measured run with its interval, not
 > a best-of. Total model spend across all evaluation: **$3.83**. No further
 > scored runs were affordable, so two known defects are documented and
@@ -525,3 +530,5 @@ Code is MIT licensed.
 | [`eval/`](eval/) | Question sets, verified references, committed reports |
 | [`src/firesight/eval/stats.py`](src/firesight/eval/stats.py) | Wilson and mean intervals |
 | [`src/firesight/retrieval/sql_guard.py`](src/firesight/retrieval/sql_guard.py) | Read-only enforcement |
+| [`src/firesight/app/main.py`](src/firesight/app/main.py) | Streamlit demo, read-only over the measured modules |
+| [`eval/measured_surface.json`](eval/measured_surface.json) | Content hashes of every file the metrics depend on |

@@ -36,8 +36,10 @@ from firesight.retrieval.vector_store import search
 # question is a live billed call and someone else will be driving this.
 DEFAULT_SESSION_BUDGET_USD = float(os.getenv("FIRESIGHT_APP_BUDGET_USD", "1.00"))
 
+# Derived from the actual remote rather than a guessed username -- the first
+# draft of this pointed at github.com/karimmorgan, which is not this repo.
 FINDINGS_LINK = (
-    "https://github.com/karimmorgan/firesight-rag"
+    "https://github.com/KarimM0rgan/firesight-rag"
     "#1-the-system-reproduced-this-projects-own-tie-handling-error-in-the-opposite-direction"
 )
 
