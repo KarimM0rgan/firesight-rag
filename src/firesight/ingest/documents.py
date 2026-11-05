@@ -38,6 +38,21 @@ from pathlib import Path
 from firesight.config import REPO_ROOT, settings
 
 
+def frozen_hash(path: Path) -> str:
+    """
+    SHA-256 over content with line endings normalised to LF.
+
+    Hashing raw bytes makes the pin depend on the checkout's autocrlf setting,
+    so a clean clone on Windows fails the freeze test while the content is
+    byte-identical in substance. Normalising keeps the pin portable while still
+    catching any real edit.
+    """
+    import hashlib
+
+    normalised = "\n".join(path.read_text(encoding="utf-8").splitlines())
+    return hashlib.sha256(normalised.encode("utf-8")).hexdigest()
+
+
 def embed_slug(model: str | None = None) -> str:
     """
     Short, filesystem-safe tag for the embedding model.
@@ -214,7 +229,10 @@ CODE_SOURCES: list[Source] = [
 # under data/ made it corpus by accident. A file now becomes corpus only by
 # being added here, which a test enforces.
 #
-# `frozen_sha256` pins a document whose content must not drift. For the
+# `frozen_sha256` pins a document whose content must not drift. The hash is
+# taken over LINE-ENDING-NORMALISED content (see frozen_hash below), because a
+# pin computed on raw bytes fails on any clone whose git normalises line
+# endings -- which a clean-clone check caught on Windows. For the
 # project-authored methodology document that pin is the whole point: it is in
 # the corpus, so editing it shifts retrieval metrics, and the pin forces that
 # to happen as a deliberate re-measurement. External documents are published
@@ -239,12 +257,12 @@ CORPUS_MANIFEST: dict[str, dict] = {
     "data/corpus/METHODOLOGY.md": {
         "kind": "project_frozen",
         "title": "FireSight Methodology",
-        "frozen_sha256": "c07041bf16c09572e0cdf1851b461684088cdbedb6eb22cc442a4e443fed823a",
+        "frozen_sha256": "2775fa2aa3b33639c3871e273124c5233459a7cc2135b583036877082e02a824",
     },
     "data/corpus/SCOPE.md": {
         "kind": "scope",
         "title": "FireSight Corpus Scope",
-        "frozen_sha256": "83fae778d642e18c9f813abb43defe04a148c4121871f92c0d5476ebf8e9d0b3",
+        "frozen_sha256": "22af06c91ca77aa24b2ce01128903b67d74bae6494df00bdcadc3ae6e724a3b0",
     },
 }
 

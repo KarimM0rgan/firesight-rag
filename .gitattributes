@@ -1,0 +1,7 @@
+# Frozen corpus documents are SHA-256 pinned. Force LF so a checkout cannot
+# change their hash. The pin is also computed over normalised content (see
+# ingest.documents.frozen_hash), so both halves of the problem are covered.
+*.md text eol=lf
+*.py text eol=lf
+*.jsonl text eol=lf
+*.json text eol=lf

@@ -12,8 +12,6 @@ So: nothing is corpus because of where it sits on disk. A file becomes corpus
 only by being added to CORPUS_MANIFEST, and these tests fail if that is bypassed.
 """
 
-import hashlib
-
 import pytest
 
 from firesight.config import REPO_ROOT, settings
@@ -24,6 +22,7 @@ from firesight.ingest.documents import (
     MARKDOWN_SOURCES,
     PDF_SOURCES,
     SCOPE_SOURCES,
+    frozen_hash,
 )
 
 
@@ -111,7 +110,7 @@ def test_frozen_documents_match_their_pinned_hash(rel):
     hash and the published numbers in one commit.
     """
     path = REPO_ROOT / rel
-    actual = hashlib.sha256(path.read_bytes()).hexdigest()
+    actual = frozen_hash(path)
     expected = CORPUS_MANIFEST[rel]["frozen_sha256"]
     assert actual == expected, (
         f"{rel} changed.\n"
